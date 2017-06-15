@@ -1,0 +1,1 @@
+This package will try compare two given pointclouds, giving some metrics about their relationship.
