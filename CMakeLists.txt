@@ -14,4 +14,4 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 add_executable (comparator src/comparator.cpp)
-target_link_libraries (comparator ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} "/usr/lib/libpcl_visualization.so" "/usr/lib/libpcl_keypoints.so" "/usr/lib/libpcl_features.so" "/usr/lib/libpcl_kdtree.so" "/usr/lib/libpcl_search.so")
+target_link_libraries (comparator ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} "/usr/lib/libpcl_visualization.so" "/usr/lib/libpcl_keypoints.so" "/usr/lib/libpcl_features.so" "/usr/lib/libpcl_kdtree.so" "/usr/lib/libpcl_search.so" "/usr/lib/libpcl_filters.so")

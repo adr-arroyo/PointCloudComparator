@@ -1,7 +1,6 @@
 /* \author Adrian Arroyo - adr.arroyo.perez@gmail.com */
 
 #include <iostream>
-
 #include <boost/thread/thread.hpp>
 #include <pcl/range_image/range_image.h>
 #include <pcl/io/ply_io.h>
@@ -14,11 +13,12 @@
 #include <pcl/point_types.h>
 #include <pcl/features/pfh.h>
 #include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/features/normal_3d.h>
 #include <pcl/surface/gp3.h>
 #include <pcl/features/spin_image.h>
 #include <cmath>
 #include <pcl/registration/icp.h>
+#include <pcl/keypoints/sift_keypoint.h>
+#include <vector>
 
 typedef pcl::PointXYZ PointType;
 
@@ -226,7 +226,8 @@ void processNARF (std::string filename, std::string filename2){
 	cout << "Extracted " << narf_descriptors2.size() << " descriptors for "
 			<< keypoint_indices3.points.size() << " keypoints.\n";
 
-	int j=0;
+	//Comparacion truño
+	/*int j=0;
 	pcl::Narf36 feat1;
 	pcl::Narf36 feat2;
 	for (int i=0; i<narf_descriptors.points.size(); ++i){
@@ -249,12 +250,12 @@ void processNARF (std::string filename, std::string filename2){
 				for(int t=0; t<feat2.descriptorSize(); ++t){
 					cout << feat2.descriptor[t] << ";";
 				}
-				cout << "] \n\n";*/
+				cout << "] \n\n";
 				//break;
 			}
 		}
 	}
-	cout << "Found " << j << " same narf descriptors between PCLs\n";
+	cout << "Found " << j << " same narf descriptors between PCLs\n";*/
 	//--------------------
 	// -----Main loop-----
 	//--------------------
@@ -262,7 +263,67 @@ void processNARF (std::string filename, std::string filename2){
 		viewer.spinOnce();
 		pcl_sleep(0.01);
 	}*/
+
+	// A kd-tree object that uses the FLANN library for fast search of nearest neighbors.
+	pcl::KdTreeFLANN<pcl::Narf36> matching = new pcl::KdTreeFLANN<pcl::Narf36>(false);
+	matching.setInputCloud(narf_descriptors,NULL);
+	// A Correspondence object stores the indices of the query and the match,
+	// and the distance/weight.
+	std::vector<int> correspondence();
+
+	// Check every descriptor computed for the scene.
+	for (size_t i = 0; i < narf_descriptors2.size(); ++i)
+	{
+		std::vector<int> neighbors(1);
+		std::vector<float> squaredDistances(1);
+		// Ignore NaNs.
+		if (pcl_isfinite(narf_descriptors2.at(i).descriptor[0]))
+		{
+			// Find the nearest neighbor (in descriptor space)...
+			int neighborCount = matching.nearestKSearch(narf_descriptors2.at(i), 1, neighbors, squaredDistances);
+			// ...and add a new correspondence if the distance is less than a threshold
+			// (SHOT distances are between 0 and 1, other descriptors use different metrics).
+			if (neighborCount == 1 && squaredDistances[0] < 0.25f)
+			{
+				//correspondence.push_back(neighbors[0], static_cast<int>(i), squaredDistances[0]);
+				correspondence.push_back(neighbors[0]);
+			}
+		}
+	}
+	std::cout << "Found " << correspondence.size() << " correspondences." << std::endl;
 }
+
+/*void processSift (std::string filename, std::string filename2){
+	// ------------------------------------------------------------------
+	// -----Read ply file-----
+	// ------------------------------------------------------------------
+	pcl::PointCloud<PointType>::Ptr cloud_xyz_ptr(
+			new pcl::PointCloud<PointType>);
+	pcl::PointCloud<PointType>& cloud_xyz = *cloud_xyz_ptr;
+	if (pcl::io::loadPLYFile(filename, cloud_xyz) == -1) {
+		cerr << "Was not able to open file \"" << filename << "\".\n";
+		printUsage("");
+	}
+
+	// Parameters for sift computation
+	const float min_scale = 0.01f;
+	const int n_octaves = 3;
+	const int n_scales_per_octave = 4;
+	const float min_contrast = 0.001f;
+
+	// Estimate the sift interest points using normals values from xyz as the Intensity variants
+	pcl::SIFTKeypoint<PointType, pcl::PointWithScale> sift;
+	pcl::search::KdTree<PointType>::Ptr tree(new pcl::search::KdTree<PointType> ());;//new API
+	pcl::PointCloud<pcl::PointWithScale>::Ptr sifts (new pcl::PointCloud<pcl::PointWithScale>);
+	tree.setInputCloud(cloud_xyz_ptr, NULL);
+	sift.setSearchMethod (tree);
+	sift.setScales(min_scale, n_octaves, n_scales_per_octave);
+	sift.setMinimumContrast(min_contrast);
+	sift.compute (*sifts);
+
+	cout << "Computed " << sifts.points.size () << " SIFT Keypoints";
+
+}*/
 
 // --------------
 // -----Main-----
@@ -300,6 +361,9 @@ int main(int argc, char** argv) {
 			pcl::console::parse_file_extension_argument(argc, argv, "ply");
 
 	processNARF(argv[pcl_filename_indices[0]], argv[pcl_filename_indices[1]]);
+
+
+	//processSift(argv[pcl_filename_indices[0]], argv[pcl_filename_indices[1]]);
 
 	return 1;
 }
