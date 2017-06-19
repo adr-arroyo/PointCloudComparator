@@ -266,10 +266,11 @@ void processNARF (std::string filename, std::string filename2){
 
 	// A kd-tree object that uses the FLANN library for fast search of nearest neighbors.
 	pcl::KdTreeFLANN<pcl::Narf36> matching = new pcl::KdTreeFLANN<pcl::Narf36>(false);
-	matching.setInputCloud(narf_descriptors,NULL);
+	pcl::KdTree<pcl::Narf36>::PointCloudConstPtr ptr_narf_descriptors(&narf_descriptors);
+	matching.setInputCloud(ptr_narf_descriptors);
 	// A Correspondence object stores the indices of the query and the match,
 	// and the distance/weight.
-	std::vector<int> correspondence();
+	std::vector<int> correspondence;
 
 	// Check every descriptor computed for the scene.
 	for (size_t i = 0; i < narf_descriptors2.size(); ++i)
@@ -290,7 +291,7 @@ void processNARF (std::string filename, std::string filename2){
 			}
 		}
 	}
-	std::cout << "Found " << correspondence.size() << " correspondences." << std::endl;
+	std::cout << "Found " << correspondence.size() << " correspondences\n";
 }
 
 /*void processSift (std::string filename, std::string filename2){
