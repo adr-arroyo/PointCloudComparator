@@ -294,13 +294,13 @@ void processNARF (std::string filename, std::string filename2){
 	std::cout << "Found " << correspondence.size() << " correspondences\n";
 }
 
-/*void processSift (std::string filename, std::string filename2){
+void processSift (std::string filename, std::string filename2){
 	// ------------------------------------------------------------------
 	// -----Read ply file-----
 	// ------------------------------------------------------------------
-	pcl::PointCloud<PointType>::Ptr cloud_xyz_ptr(
-			new pcl::PointCloud<PointType>);
-	pcl::PointCloud<PointType>& cloud_xyz = *cloud_xyz_ptr;
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_xyz_ptr(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>& cloud_xyz = *cloud_xyz_ptr;
 	if (pcl::io::loadPLYFile(filename, cloud_xyz) == -1) {
 		cerr << "Was not able to open file \"" << filename << "\".\n";
 		printUsage("");
@@ -313,18 +313,19 @@ void processNARF (std::string filename, std::string filename2){
 	const float min_contrast = 0.001f;
 
 	// Estimate the sift interest points using normals values from xyz as the Intensity variants
-	pcl::SIFTKeypoint<PointType, pcl::PointWithScale> sift;
-	pcl::search::KdTree<PointType>::Ptr tree(new pcl::search::KdTree<PointType> ());;//new API
-	pcl::PointCloud<pcl::PointWithScale>::Ptr sifts (new pcl::PointCloud<pcl::PointWithScale>);
-	tree.setInputCloud(cloud_xyz_ptr, NULL);
-	sift.setSearchMethod (tree);
+	pcl::SIFTKeypoint<pcl::PointXYZRGB, pcl::PointWithScale> sift;
+	pcl::search::KdTree<pcl::PointXYZRGB> tree= new pcl::search::KdTree<pcl::PointXYZRGB> ();//new API
+	pcl::PointCloud<pcl::PointWithScale> sifts; //(new pcl::PointCloud<pcl::PointWithScale>);
+	pcl::KdTree<pcl::PointXYZRGB>::PointCloudConstPtr ptr_sift_cloud(&cloud_xyz);
+	sift.setInputCloud(ptr_sift_cloud);
+	//sift.setSearchMethod (tree);
 	sift.setScales(min_scale, n_octaves, n_scales_per_octave);
 	sift.setMinimumContrast(min_contrast);
-	sift.compute (*sifts);
+	sift.compute (sifts);
 
-	cout << "Computed " << sifts.points.size () << " SIFT Keypoints";
+	cout << "Computed " << sifts.points.size() << " SIFT Keypoints";
 
-}*/
+}
 
 // --------------
 // -----Main-----
@@ -361,7 +362,7 @@ int main(int argc, char** argv) {
 	std::vector<int> pcl_filename_indices =
 			pcl::console::parse_file_extension_argument(argc, argv, "ply");
 
-	processNARF(argv[pcl_filename_indices[0]], argv[pcl_filename_indices[1]]);
+	//processNARF(argv[pcl_filename_indices[0]], argv[pcl_filename_indices[1]]);
 
 
 	//processSift(argv[pcl_filename_indices[0]], argv[pcl_filename_indices[1]]);
