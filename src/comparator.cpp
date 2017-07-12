@@ -1,25 +1,8 @@
 /* \author Adrian Arroyo - adr.arroyo.perez@gmail.com */
 
-#include <iostream>
-#include <boost/thread/thread.hpp>
-#include <pcl/range_image/range_image.h>
-#include <pcl/io/ply_io.h>
-#include <pcl/visualization/range_image_visualizer.h>
-#include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/features/range_image_border_extractor.h>
-#include <pcl/keypoints/narf_keypoint.h>
-#include <pcl/features/narf_descriptor.h>
-#include <pcl/console/parse.h>
-#include <pcl/point_types.h>
-#include <pcl/features/pfh.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/surface/gp3.h>
-#include <pcl/features/spin_image.h>
-#include <cmath>
-#include <pcl/registration/icp.h>
-#include <pcl/keypoints/sift_keypoint.h>
-#include <vector>
+#include "../include/comparator.h"
 
+typedef pcl::Histogram<32> RIFT32;
 typedef pcl::PointXYZ PointType;
 
 // --------------------
@@ -62,10 +45,126 @@ void setViewerPose(pcl::visualization::PCLVisualizer& viewer,
 			up_vector[0], up_vector[1], up_vector[2]);
 }
 
-void processNARF (std::string filename, std::string filename2){
+/*void spatial_change_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudA,
+ pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudB) {*/
+void spatial_change_detection(std::string filename, std::string filename2) {
+
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudA(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	if (pcl::io::loadPLYFile(filename, *cloudA) == -1) {
+		cerr << "Was not able to open file \"" << filename << "\".\n";
+		printUsage("");
+	}
+
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudB(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	if (pcl::io::loadPLYFile(filename2, *cloudB) == -1) {
+		cerr << "Was not able to open file \"" << filename2 << "\".\n";
+		printUsage("");
+	}
+
+	srand((unsigned int) time(NULL));
+
+	// Octree resolution - side length of octree voxels
+	float resolution = 32.0f;
+
+	// Instantiate octree-based point cloud change detection class
+	pcl::octree::OctreePointCloudChangeDetector<pcl::PointXYZRGB> octree(
+			resolution);
+
+	// Add points from cloudA to octree
+	octree.setInputCloud(cloudA);
+	octree.addPointsFromInputCloud();
+
+	// Switch octree buffers: This resets octree but keeps previous tree structure in memory.
+	octree.switchBuffers();
+
+	// Add points from cloudB to octree
+	octree.setInputCloud(cloudB);
+	octree.addPointsFromInputCloud();
+
+	std::vector<int> newPointIdxVector;
+
+	// Get vector of point indices from octree voxels which did not exist in previous buffer
+	octree.getPointIndicesFromNewVoxels(newPointIdxVector);
+
+	// Output points
+	std::cout << "Output from getPointIndicesFromNewVoxels:" << std::endl;
+	for (size_t i = 0; i < newPointIdxVector.size(); ++i)
+		std::cout << i << "# Index:" << newPointIdxVector[i] << "  Point:"
+				<< cloudB->points[newPointIdxVector[i]].x << " "
+				<< cloudB->points[newPointIdxVector[i]].y << " "
+				<< cloudB->points[newPointIdxVector[i]].z << std::endl;
+}
+
+/**
+ * Distance between two rift descriptors
+ */
+double distanceRIFT(RIFT32 p1, RIFT32 p2) {
+	double dis = 0;
+	for (int i = 0; i < p1.descriptorSize(); ++i) {
+		dis += pow(p1.histogram[i] - p2.histogram[i], 2);
+		//std::cout << "des1 position: " << p1.histogram[i] << std::endl;
+	}
+	dis = sqrt(dis);
+	return dis;
+}
+
+int matchRIFTFeatures(pcl::PointCloud<RIFT32>::Ptr descriptors1,
+		pcl::PointCloud<RIFT32>::Ptr descriptors2) {
+	int correspondences = 0;
+	for (int i = 0; i < descriptors1->points.size(); ++i) {
+		RIFT32 des1 = descriptors1->points[i];
+		double minDis = 100000000000000000;
+		double actDis = 0;
+		//Find closest descriptor
+		for (int j = 0; j < descriptors2->points.size(); ++j) {
+			actDis = distanceRIFT(des1, descriptors2->points[i]);
+			//std::cout << "act distance: " << actDis << std::endl;
+			if (actDis < minDis) {
+				minDis = actDis;
+			}
+		}
+		//std::cout << "min distance: " << minDis << std::endl;
+		//If distance between both descriptors is less than threshold we found correspondence
+		if (minDis < 0.5)
+			++correspondences;
+	}
+	return correspondences;
+}
+
+/*int matchRIFTFeaturesKnn(pcl::PointCloud<RIFT32>::Ptr descriptors1,
+ pcl::PointCloud<RIFT32>::Ptr descriptors2) {
+ // A kd-tree object that uses the FLANN library for fast search of nearest neighbors.
+ pcl::KdTreeFLANN<RIFT32> matching = new pcl::KdTreeFLANN<RIFT32>(false);
+ pcl::KdTree<RIFT32>::PointCloudConstPtr ptr_descriptors1(descriptors1);
+ matching.setInputCloud(ptr_descriptors1);
+ // A Correspondence object stores the indices of the query and the match,
+ // and the distance/weight.
+ std::vector<int> correspondence;
+
+ // Check every descriptor computed for the scene.
+ for (size_t i = 0; i < descriptors2->points.size(); ++i) {
+ std::vector<int> neighbors(1);
+ std::vector<float> squaredDistances(1);
+ // Find the nearest neighbor (in descriptor space)...
+ int neighborCount = matching.nearestKSearch(descriptors2->at(i), 1,
+ neighbors, squaredDistances);
+ // ...and add a new correspondence if the distance is less than a threshold
+ // (SHOT distances are between 0 and 1, other descriptors use different metrics).
+ if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
+ //correspondence.push_back(neighbors[0], static_cast<int>(i), squaredDistances[0]);
+ correspondence.push_back(neighbors[0]);
+ }
+ }
+ std::cout << "Found " << correspondence.size() << " correspondences\n";
+ return correspondence.size();
+ }*/
+
+void processNARF2(std::string filename, std::string filename2) {
 // ------------------------------------------------------------------
-	// -----Read ply file-----
-	// ------------------------------------------------------------------
+// -----Read ply file-----
+// ------------------------------------------------------------------
 	pcl::PointCloud<PointType>::Ptr point_cloud_ptr(
 			new pcl::PointCloud<PointType>);
 	pcl::PointCloud<PointType>& point_cloud = *point_cloud_ptr;
@@ -101,18 +200,18 @@ void processNARF (std::string filename, std::string filename2){
 	// -----Open 3D viewer and add point cloud-----
 	// --------------------------------------------
 	/*pcl::visualization::PCLVisualizer viewer("3D Viewer");
-	viewer.setBackgroundColor(1, 1, 1);
-	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointWithRange> range_image_color_handler(
-			range_image_ptr, 0, 0, 0);
-	viewer.addPointCloud(range_image_ptr, range_image_color_handler,
-			"range image");
-	viewer.setPointCloudRenderingProperties(
-			pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "range image");
-	//viewer.addCoordinateSystem (1.0f, "global");
-	//PointCloudColorHandlerCustom<PointType> point_cloud_color_handler (point_cloud_ptr, 150, 150, 150);
-	//viewer.addPointCloud (point_cloud_ptr, point_cloud_color_handler, "original point cloud");
-	viewer.initCameraParameters();
-	setViewerPose(viewer, range_image.getTransformationToWorldSystem());*/
+	 viewer.setBackgroundColor(1, 1, 1);
+	 pcl::visualization::PointCloudColorHandlerCustom<pcl::PointWithRange> range_image_color_handler(
+	 range_image_ptr, 0, 0, 0);
+	 viewer.addPointCloud(range_image_ptr, range_image_color_handler,
+	 "range image");
+	 viewer.setPointCloudRenderingProperties(
+	 pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "range image");
+	 //viewer.addCoordinateSystem (1.0f, "global");
+	 //PointCloudColorHandlerCustom<PointType> point_cloud_color_handler (point_cloud_ptr, 150, 150, 150);
+	 //viewer.addPointCloud (point_cloud_ptr, point_cloud_color_handler, "original point cloud");
+	 viewer.initCameraParameters();
+	 setViewerPose(viewer, range_image.getTransformationToWorldSystem());*/
 
 	// --------------------------------
 	// -----Extract NARF keypoints-----
@@ -131,18 +230,18 @@ void processNARF (std::string filename, std::string filename2){
 	// -----Show keypoints in 3D viewer-----
 	// -------------------------------------
 	/*pcl::PointCloud<pcl::PointXYZ>::Ptr keypoints_ptr(
-			new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::PointCloud<pcl::PointXYZ>& keypoints = *keypoints_ptr;
-	keypoints.points.resize(keypoint_indices.points.size());
-	for (size_t i = 0; i < keypoint_indices.points.size(); ++i)
-		keypoints.points[i].getVector3fMap() =
-				range_image.points[keypoint_indices.points[i]].getVector3fMap();
-	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> keypoints_color_handler(
-			keypoints_ptr, 0, 255, 0);
-	viewer.addPointCloud<pcl::PointXYZ>(keypoints_ptr, keypoints_color_handler,
-			"keypoints");
-	viewer.setPointCloudRenderingProperties(
-			pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 7, "keypoints");*/
+	 new pcl::PointCloud<pcl::PointXYZ>);
+	 pcl::PointCloud<pcl::PointXYZ>& keypoints = *keypoints_ptr;
+	 keypoints.points.resize(keypoint_indices.points.size());
+	 for (size_t i = 0; i < keypoint_indices.points.size(); ++i)
+	 keypoints.points[i].getVector3fMap() =
+	 range_image.points[keypoint_indices.points[i]].getVector3fMap();
+	 pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> keypoints_color_handler(
+	 keypoints_ptr, 0, 255, 0);
+	 viewer.addPointCloud<pcl::PointXYZ>(keypoints_ptr, keypoints_color_handler,
+	 "keypoints");
+	 viewer.setPointCloudRenderingProperties(
+	 pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 7, "keypoints");*/
 
 	// ------------------------------------------------------
 	// -----Extract NARF descriptors for interest points-----
@@ -156,21 +255,20 @@ void processNARF (std::string filename, std::string filename2){
 	narf_descriptor.getParameters().rotation_invariant = rotation_invariant;
 	pcl::PointCloud<pcl::Narf36> narf_descriptors;
 	narf_descriptor.compute(narf_descriptors);
-	
-	
+
 	//-----------------------------------------------------
 	//-----------------SECOND PCL--------------------------
 	//-----------------------------------------------------
 	pcl::PointCloud<PointType>::Ptr point_cloud_ptr2(
 			new pcl::PointCloud<PointType>);
 	pcl::PointCloud<PointType>& point_cloud2 = *point_cloud_ptr2;
-	
+
 	if (pcl::io::loadPLYFile(filename2, point_cloud2) == -1) {
 		cerr << "Was not able to open file \"" << filename2 << "\".\n";
 		printUsage("");
 	}
 	/*point_cloud2=point_cloud;
-	point_cloud2.resize(point_cloud.size()/2);*/
+	 point_cloud2.resize(point_cloud.size()/2);*/
 	scene_sensor_pose = Eigen::Affine3f(
 			Eigen::Translation3f(point_cloud2.sensor_origin_[0],
 					point_cloud.sensor_origin_[1],
@@ -201,7 +299,7 @@ void processNARF (std::string filename, std::string filename2){
 	narf_keypoint_detector2.getParameters().support_size = support_size;
 	pcl::PointCloud<int> keypoint_indices3;
 	narf_keypoint_detector2.compute(keypoint_indices3);
-	
+
 	// ------------------------------------------------------
 	// -----Extract NARF descriptors for interest points-----
 	// ------------------------------------------------------
@@ -214,7 +312,6 @@ void processNARF (std::string filename, std::string filename2){
 	narf_descriptor2.getParameters().rotation_invariant = rotation_invariant;
 	pcl::PointCloud<pcl::Narf36> narf_descriptors2;
 	narf_descriptor2.compute(narf_descriptors2);
-	
 
 	cout << "Primer pcl:\n";
 	std::cout << "Found " << keypoint_indices.points.size() << " key points.\n";
@@ -222,70 +319,70 @@ void processNARF (std::string filename, std::string filename2){
 			<< keypoint_indices.points.size() << " keypoints.\n";
 
 	cout << "Segundo pcl:\n";
-	std::cout << "Found " << keypoint_indices3.points.size() << " key points.\n";
+	std::cout << "Found " << keypoint_indices3.points.size()
+			<< " key points.\n";
 	cout << "Extracted " << narf_descriptors2.size() << " descriptors for "
 			<< keypoint_indices3.points.size() << " keypoints.\n";
 
 	//Comparacion truño
 	/*int j=0;
-	pcl::Narf36 feat1;
-	pcl::Narf36 feat2;
-	for (int i=0; i<narf_descriptors.points.size(); ++i){
-		feat1=narf_descriptors.points[i];
-		//cout << feat1.x << " " << feat1.y << " " << feat1.z << "\n ";
-		for (int k=0; k<narf_descriptors2.points.size(); ++k){
-			feat2=narf_descriptors2.points[k];
-			//if(feat1.x == feat2.x && feat1.y == feat2.y && feat1.z == feat2.z){
-			//if(feat1.descriptor == feat2.descriptor){
-			if(sqrt(pow(feat1.x-feat2.x,2)+pow(feat1.y-feat2.y,2)+pow(feat1.z-feat2.z,2))<0.5 && 
-				abs(feat1.roll-feat2.roll)<0.05 && abs(feat1.pitch-feat2.pitch)<0.05 && abs(feat1.yaw-feat2.yaw)<0.05){
-				//cout << "narf IGUALES\n\n";
-				++j;
-				//cout << feat1.x << " " << feat1.y << " " << feat1.z << " \n";
-				//cout << feat2.x << " " << feat2.y << " " << feat2.z << " \n";
-				/*for(int t=0; t<feat1.descriptorSize(); ++t){
-					cout << feat1.descriptor[t] << ";";
-				}
-				cout << "] \n";
-				for(int t=0; t<feat2.descriptorSize(); ++t){
-					cout << feat2.descriptor[t] << ";";
-				}
-				cout << "] \n\n";
-				//break;
-			}
-		}
-	}
-	cout << "Found " << j << " same narf descriptors between PCLs\n";*/
+	 pcl::Narf36 feat1;
+	 pcl::Narf36 feat2;
+	 for (int i=0; i<narf_descriptors.points.size(); ++i){
+	 feat1=narf_descriptors.points[i];
+	 //cout << feat1.x << " " << feat1.y << " " << feat1.z << "\n ";
+	 for (int k=0; k<narf_descriptors2.points.size(); ++k){
+	 feat2=narf_descriptors2.points[k];
+	 //if(feat1.x == feat2.x && feat1.y == feat2.y && feat1.z == feat2.z){
+	 //if(feat1.descriptor == feat2.descriptor){
+	 if(sqrt(pow(feat1.x-feat2.x,2)+pow(feat1.y-feat2.y,2)+pow(feat1.z-feat2.z,2))<0.5 &&
+	 abs(feat1.roll-feat2.roll)<0.05 && abs(feat1.pitch-feat2.pitch)<0.05 && abs(feat1.yaw-feat2.yaw)<0.05){
+	 //cout << "narf IGUALES\n\n";
+	 ++j;
+	 //cout << feat1.x << " " << feat1.y << " " << feat1.z << " \n";
+	 //cout << feat2.x << " " << feat2.y << " " << feat2.z << " \n";
+	 /*for(int t=0; t<feat1.descriptorSize(); ++t){
+	 cout << feat1.descriptor[t] << ";";
+	 }
+	 cout << "] \n";
+	 for(int t=0; t<feat2.descriptorSize(); ++t){
+	 cout << feat2.descriptor[t] << ";";
+	 }
+	 cout << "] \n\n";
+	 //break;
+	 }
+	 }
+	 }
+	 cout << "Found " << j << " same narf descriptors between PCLs\n";*/
 	//--------------------
 	// -----Main loop-----
 	//--------------------
 	/*while (!viewer.wasStopped()) {
-		viewer.spinOnce();
-		pcl_sleep(0.01);
-	}*/
+	 viewer.spinOnce();
+	 pcl_sleep(0.01);
+	 }*/
 
 	// A kd-tree object that uses the FLANN library for fast search of nearest neighbors.
-	pcl::KdTreeFLANN<pcl::Narf36> matching = new pcl::KdTreeFLANN<pcl::Narf36>(false);
-	pcl::KdTree<pcl::Narf36>::PointCloudConstPtr ptr_narf_descriptors(&narf_descriptors);
+	pcl::KdTreeFLANN<pcl::Narf36> matching = new pcl::KdTreeFLANN<pcl::Narf36>(
+			false);
+	pcl::KdTree<pcl::Narf36>::PointCloudConstPtr ptr_narf_descriptors(
+			&narf_descriptors);
 	matching.setInputCloud(ptr_narf_descriptors);
 	// A Correspondence object stores the indices of the query and the match,
 	// and the distance/weight.
 	std::vector<int> correspondence;
-
 	// Check every descriptor computed for the scene.
-	for (size_t i = 0; i < narf_descriptors2.size(); ++i)
-	{
+	for (size_t i = 0; i < narf_descriptors2.points.size(); ++i) {
 		std::vector<int> neighbors(1);
 		std::vector<float> squaredDistances(1);
 		// Ignore NaNs.
-		if (pcl_isfinite(narf_descriptors2.at(i).descriptor[0]))
-		{
+		if (pcl_isfinite(narf_descriptors2.at(i).descriptor[0])) {
 			// Find the nearest neighbor (in descriptor space)...
-			int neighborCount = matching.nearestKSearch(narf_descriptors2.at(i), 1, neighbors, squaredDistances);
+			int neighborCount = matching.nearestKSearch(narf_descriptors2.at(i),
+					1, neighbors, squaredDistances);
 			// ...and add a new correspondence if the distance is less than a threshold
 			// (SHOT distances are between 0 and 1, other descriptors use different metrics).
-			if (neighborCount == 1 && squaredDistances[0] < 0.25f)
-			{
+			if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
 				//correspondence.push_back(neighbors[0], static_cast<int>(i), squaredDistances[0]);
 				correspondence.push_back(neighbors[0]);
 			}
@@ -294,17 +391,111 @@ void processNARF (std::string filename, std::string filename2){
 	std::cout << "Found " << correspondence.size() << " correspondences\n";
 }
 
-void processSift (std::string filename, std::string filename2){
+int matchNarf(pcl::PointCloud<pcl::Narf36> narf_descriptors,
+		pcl::PointCloud<pcl::Narf36> narf_descriptors2) {
+	// A kd-tree object that uses the FLANN library for fast search of nearest neighbors.
+	pcl::KdTreeFLANN<pcl::Narf36> matching = new pcl::KdTreeFLANN<pcl::Narf36>(
+			false);
+	pcl::KdTree<pcl::Narf36>::PointCloudConstPtr ptr_narf_descriptors(
+			&narf_descriptors);
+	matching.setInputCloud(ptr_narf_descriptors);
+	// A Correspondence object stores the indices of the query and the match,
+	// and the distance/weight.
+	std::vector<int> correspondence(1);
+
+	// Check every descriptor computed for the scene.
+	for (int i = 0; i < narf_descriptors2.points.size(); ++i) {
+		std::vector<int> neighbors(1);
+		std::vector<float> squaredDistances(1);
+		// Ignore NaNs.
+		if (pcl_isfinite(narf_descriptors2.at(i).descriptor[0])) {
+			// Find the nearest neighbor (in descriptor space)...
+			int neighborCount = matching.nearestKSearch(narf_descriptors2.at(i),
+					1, neighbors, squaredDistances);
+			// ...and add a new correspondence if the distance is less than a threshold
+			// (SHOT distances are between 0 and 1, other descriptors use different metrics).
+			if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
+				//correspondence.push_back(neighbors[0], static_cast<int>(i), squaredDistances[0]);
+				correspondence.push_back(0);
+			}
+		}
+	}
+	//std::cout << "Found " << correspondence.size() << " correspondences\n";
+	return correspondence.size();
+}
+
+pcl::PointCloud<pcl::Narf36> processNARF(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr) {
+	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud = *point_cloud_ptr;
+	pcl::PointCloud<pcl::PointWithViewpoint> far_ranges;
+	Eigen::Affine3f scene_sensor_pose(Eigen::Affine3f::Identity());
+	scene_sensor_pose = Eigen::Affine3f(
+			Eigen::Translation3f(point_cloud.sensor_origin_[0],
+					point_cloud.sensor_origin_[1],
+					point_cloud.sensor_origin_[2]))
+			* Eigen::Affine3f(point_cloud.sensor_orientation_);
+
+	//---------EXTRACTION OF NARF FEATURES------------
+	// -----------------------------------------------
+	// -----Create RangeImage from the PointCloud-----
+	// -----------------------------------------------
+	float noise_level = 0.0;
+	float min_range = 0.0f;
+	int border_size = 1;
+	boost::shared_ptr<pcl::RangeImage> range_image_ptr(new pcl::RangeImage);
+	pcl::RangeImage& range_image = *range_image_ptr;
+	range_image.createFromPointCloud(point_cloud, angular_resolution,
+			pcl::deg2rad(360.0f), pcl::deg2rad(180.0f), scene_sensor_pose,
+			coordinate_frame, noise_level, min_range, border_size);
+	range_image.integrateFarRanges(far_ranges);
+	if (setUnseenToMaxRange)
+		range_image.setUnseenToMaxRange();
+
+	// --------------------------------
+	// -----Extract NARF keypoints-----
+	// --------------------------------
+	pcl::RangeImageBorderExtractor range_image_border_extractor;
+	pcl::NarfKeypoint narf_keypoint_detector;
+	narf_keypoint_detector.setRangeImageBorderExtractor(
+			&range_image_border_extractor);
+	narf_keypoint_detector.setRangeImage(&range_image);
+	narf_keypoint_detector.getParameters().support_size = support_size;
+
+	pcl::PointCloud<int> keypoint_indices;
+	narf_keypoint_detector.compute(keypoint_indices);
+
+	// ------------------------------------------------------
+	// -----Extract NARF descriptors for interest points-----
+	// ------------------------------------------------------
+	std::vector<int> keypoint_indices2;
+	keypoint_indices2.resize(keypoint_indices.points.size());
+	for (unsigned int i = 0; i < keypoint_indices.size(); ++i) // This step is necessary to get the right vector type
+		keypoint_indices2[i] = keypoint_indices.points[i];
+	pcl::NarfDescriptor narf_descriptor(&range_image, &keypoint_indices2);
+	narf_descriptor.getParameters().support_size = support_size;
+	narf_descriptor.getParameters().rotation_invariant = rotation_invariant;
+	pcl::PointCloud<pcl::Narf36> narf_descriptors;
+	narf_descriptor.compute(narf_descriptors);
+
+	std::cout << "Computed " << narf_descriptors.points.size()
+			<< " NARF descriptors" << std::endl;
+	return (narf_descriptors);
+}
+
+/*pcl::PointCloud<pcl::PointWithScale> processSift(std::string filename,
+ std::string filename2) {*/
+pcl::PointCloud<pcl::PointWithScale> processSift(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_xyz_ptr) {
 	// ------------------------------------------------------------------
 	// -----Read ply file-----
 	// ------------------------------------------------------------------
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_xyz_ptr(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>& cloud_xyz = *cloud_xyz_ptr;
-	if (pcl::io::loadPLYFile(filename, cloud_xyz) == -1) {
-		cerr << "Was not able to open file \"" << filename << "\".\n";
-		printUsage("");
-	}
+	/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_xyz_ptr(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 pcl::PointCloud<pcl::PointXYZRGB>& cloud_xyz = *cloud_xyz_ptr;
+	 if (pcl::io::loadPLYFile(filename, cloud_xyz) == -1) {
+	 cerr << "Was not able to open file \"" << filename << "\".\n";
+	 printUsage("");
+	 }*/
 
 	// Parameters for sift computation
 	const float min_scale = 0.01f;
@@ -314,16 +505,344 @@ void processSift (std::string filename, std::string filename2){
 
 	// Estimate the sift interest points using normals values from xyz as the Intensity variants
 	pcl::SIFTKeypoint<pcl::PointXYZRGB, pcl::PointWithScale> sift;
-	pcl::search::KdTree<pcl::PointXYZRGB> tree= new pcl::search::KdTree<pcl::PointXYZRGB> ();//new API
+	pcl::search::KdTree<pcl::PointXYZRGB> tree = new pcl::search::KdTree<
+			pcl::PointXYZRGB>();	//new API
 	pcl::PointCloud<pcl::PointWithScale> sifts; //(new pcl::PointCloud<pcl::PointWithScale>);
-	pcl::KdTree<pcl::PointXYZRGB>::PointCloudConstPtr ptr_sift_cloud(&cloud_xyz);
-	sift.setInputCloud(ptr_sift_cloud);
-	//sift.setSearchMethod (tree);
+	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(
+			new pcl::search::KdTree<pcl::PointXYZRGB>);
+	sift.setInputCloud(cloud_xyz_ptr);
+	sift.setSearchMethod(kdtree);
 	sift.setScales(min_scale, n_octaves, n_scales_per_octave);
 	sift.setMinimumContrast(min_contrast);
-	sift.compute (sifts);
+	sift.compute(sifts);
 
-	cout << "Computed " << sifts.points.size() << " SIFT Keypoints";
+	cout << "Computed " << sifts.points.size() << " SIFT Keypoints\n";
+	return sifts;
+}
+
+bool matchVHF(pcl::PointCloud<pcl::VFHSignature308>::Ptr vhf1,
+		pcl::PointCloud<pcl::VFHSignature308>::Ptr vhf2) {
+	double dis = 0;
+	for (int i = 0; i < vhf1.descriptorSize(); ++i) {
+		dis += pow(p1.histogram[i] - p2.histogram[i], 2);
+		//std::cout << "des1 position: " << p1.histogram[i] << std::endl;
+	}
+	dis = sqrt(dis);
+	return dis < 0.5;
+}
+
+pcl::PointCloud<pcl::VFHSignature308>::Ptr processVHF(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
+
+	// Object for storing the normals.
+	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+	// Object for storing the VFH descriptor.
+	pcl::PointCloud<pcl::VFHSignature308>::Ptr descriptor(
+			new pcl::PointCloud<pcl::VFHSignature308>);
+
+	// Estimate the normals.
+	pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> normalEstimation;
+	normalEstimation.setInputCloud(cloud);
+	normalEstimation.setRadiusSearch(0.03);
+	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(
+			new pcl::search::KdTree<pcl::PointXYZ>);
+	normalEstimation.setSearchMethod(kdtree);
+	normalEstimation.compute(*normals);
+
+	// VFH estimation object.
+	pcl::VFHEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::VFHSignature308> vfh;
+	vfh.setInputCloud(cloud);
+	vfh.setInputNormals(normals);
+	vfh.setSearchMethod(kdtree);
+	// Optionally, we can normalize the bins of the resulting histogram,
+	// using the total number of points.
+	vfh.setNormalizeBins(true);
+	// Also, we can normalize the SDC with the maximum size found between
+	// the centroid and any of the cluster's points.
+	vfh.setNormalizeDistance(false);
+
+	vfh.compute(*descriptor);
+
+	//cout << "Computed " << descriptor->points.size() << " VHF descriptor\n";
+	return descriptor;
+}
+
+//void processRIFT(std::string filename, std::string filename2) {
+pcl::PointCloud<RIFT32>::Ptr processRIFT(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
+	// ------------------------------------------------------------------
+	// -----Read ply file-----
+	// ------------------------------------------------------------------
+	//Asign pointer to the keypoints cloud
+	/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudColor(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 pcl::PointCloud<pcl::PointXYZRGB>& point_cloud = *cloudColor;
+	 if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
+	 cerr << "Was not able to open file \"" << filename << "\".\n";
+	 printUsage("");
+	 }*/
+
+	// Object for storing the point cloud with intensity value.
+	pcl::PointCloud<pcl::PointXYZI>::Ptr cloudIntensityGlobal(
+			new pcl::PointCloud<pcl::PointXYZI>);
+	// Convert the RGB to intensity.
+	pcl::PointCloudXYZRGBtoXYZI(*cloud, *cloudIntensityGlobal);
+
+	//We find the sift interesting keypoints in the pointclouds
+	/*pcl::PointCloud<pcl::PointWithScale> sifts = processSift(filename,
+	 filename2);*/
+	pcl::PointCloud<pcl::PointWithScale> sifts = processSift(cloud);
+	//We find the corresponding point of the sift keypoint in the original
+	//cloud and store it with RGB so that it can be transformed into intensity
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Color(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud_sift = *cloud_Color;
+	for (int i = 0; i < sifts.points.size(); ++i) {
+		pcl::PointWithScale pointSift = sifts.points[i];
+		pcl::PointXYZRGB point;
+		for (int j = 0; j < cloud->points.size(); ++j) {
+			point = cloud->points[j];
+			/*if (pointSift.x == point.x && pointSift.y == point.y
+			 && pointSift.z == point.z) {*/
+			//TODO comparacion un poco truño - por alguna razon los keypoints de sift no tienen la misma coordenada q los puntos de la nube original
+			if (sqrt(
+					pow(pointSift.x - point.x, 2)
+							+ pow(pointSift.y - point.y, 2)
+							+ pow(pointSift.z - point.z, 2)) < 0.005) {
+				point_cloud_sift.push_back(point);
+				//std::cout << point.x << " " << point.y << " " << point.z << std::endl;
+				break;
+			}
+		}
+	}
+
+	/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Color_test(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 pcl::PointCloud<pcl::PointXYZRGB>& point_cloud_sift_test = *cloud_Color_test;
+	 for (int i = 0; i < sifts.points.size(); ++i) {
+	 pcl::PointXYZRGB point;
+	 point.x = sifts.points[i].x;
+	 point.y = sifts.points[i].y;
+	 point.z = sifts.points[i].z;
+	 point_cloud_sift_test.push_back(point);
+	 }
+
+	 pcl::visualization::CloudViewer viewer("Cluster viewer");
+	 viewer.showCloud(cloud_Color_test);
+	 while (!viewer.wasStopped()) {
+	 }
+
+	 pcl::visualization::CloudViewer viewer2("Cluster viewer");
+	 viewer2.showCloud(cloud_Color);
+	 while (!viewer2.wasStopped()) {
+	 }*/
+
+	cout << "Keypoint cloud has " << point_cloud_sift.points.size()
+			<< " points\n";
+
+	// Object for storing the point cloud with intensity value.
+	pcl::PointCloud<pcl::PointXYZI>::Ptr cloudIntensity(
+			new pcl::PointCloud<pcl::PointXYZI>);
+	// Object for storing the intensity gradients.
+	pcl::PointCloud<pcl::IntensityGradient>::Ptr gradients(
+			new pcl::PointCloud<pcl::IntensityGradient>);
+	// Object for storing the normals.
+	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+	// Object for storing the RIFT descriptor for each point.
+	pcl::PointCloud<RIFT32>::Ptr descriptors(new pcl::PointCloud<RIFT32>());
+
+	/*pcl::VoxelGrid<pcl::PointXYZRGB> vg;
+	 pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 vg.setInputCloud(cloudColor);
+	 vg.setLeafSize(0.01f, 0.01f, 0.01f);
+	 vg.filter(*cloud_filtered);
+	 std::cout << "PointCloud after filtering has: "
+	 << cloud_filtered->points.size() << " data points." << std::endl;*/
+
+	// Convert the RGB to intensity.
+	pcl::PointCloudXYZRGBtoXYZI(*cloud_Color, *cloudIntensity);
+
+	// Estimate the normals.
+	pcl::NormalEstimation<pcl::PointXYZI, pcl::Normal> normalEstimation;
+	normalEstimation.setInputCloud(cloudIntensityGlobal);
+	normalEstimation.setRadiusSearch(0.03);
+	pcl::search::KdTree<pcl::PointXYZI>::Ptr kdtree(
+			new pcl::search::KdTree<pcl::PointXYZI>);
+	normalEstimation.setSearchMethod(kdtree);
+	normalEstimation.compute(*normals);
+
+	// Compute the intensity gradients.
+	pcl::IntensityGradientEstimation<pcl::PointXYZI, pcl::Normal,
+			pcl::IntensityGradient,
+			pcl::common::IntensityFieldAccessor<pcl::PointXYZI> > ge;
+	ge.setInputCloud(cloudIntensityGlobal);
+	ge.setInputNormals(normals);
+	ge.setRadiusSearch(0.03);
+	ge.compute(*gradients);
+
+	// RIFT estimation object.
+	pcl::RIFTEstimation<pcl::PointXYZI, pcl::IntensityGradient, RIFT32> rift;
+	rift.setInputCloud(cloudIntensity);
+	rift.setSearchSurface(cloudIntensityGlobal);
+	rift.setSearchMethod(kdtree);
+	// Set the intensity gradients to use.
+	rift.setInputGradient(gradients);
+	// Radius, to get all neighbors within.
+	rift.setRadiusSearch(0.05);
+	// Set the number of bins to use in the distance dimension.
+	rift.setNrDistanceBins(4);
+	// Set the number of bins to use in the gradient orientation dimension.
+	rift.setNrGradientBins(8);
+	// Note: you must change the output histogram size to reflect the previous values.
+
+	rift.compute(*descriptors);
+
+	cout << "Computed " << descriptors->points.size() << " RIFT descriptors\n";
+
+	//matchRIFTFeatures(*descriptors, *descriptors);
+	return descriptors;
+}
+
+void processFPFH(std::string filename, std::string filename2) {
+	// ------------------------------------------------------------------
+	// -----Read ply file-----
+	// ------------------------------------------------------------------
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudColor(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud = *cloudColor;
+	if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
+		cerr << "Was not able to open file \"" << filename << "\".\n";
+		printUsage("");
+	}
+	// Object for storing the normals.
+	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+	// Object for storing the FPFH descriptors for each point.
+	pcl::PointCloud<pcl::FPFHSignature33>::Ptr descriptors(
+			new pcl::PointCloud<pcl::FPFHSignature33>());
+
+	pcl::VoxelGrid<pcl::PointXYZRGB> vg;
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	vg.setInputCloud(cloudColor);
+	vg.setLeafSize(0.01f, 0.01f, 0.01f);
+	vg.filter(*cloud_filtered);
+	std::cout << "PointCloud after filtering has: "
+			<< cloud_filtered->points.size() << " data points." << std::endl;
+
+	// Estimate the normals.
+	pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> normalEstimation;
+	normalEstimation.setInputCloud(cloud_filtered);
+	normalEstimation.setRadiusSearch(0.03);
+	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(
+			new pcl::search::KdTree<pcl::PointXYZRGB>);
+	normalEstimation.setSearchMethod(kdtree);
+	normalEstimation.compute(*normals);
+
+	// FPFH estimation object.
+	pcl::FPFHEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::FPFHSignature33> fpfh;
+	fpfh.setInputCloud(cloud_filtered);
+	fpfh.setInputNormals(normals);
+	fpfh.setSearchMethod(kdtree);
+	// Search radius, to look for neighbors. Note: the value given here has to be
+	// larger than the radius used to estimate the normals.
+	fpfh.setRadiusSearch(0.05);
+
+	fpfh.compute(*descriptors);
+
+	cout << "Computed " << descriptors->points.size() << " FPFH descriptors\n";
+}
+
+void computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
+	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_1 =
+			region_growing_segmentation(argv[pcl_filename_indices[0]]);
+	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_2 =
+			region_growing_segmentation(argv[pcl_filename_indices[1]]);
+
+	//TODO precompute normal estimation to pass it to the other functions
+
+	pcl::PointCloud<RIFT32>::Ptr des1RIFT;
+	pcl::PointCloud<pcl::VFHSignature308>::Ptr des1VHF;
+	pcl::PointCloud<RIFT32>::Ptr des2RIFT;
+	pcl::PointCloud<pcl::VFHSignature308>::Ptr des2VHF;
+	int correspondences;
+	//For each cluster in 1, there is a correspondence in 2
+	int matches[clusters_pcl_1.size()];
+	int maxCor = 0;
+	int maxCor2 = 0;
+	int clus1Max;
+	int clus2Max;
+	int clusMax;
+
+	//Precompute of VHF
+	std::vector<pcl::PointCloud<pcl::VFHSignature308>::Ptr> descriptors2VHF;
+	for (int j = 0; j < clusters_pcl_2.size(); ++j) {
+		descriptors2VHF.push_back(processVHF(clusters_pcl_2[j]));
+	}
+
+	//TODO Precompute of RIFT si o no??
+	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors2RIFT;
+	for (int j = 0; j < clusters_pcl_2.size(); ++j) {
+		descriptors2RIFT.push_back(processRIFT(clusters_pcl_2[j]));
+	}
+
+	for (int i = 0; i < clusters_pcl_1.size(); ++i) {
+		des1VHF = processVHF(clusters_pcl_1[i]);
+		des1RIFT = processRIFT(clusters_pcl_1[i]);
+		maxCor2 = 0;
+		for (int j = 0; j < clusters_pcl_2.size(); ++j) {
+			des2VHF = processVHF(clusters_pcl_2[j]);
+			//If the global descriptors are similar, we jump to next comparison
+			if (matchVHF(des1VHF, des2VHF)) {
+				//if (abs(clusters_pcl_1[i]->points.size() - clusters_pcl_2[j]->points.size()) < 20) {
+				des2RIFT = descriptors2RIFT[j];
+				if (des2RIFT->points.size() != 0
+						&& des1RIFT->points.size() != 0) {
+					correspondences = matchRIFTFeatures(des1RIFT, des2RIFT);
+					std::cout << "Number of correspondences of clusters " << i
+							<< " and " << j << " is: " << correspondences
+							<< std::endl;
+					//If at least half of the descriptors match, we assume its a correspondence
+					if (correspondences > des1RIFT->size() / 2
+							&& correspondences > maxCor2) {
+						maxCor2 = correspondences;
+						clusMax = j;
+					}
+
+					if (correspondences > maxCor) {
+						maxCor = correspondences;
+						clus1Max = i;
+						clus2Max = j;
+					}
+					//TODO esto habria q coger directamente el maximo y eliminarlo
+					//Si hay mas del 30% de puntos que se corresponden, creemos q es un match
+					/*if (correspondences > (des2->points.size() * 100 / 30)) {
+					 descriptors2[j] = pcl::PointCloud<RIFT32>::Ptr(
+					 new pcl::PointCloud<RIFT32>);
+					 break;
+					 }*/
+				}
+				matches[i] = clusMax;
+			}
+			//}
+		}
+	}
+
+	std::cout << "Max correspondences: " << clus1Max << " and " << clus2Max
+			<< " is: " << maxCor << std::endl;
+
+	pcl::visualization::CloudViewer viewer2("Cluster viewer");
+	viewer2.showCloud(clusters_pcl_1[clus1Max]);
+	while (!viewer2.wasStopped()) {
+	}
+
+	pcl::visualization::CloudViewer viewer3("Cluster viewer");
+	viewer3.showCloud(clusters_pcl_2[clus2Max]);
+	while (!viewer3.wasStopped()) {
+	}
+
+	/*spatial_change_detection(argv[pcl_filename_indices[0]],
+	 argv[pcl_filename_indices[1]]);*/
 
 }
 
@@ -362,10 +881,7 @@ int main(int argc, char** argv) {
 	std::vector<int> pcl_filename_indices =
 			pcl::console::parse_file_extension_argument(argc, argv, "ply");
 
-	//processNARF(argv[pcl_filename_indices[0]], argv[pcl_filename_indices[1]]);
-
-
-	//processSift(argv[pcl_filename_indices[0]], argv[pcl_filename_indices[1]]);
+	computeSimilarity(argv, pcl_filename_indices);
 
 	return 1;
 }

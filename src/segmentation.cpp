@@ -1,22 +1,6 @@
 /* \author Adrian Arroyo - adr.arroyo.perez@gmail.com */
 
-#include <pcl/console/parse.h>
-#include <pcl/ModelCoefficients.h>
-#include <pcl/point_types.h>
-#include <pcl/io/ply_io.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/kdtree/kdtree.h>
-#include <pcl/sample_consensus/method_types.h>
-#include <pcl/sample_consensus/model_types.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/segmentation/extract_clusters.h>
-#include <pcl/visualization/cloud_viewer.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/segmentation/region_growing_rgb.h>
-#include <pcl/segmentation/region_growing.h>
-#include <pcl/segmentation/progressive_morphological_filter.h>
+#include "../include/segmentation.h"
 
 int planar_segmentation(std::string filename) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(
@@ -197,10 +181,15 @@ int color_growing_segmentation(std::string filename) {
 	reg.setInputCloud(point_cloud_ptr);
 	reg.setIndices(indices);
 	reg.setSearchMethod(tree);
-	reg.setDistanceThreshold(10);
-	reg.setPointColorThreshold(6);
-	reg.setRegionColorThreshold(5);
-	reg.setMinClusterSize(600);
+	/*Defaults:
+	 reg.setDistanceThreshold(10);
+	 reg.setPointColorThreshold(6);
+	 reg.setRegionColorThreshold(5);
+	 reg.setMinClusterSize(600);*/
+	reg.setDistanceThreshold(15);
+	reg.setPointColorThreshold(3);
+	reg.setRegionColorThreshold(1);
+	reg.setMinClusterSize(400);
 
 	std::vector<pcl::PointIndices> clusters;
 	reg.extract(clusters);
@@ -220,51 +209,62 @@ int color_growing_segmentation(std::string filename) {
 	return (0);
 }
 
-int region_growing_segmentation(std::string filename) {
-	pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud_ptr(
-			new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::PointCloud<pcl::PointXYZ>& point_cloud = *point_cloud_ptr;
+std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr > region_growing_segmentation(
+		std::string filename) {
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud = *point_cloud_ptr;
 	if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
 		std::cerr << "Was not able to open file \"" << filename << "\".\n";
 	}
 
 	// Create the filtering object: downsample the dataset using a leaf size of 1cm
-	pcl::VoxelGrid<pcl::PointXYZ> vg;
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(
-			new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::VoxelGrid<pcl::PointXYZRGB> vg;
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
 	vg.setInputCloud(point_cloud_ptr);
 	vg.setLeafSize(0.01f, 0.01f, 0.01f);
 	vg.filter(*cloud_filtered);
 	std::cout << "PointCloud after filtering has: "
 			<< cloud_filtered->points.size() << " data points." << std::endl;
 
-	pcl::search::Search<pcl::PointXYZ>::Ptr tree = boost::shared_ptr<
-			pcl::search::Search<pcl::PointXYZ> >(
-			new pcl::search::KdTree<pcl::PointXYZ>);
+	pcl::search::Search<pcl::PointXYZRGB>::Ptr tree = boost::shared_ptr<
+			pcl::search::Search<pcl::PointXYZRGB> >(
+			new pcl::search::KdTree<pcl::PointXYZRGB>);
 	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
-	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator;
+	pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> normal_estimator;
 	normal_estimator.setSearchMethod(tree);
 	normal_estimator.setInputCloud(cloud_filtered);
 	normal_estimator.setKSearch(50);
 	normal_estimator.compute(*normals);
 
 	pcl::IndicesPtr indices(new std::vector<int>);
-	pcl::PassThrough<pcl::PointXYZ> pass;
+	pcl::PassThrough<pcl::PointXYZRGB> pass;
 	pass.setInputCloud(cloud_filtered);
 	pass.setFilterFieldName("z");
 	pass.setFilterLimits(0.0, 1.0);
 	pass.filter(*indices);
 
-	pcl::RegionGrowing<pcl::PointXYZ, pcl::Normal> reg;
+	pcl::RegionGrowing<pcl::PointXYZRGB, pcl::Normal> reg;
+	/*Defaults
+	 reg.setMinClusterSize(50);
+	 reg.setMaxClusterSize(1000000);
+	 reg.setSearchMethod(tree);
+	 reg.setNumberOfNeighbours(30);
+	 reg.setInputCloud(cloud_filtered);
+	 //reg.setIndices (indices);
+	 reg.setInputNormals(normals);
+	 reg.setSmoothnessThreshold(3.0 / 180.0 * M_PI);
+	 reg.setCurvatureThreshold(1.0);*/
 	reg.setMinClusterSize(50);
 	reg.setMaxClusterSize(1000000);
 	reg.setSearchMethod(tree);
-	reg.setNumberOfNeighbours(30);
+	reg.setNumberOfNeighbours(100);
 	reg.setInputCloud(cloud_filtered);
 	//reg.setIndices (indices);
 	reg.setInputNormals(normals);
-	reg.setSmoothnessThreshold(3.0 / 180.0 * M_PI);
-	reg.setCurvatureThreshold(1.0);
+	reg.setSmoothnessThreshold(5.0 / 180.0 * M_PI);
+	reg.setCurvatureThreshold(1);
 
 	std::vector<pcl::PointIndices> clusters;
 	reg.extract(clusters);
@@ -273,17 +273,17 @@ int region_growing_segmentation(std::string filename) {
 			<< std::endl;
 	std::cout << "First cluster has " << clusters[0].indices.size()
 			<< " points." << endl;
-	std::cout << "These are the indices of the points of the initial"
-			<< std::endl << "cloud that belong to the first cluster:"
-			<< std::endl;
-	int counter = 0;
-	while (counter < clusters[0].indices.size()) {
-		std::cout << clusters[0].indices[counter] << ", ";
-		counter++;
-		if (counter % 10 == 0)
-			std::cout << std::endl;
-	}
-	std::cout << std::endl;
+	/*std::cout << "These are the indices of the points of the initial"
+	 << std::endl << "cloud that belong to the first cluster:"
+	 << std::endl;
+	 int counter = 0;
+	 while (counter < clusters[0].indices.size()) {
+	 std::cout << clusters[0].indices[counter] << ", ";
+	 counter++;
+	 if (counter % 10 == 0)
+	 std::cout << std::endl;
+	 }
+	 std::cout << std::endl;*/
 
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_cloud =
 			reg.getColoredCloud();
@@ -291,12 +291,27 @@ int region_growing_segmentation(std::string filename) {
 	std::stringstream ss;
 	ss << "region_growing_cloud.ply";
 	writer.write<pcl::PointXYZRGB>(ss.str(), *colored_cloud, false);
-	pcl::visualization::CloudViewer viewer("Cluster viewer");
+	/*pcl::visualization::CloudViewer viewer("Cluster viewer");
 	viewer.showCloud(colored_cloud);
 	while (!viewer.wasStopped()) {
-	}
+	}*/
 
-	return (0);
+	//Store clusters into new pcls and all the clusters in an array of pcls
+	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr > clusters_pcl;
+	for (int i = 0; i < clusters.size(); ++i) {
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(
+				new pcl::PointCloud<pcl::PointXYZRGB>);
+		cloud_cluster->width = clusters[i].indices.size();
+		cloud_cluster->height = 1;
+		cloud_cluster->is_dense = true;
+		for (int j = 0; j < clusters[i].indices.size(); ++j) {
+			//Take the corresponding point of the filtered cloud from the indices for the new pcl
+			cloud_cluster->push_back(
+					cloud_filtered->at(clusters[i].indices[j]));
+		}
+		clusters_pcl.push_back(cloud_cluster);
+	}
+	return clusters_pcl;
 }
 
 int ground_segmentation(std::string filename) {
@@ -350,22 +365,36 @@ int ground_segmentation(std::string filename) {
 	writer.write<pcl::PointXYZ>("samp11-utm_object.ply", *cloud_filtered,
 			false);
 
-	pcl::visualization::CloudViewer viewer("Cluster viewer");
+	/*pcl::visualization::CloudViewer viewer("Cluster viewer");
 	viewer.showCloud(cloud_filtered);
 	while (!viewer.wasStopped()) {
-	}
+	}*/
 
 	return (0);
 }
 
-int main(int argc, char** argv) {
+/*int main(int argc, char** argv) {
 	std::vector<int> pcl_filename_indices =
 			pcl::console::parse_file_extension_argument(argc, argv, "ply");
-	std::cout << argv[pcl_filename_indices[0]];
+	//std::cout << argv[pcl_filename_indices[0]];
 	//planar_segmentation(argv[pcl_filename_indices[0]]);
 	//cluster_segmentation(argv[pcl_filename_indices[0]]);
 	//color_growing_segmentation(argv[pcl_filename_indices[0]]);
-	//region_growing_segmentation(argv[pcl_filename_indices[0]]);
-	ground_segmentation(argv[pcl_filename_indices[0]]);
+	//ground_segmentation(argv[pcl_filename_indices[0]]);
+	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr > clusters_pcl_1 =
+			region_growing_segmentation(argv[pcl_filename_indices[0]]);
 
-}
+	for (int i=0; i< clusters_pcl_1.size(); ++i){
+		pcl::visualization::CloudViewer viewer("Cluster viewer");
+		viewer.showCloud(clusters_pcl_1[i]);
+		while (!viewer.wasStopped()) {
+		}
+	}
+
+	/*Error con chair.ply:
+	 * Number of clusters is equal to 0
+First cluster has 0 points.
+segmentator: /usr/include/boost/smart_ptr/shared_ptr.hpp:646: typename boost::detail::sp_dereference<T>::type boost::shared_ptr<T>::operator*() const [with T = pcl::PointCloud<pcl::PointXYZRGB>; typename boost::detail::sp_dereference<T>::type = pcl::PointCloud<pcl::PointXYZRGB>&]: Assertion `px != 0' failed.
+Abortado (`core' generado)
+
+}*/
