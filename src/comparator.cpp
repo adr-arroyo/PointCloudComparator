@@ -761,7 +761,7 @@ void processFPFH(std::string filename, std::string filename2) {
 	cout << "Computed " << descriptors->points.size() << " FPFH descriptors\n";
 }
 
-void computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
+double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_1 =
 			region_growing_segmentation(argv[pcl_filename_indices[0]]);
 	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_2 =
@@ -781,6 +781,7 @@ void computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	int clus1Max;
 	int clus2Max;
 	int clusMax;
+	std::vector<int> numberDescriptors1(clusters_pcl_1.size());
 
 	//Precompute of VHF
 	/*std::vector<pcl::PointCloud<pcl::VFHSignature308>::Ptr> descriptors2VHF;
@@ -797,6 +798,7 @@ void computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	for (int i = 0; i < clusters_pcl_1.size(); ++i) {
 		des1VHF = processVHF(clusters_pcl_1[i]);
 		des1RIFT = processRIFT(clusters_pcl_1[i]);
+		numberDescriptors1[i] = des1RIFT->points.size();
 		maxCor2 = 0;
 		for (int j = 0; j < clusters_pcl_2.size(); ++j) {
 			matches[i] = -1;
@@ -834,38 +836,82 @@ void computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		}
 	}
 
+	int pcl1 = 0;
+	int pcl2 = 0;
 	for (int i = 0; i < clusters_pcl_1.size(); ++i) {
+		//Por cada match
 		if (matches[i] != -1) {
+			//Show both segments
+			pcl::visualization::CloudViewer viewer2("Cluster viewer");
+			viewer2.showCloud(clusters_pcl_1[i]);
+			while (!viewer2.wasStopped()) {
+			}
+			pcl::visualization::CloudViewer viewer3("Cluster viewer");
+			viewer3.showCloud(clusters_pcl_2[matches[i]]);
+			while (!viewer3.wasStopped()) {
+			}
+			//Number of points comparison
+			int morePointsFirst = 0;
+			if (clusters_pcl_1.at(i)->points.size()
+					> clusters_pcl_2.at(matches[i])->points.size())
+				morePointsFirst = 1;
+			else if (clusters_pcl_1.at(i)->points.size()
+					< clusters_pcl_2.at(matches[i])->points.size())
+				morePointsFirst = 2;
 			std::cout << "Points pcl 1: " << clusters_pcl_1.at(i)->points.size()
 					<< std::endl;
 			std::cout << "Points pcl 2: "
 					<< clusters_pcl_2.at(matches[i])->points.size()
 					<< std::endl;
+			//Number of descriptors comparison
+			int moreDescriptorsFirst = 0;
+			if (numberDescriptors1[i]
+					> descriptors2RIFT[matches[i]]->points.size())
+				moreDescriptorsFirst = 1;
+			else if (numberDescriptors1[i]
+					< descriptors2RIFT[matches[i]]->points.size())
+				moreDescriptorsFirst = 2;
+			//TODO descriptores repetidos??
 
-			pcl::visualization::CloudViewer viewer2("Cluster viewer");
-			viewer2.showCloud(clusters_pcl_1[i]);
-			while (!viewer2.wasStopped()) {
-			}
+			//Surface analysis
 
-			pcl::visualization::CloudViewer viewer3("Cluster viewer");
-			viewer3.showCloud(clusters_pcl_2[matches[i]]);
-			while (!viewer3.wasStopped()) {
-			}
+			//Similarity of segments
+			int simil1 = 0;
+			int simil2 = 0;
+			if (morePointsFirst == 1)
+				++simil1;
+			else if (morePointsFirst == 2)
+				++simil2;
+
+			if (moreDescriptorsFirst == 1)
+				++simil1;
+			else if (moreDescriptorsFirst == 2)
+				++simil2;
+
+			//Similarity of general pcl
+			if (simil1 > simil2)
+				++pcl1;
+			else if (simil1 < simil2)
+				++pcl2;
 		}
 	}
-
-	/*spatial_change_detection(argv[pcl_filename_indices[0]],
-	 argv[pcl_filename_indices[1]]);*/
-
+	std::cout << "score pcl1: " << pcl1 << std::endl;
+	std::cout << "score pcl2: " << pcl2 << std::endl;
+	if (pcl1 > pcl2)
+		return 1;
+	else if (pcl1 < pcl2)
+		return 2;
+	else
+		return 0;
 }
 
 // --------------
 // -----Main-----
 // --------------
 int main(int argc, char** argv) {
-	// --------------------------------------
-	// -----Parse Command Line Arguments-----
-	// --------------------------------------
+// --------------------------------------
+// -----Parse Command Line Arguments-----
+// --------------------------------------
 	if (pcl::console::find_argument(argc, argv, "-h") >= 0) {
 		printUsage(argv[0]);
 		return 0;
@@ -894,7 +940,14 @@ int main(int argc, char** argv) {
 	std::vector<int> pcl_filename_indices =
 			pcl::console::parse_file_extension_argument(argc, argv, "ply");
 
-	computeSimilarity(argv, pcl_filename_indices);
+	double similarity = computeSimilarity(argv, pcl_filename_indices);
+
+	if (similarity == 1)
+		cout << "The first point cloud has more information" << std::endl;
+	else if (similarity == 2)
+		cout << "The second point cloud has more information" << std::endl;
+	else
+		cout << "The point clouds have the same information" << std::endl;
 
 	return 1;
 }
