@@ -21,10 +21,12 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/vtk-5.8"
   "/usr/include/pcl-1.7"
   "/usr/include/eigen3"
+  "../include"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
+  "/home/adrian/PointCloudComparator/build/CMakeFiles/mylib.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

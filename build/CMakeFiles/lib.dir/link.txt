@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblib.a  CMakeFiles/lib.dir/src/segmentation.cpp.o CMakeFiles/lib.dir/src/comparator.cpp.o
+/usr/bin/ranlib liblib.a

@@ -202,31 +202,7 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
 //Path to a file.
-DAVIDSDK_INCLUDE_DIR:PATH=DAVIDSDK_INCLUDE_DIR-NOTFOUND
-
-//Path to a library.
-DAVIDSDK_LIBRARY:FILEPATH=DAVIDSDK_LIBRARY-NOTFOUND
-
-//DepthSense SDK directory
-DSSDK_DIR:PATH=DSSDK_DIR-NOTFOUND
-
-//Path to a library.
-DSSDK_LIBRARY_DepthSense:FILEPATH=DSSDK_LIBRARY_DepthSense-NOTFOUND
-
-//Path to a library.
-DSSDK_LIBRARY_DepthSensePlugins:FILEPATH=DSSDK_LIBRARY_DepthSensePlugins-NOTFOUND
-
-//Path to a library.
-DSSDK_LIBRARY_turbojpeg:FILEPATH=DSSDK_LIBRARY_turbojpeg-NOTFOUND
-
-//Path to a file.
-EIGEN_INCLUDE_DIRS:PATH=/usr/include/eigen3
-
-//Path to a file.
-ENSENSO_INCLUDE_DIR:PATH=ENSENSO_INCLUDE_DIR-NOTFOUND
-
-//Path to a library.
-ENSENSO_LIBRARY:FILEPATH=ENSENSO_LIBRARY-NOTFOUND
+EIGEN_INCLUDE_DIRS:PATH=/usr/local/include/eigen3
 
 //Path to a file.
 LIBUSB_1_INCLUDE_DIR:PATH=/usr/include
@@ -247,43 +223,34 @@ OPENNI_INCLUDE_DIRS:PATH=/usr/include/ni
 OPENNI_LIBRARY:FILEPATH=/usr/lib/libOpenNI.so
 
 //path to common headers
-PCL_COMMON_INCLUDE_DIR:PATH=/usr/local/include/pcl-1.8
+PCL_COMMON_INCLUDE_DIR:PATH=/usr/include/pcl-1.7
 
 //path to pcl_common library
-PCL_COMMON_LIBRARY:FILEPATH=/usr/local/lib/libpcl_common.so
+PCL_COMMON_LIBRARY:FILEPATH=/usr/lib/libpcl_common.so
 
 //path to pcl_common library debug
-PCL_COMMON_LIBRARY_DEBUG:FILEPATH=/usr/local/lib/libpcl_common.so
+PCL_COMMON_LIBRARY_DEBUG:FILEPATH=/usr/lib/libpcl_common.so
 
 //The directory containing a CMake configuration file for PCL.
 PCL_DIR:PATH=/usr/share/pcl-1.7
 
-//path to eigen headers
-PCL_EIGEN_INCLUDE_DIR:PATH=PCL_EIGEN_INCLUDE_DIR-NOTFOUND
-
-//path to pcl_eigen library
-PCL_EIGEN_LIBRARY:FILEPATH=PCL_EIGEN_LIBRARY-NOTFOUND
-
-//path to pcl_eigen library debug
-PCL_EIGEN_LIBRARY_DEBUG:FILEPATH=PCL_EIGEN_LIBRARY_DEBUG-NOTFOUND
-
 //path to io headers
-PCL_IO_INCLUDE_DIR:PATH=/usr/local/include/pcl-1.8
+PCL_IO_INCLUDE_DIR:PATH=/usr/include/pcl-1.7
 
 //path to pcl_io library
-PCL_IO_LIBRARY:FILEPATH=/usr/local/lib/libpcl_io.so
+PCL_IO_LIBRARY:FILEPATH=/usr/lib/libpcl_io.so
 
 //path to pcl_io library debug
-PCL_IO_LIBRARY_DEBUG:FILEPATH=/usr/local/lib/libpcl_io.so
+PCL_IO_LIBRARY_DEBUG:FILEPATH=/usr/lib/libpcl_io.so
 
 //path to octree headers
-PCL_OCTREE_INCLUDE_DIR:PATH=/usr/local/include/pcl-1.8
+PCL_OCTREE_INCLUDE_DIR:PATH=/usr/include/pcl-1.7
 
 //path to pcl_octree library
-PCL_OCTREE_LIBRARY:FILEPATH=/usr/local/lib/libpcl_octree.so
+PCL_OCTREE_LIBRARY:FILEPATH=/usr/lib/libpcl_octree.so
 
 //path to pcl_octree library debug
-PCL_OCTREE_LIBRARY_DEBUG:FILEPATH=/usr/local/lib/libpcl_octree.so
+PCL_OCTREE_LIBRARY_DEBUG:FILEPATH=/usr/lib/libpcl_octree.so
 
 //pkg-config executable
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
@@ -294,8 +261,11 @@ PointCloudComparator_BINARY_DIR:STATIC=/home/adrian/PointCloudComparator/build
 //Value Computed by CMake
 PointCloudComparator_SOURCE_DIR:STATIC=/home/adrian/PointCloudComparator
 
-//The directory containing VTKConfig.cmake
-VTK_DIR:PATH=/usr/lib/vtk-5.8
+//Dependencies for target
+lib_LIB_DEPENDS:STATIC=
+
+//Dependencies for target
+mylib_LIB_DEPENDS:STATIC=
 
 
 ########################
@@ -455,26 +425,20 @@ CMAKE_STATIC_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: DSSDK_LIBRARY_DepthSense
-DSSDK_LIBRARY_DepthSense-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: DSSDK_LIBRARY_DepthSensePlugins
-DSSDK_LIBRARY_DepthSensePlugins-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: DSSDK_LIBRARY_turbojpeg
-DSSDK_LIBRARY_turbojpeg-ADVANCED:INTERNAL=1
 //Details about finding OpenNI2
 FIND_PACKAGE_MESSAGE_DETAILS_OpenNI2:INTERNAL=[/usr/lib/libOpenNI2.so][/usr/include/openni2][v()]
 //Details about finding PCL
-FIND_PACKAGE_MESSAGE_DETAILS_PCL:INTERNAL=[/usr/lib/x86_64-linux-gnu/libboost_system.so;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;/usr/lib/x86_64-linux-gnu/libboost_thread.so;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;/usr/lib/x86_64-linux-gnu/libboost_iostreams.so;/usr/lib/x86_64-linux-gnu/libboost_serialization.so;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;/usr/lib/x86_64-linux-gnu/libboost_atomic.so;/usr/lib/x86_64-linux-gnu/libboost_regex.so;optimized;/usr/local/lib/libpcl_common.so;debug;/usr/local/lib/libpcl_common.so;optimized;/usr/local/lib/libpcl_octree.so;debug;/usr/local/lib/libpcl_octree.so;/usr/lib/libOpenNI.so;/usr/lib/libOpenNI2.so;vtkCommon;vtkFiltering;vtkImaging;vtkGraphics;vtkGenericFiltering;vtkIO;vtkRendering;vtkVolumeRendering;vtkHybrid;vtkWidgets;vtkParallel;vtkInfovis;vtkGeovis;vtkViews;vtkCharts;optimized;/usr/local/lib/libpcl_io.so;debug;/usr/local/lib/libpcl_io.so;/usr/lib/x86_64-linux-gnu/libboost_system.so;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;/usr/lib/x86_64-linux-gnu/libboost_thread.so;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;/usr/lib/x86_64-linux-gnu/libboost_iostreams.so;/usr/lib/x86_64-linux-gnu/libboost_serialization.so;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;/usr/lib/x86_64-linux-gnu/libboost_atomic.so;/usr/lib/x86_64-linux-gnu/libboost_regex.so;/usr/lib/libOpenNI.so;/usr/lib/libOpenNI2.so;vtkCommon;vtkFiltering;vtkImaging;vtkGraphics;vtkGenericFiltering;vtkIO;vtkRendering;vtkVolumeRendering;vtkHybrid;vtkWidgets;vtkParallel;vtkInfovis;vtkGeovis;vtkViews;vtkCharts][/usr/include/pcl-1.7;/usr/include/eigen3;/usr/include;/usr/local/include/pcl-1.8;/usr/include/ni;/usr/include/openni2;/usr/include/vtk-5.8][v(1.7)]
+FIND_PACKAGE_MESSAGE_DETAILS_PCL:INTERNAL=[/usr/lib/x86_64-linux-gnu/libboost_system.so;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;/usr/lib/x86_64-linux-gnu/libboost_thread.so;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;/usr/lib/x86_64-linux-gnu/libboost_iostreams.so;/usr/lib/x86_64-linux-gnu/libboost_serialization.so;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;/usr/lib/x86_64-linux-gnu/libboost_atomic.so;/usr/lib/x86_64-linux-gnu/libboost_regex.so;optimized;/usr/lib/libpcl_common.so;debug;/usr/lib/libpcl_common.so;optimized;/usr/lib/libpcl_octree.so;debug;/usr/lib/libpcl_octree.so;/usr/lib/libOpenNI.so;/usr/lib/libOpenNI2.so;vtkCommon;vtkFiltering;vtkImaging;vtkGraphics;vtkGenericFiltering;vtkIO;vtkRendering;vtkVolumeRendering;vtkHybrid;vtkWidgets;vtkParallel;vtkInfovis;vtkGeovis;vtkViews;vtkCharts;optimized;/usr/lib/libpcl_io.so;debug;/usr/lib/libpcl_io.so;/usr/lib/x86_64-linux-gnu/libboost_system.so;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;/usr/lib/x86_64-linux-gnu/libboost_thread.so;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;/usr/lib/x86_64-linux-gnu/libboost_iostreams.so;/usr/lib/x86_64-linux-gnu/libboost_serialization.so;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;/usr/lib/x86_64-linux-gnu/libboost_atomic.so;/usr/lib/x86_64-linux-gnu/libboost_regex.so;/usr/lib/libOpenNI.so;/usr/lib/libOpenNI2.so;vtkCommon;vtkFiltering;vtkImaging;vtkGraphics;vtkGenericFiltering;vtkIO;vtkRendering;vtkVolumeRendering;vtkHybrid;vtkWidgets;vtkParallel;vtkInfovis;vtkGeovis;vtkViews;vtkCharts][/usr/include/pcl-1.7;/usr/local/include/eigen3;/usr/include;/usr/include/ni;/usr/include/openni2;/usr/include/vtk-5.8][v(1.7)]
 //Details about finding PCL_COMMON
-FIND_PACKAGE_MESSAGE_DETAILS_PCL_COMMON:INTERNAL=[/usr/local/lib/libpcl_common.so][/usr/local/include/pcl-1.8][v()]
+FIND_PACKAGE_MESSAGE_DETAILS_PCL_COMMON:INTERNAL=[/usr/lib/libpcl_common.so][/usr/include/pcl-1.7][v()]
 //Details about finding PCL_IO
-FIND_PACKAGE_MESSAGE_DETAILS_PCL_IO:INTERNAL=[/usr/local/lib/libpcl_io.so][/usr/local/include/pcl-1.8][v()]
+FIND_PACKAGE_MESSAGE_DETAILS_PCL_IO:INTERNAL=[/usr/lib/libpcl_io.so][/usr/include/pcl-1.7][v()]
 //Details about finding PCL_OCTREE
-FIND_PACKAGE_MESSAGE_DETAILS_PCL_OCTREE:INTERNAL=[/usr/local/lib/libpcl_octree.so][/usr/local/include/pcl-1.8][v()]
+FIND_PACKAGE_MESSAGE_DETAILS_PCL_OCTREE:INTERNAL=[/usr/lib/libpcl_octree.so][/usr/include/pcl-1.7][v()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //Details about finding eigen
-FIND_PACKAGE_MESSAGE_DETAILS_eigen:INTERNAL=[/usr/include/eigen3][v()]
+FIND_PACKAGE_MESSAGE_DETAILS_eigen:INTERNAL=[/usr/local/include/eigen3][v()]
 //Details about finding libusb-1.0
 FIND_PACKAGE_MESSAGE_DETAILS_libusb-1.0:INTERNAL=[/usr/include][v()]
 //Details about finding openni
@@ -491,12 +455,12 @@ PCL_IO_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 PCL_OCTREE_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PCL_OCTREE_LIBRARY_DEBUG
 PCL_OCTREE_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
-PC_EIGEN_CFLAGS:INTERNAL=-I/usr/include/eigen3
+PC_EIGEN_CFLAGS:INTERNAL=-I/usr/local/include/eigen3
 PC_EIGEN_CFLAGS_I:INTERNAL=
 PC_EIGEN_CFLAGS_OTHER:INTERNAL=
 PC_EIGEN_FOUND:INTERNAL=1
 PC_EIGEN_INCLUDEDIR:INTERNAL=
-PC_EIGEN_INCLUDE_DIRS:INTERNAL=/usr/include/eigen3
+PC_EIGEN_INCLUDE_DIRS:INTERNAL=/usr/local/include/eigen3
 PC_EIGEN_LDFLAGS:INTERNAL=
 PC_EIGEN_LDFLAGS_OTHER:INTERNAL=
 PC_EIGEN_LIBDIR:INTERNAL=
@@ -506,11 +470,11 @@ PC_EIGEN_LIBS:INTERNAL=
 PC_EIGEN_LIBS_L:INTERNAL=
 PC_EIGEN_LIBS_OTHER:INTERNAL=
 PC_EIGEN_LIBS_PATHS:INTERNAL=
-PC_EIGEN_PREFIX:INTERNAL=
-PC_EIGEN_STATIC_CFLAGS:INTERNAL=-I/usr/include/eigen3
+PC_EIGEN_PREFIX:INTERNAL=/usr/local
+PC_EIGEN_STATIC_CFLAGS:INTERNAL=-I/usr/local/include/eigen3
 PC_EIGEN_STATIC_CFLAGS_I:INTERNAL=
 PC_EIGEN_STATIC_CFLAGS_OTHER:INTERNAL=
-PC_EIGEN_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/eigen3
+PC_EIGEN_STATIC_INCLUDE_DIRS:INTERNAL=/usr/local/include/eigen3
 PC_EIGEN_STATIC_LDFLAGS:INTERNAL=
 PC_EIGEN_STATIC_LDFLAGS_OTHER:INTERNAL=
 PC_EIGEN_STATIC_LIBDIR:INTERNAL=
@@ -520,7 +484,7 @@ PC_EIGEN_STATIC_LIBS:INTERNAL=
 PC_EIGEN_STATIC_LIBS_L:INTERNAL=
 PC_EIGEN_STATIC_LIBS_OTHER:INTERNAL=
 PC_EIGEN_STATIC_LIBS_PATHS:INTERNAL=
-PC_EIGEN_VERSION:INTERNAL=3.2.0
+PC_EIGEN_VERSION:INTERNAL=3.3.3
 PC_EIGEN_eigen3_INCLUDEDIR:INTERNAL=
 PC_EIGEN_eigen3_LIBDIR:INTERNAL=
 PC_EIGEN_eigen3_PREFIX:INTERNAL=

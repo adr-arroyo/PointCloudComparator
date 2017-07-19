@@ -100,3 +100,54 @@ make[1]: se sale del directorio «/home/adrian/PointCloudComparator/build/CMakeF
 make: *** [cmTC_f9b58/fast] Error 2
 
 
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/adrian/PointCloudComparator/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_b65b7/fast"
+/usr/bin/make -f CMakeFiles/cmTC_b65b7.dir/build.make CMakeFiles/cmTC_b65b7.dir/build
+make[1]: se ingresa al directorio «/home/adrian/PointCloudComparator/build/CMakeFiles/CMakeTmp»
+Building C object CMakeFiles/cmTC_b65b7.dir/CheckSymbolExists.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_b65b7.dir/CheckSymbolExists.c.o   -c /home/adrian/PointCloudComparator/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_b65b7
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b65b7.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_b65b7.dir/CheckSymbolExists.c.o  -o cmTC_b65b7 -rdynamic 
+CMakeFiles/cmTC_b65b7.dir/CheckSymbolExists.c.o: En la función `main':
+CheckSymbolExists.c:(.text+0x16): referencia a `pthread_create' sin definir
+collect2: error: ld returned 1 exit status
+make[1]: *** [cmTC_b65b7] Error 1
+make[1]: se sale del directorio «/home/adrian/PointCloudComparator/build/CMakeFiles/CMakeTmp»
+make: *** [cmTC_b65b7/fast] Error 2
+
+File /home/adrian/PointCloudComparator/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/adrian/PointCloudComparator/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_4c9ee/fast"
+/usr/bin/make -f CMakeFiles/cmTC_4c9ee.dir/build.make CMakeFiles/cmTC_4c9ee.dir/build
+make[1]: se ingresa al directorio «/home/adrian/PointCloudComparator/build/CMakeFiles/CMakeTmp»
+Building C object CMakeFiles/cmTC_4c9ee.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_4c9ee.dir/CheckFunctionExists.c.o   -c /usr/local/share/cmake-3.7/Modules/CheckFunctionExists.c
+Linking C executable cmTC_4c9ee
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4c9ee.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_4c9ee.dir/CheckFunctionExists.c.o  -o cmTC_4c9ee -rdynamic -lpthreads 
+/usr/bin/ld: no se puede encontrar -lpthreads
+collect2: error: ld returned 1 exit status
+make[1]: *** [cmTC_4c9ee] Error 1
+make[1]: se sale del directorio «/home/adrian/PointCloudComparator/build/CMakeFiles/CMakeTmp»
+make: *** [cmTC_4c9ee/fast] Error 2
+
+

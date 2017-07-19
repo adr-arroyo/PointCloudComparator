@@ -123,6 +123,32 @@ comparator/fast:
 	$(MAKE) -f CMakeFiles/comparator.dir/build.make CMakeFiles/comparator.dir/build
 .PHONY : comparator/fast
 
+#=============================================================================
+# Target rules for targets named segmentator
+
+# Build rule for target.
+segmentator: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 segmentator
+.PHONY : segmentator
+
+# fast build rule for target.
+segmentator/fast:
+	$(MAKE) -f CMakeFiles/segmentator.dir/build.make CMakeFiles/segmentator.dir/build
+.PHONY : segmentator/fast
+
+#=============================================================================
+# Target rules for targets named mylib
+
+# Build rule for target.
+mylib: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 mylib
+.PHONY : mylib
+
+# fast build rule for target.
+mylib/fast:
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/build
+.PHONY : mylib/fast
+
 src/comparator.o: src/comparator.cpp.o
 
 .PHONY : src/comparator.o
@@ -130,6 +156,7 @@ src/comparator.o: src/comparator.cpp.o
 # target to build an object file
 src/comparator.cpp.o:
 	$(MAKE) -f CMakeFiles/comparator.dir/build.make CMakeFiles/comparator.dir/src/comparator.cpp.o
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/src/comparator.cpp.o
 .PHONY : src/comparator.cpp.o
 
 src/comparator.i: src/comparator.cpp.i
@@ -139,6 +166,7 @@ src/comparator.i: src/comparator.cpp.i
 # target to preprocess a source file
 src/comparator.cpp.i:
 	$(MAKE) -f CMakeFiles/comparator.dir/build.make CMakeFiles/comparator.dir/src/comparator.cpp.i
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/src/comparator.cpp.i
 .PHONY : src/comparator.cpp.i
 
 src/comparator.s: src/comparator.cpp.s
@@ -148,7 +176,38 @@ src/comparator.s: src/comparator.cpp.s
 # target to generate assembly for a file
 src/comparator.cpp.s:
 	$(MAKE) -f CMakeFiles/comparator.dir/build.make CMakeFiles/comparator.dir/src/comparator.cpp.s
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/src/comparator.cpp.s
 .PHONY : src/comparator.cpp.s
+
+src/segmentation.o: src/segmentation.cpp.o
+
+.PHONY : src/segmentation.o
+
+# target to build an object file
+src/segmentation.cpp.o:
+	$(MAKE) -f CMakeFiles/segmentator.dir/build.make CMakeFiles/segmentator.dir/src/segmentation.cpp.o
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/src/segmentation.cpp.o
+.PHONY : src/segmentation.cpp.o
+
+src/segmentation.i: src/segmentation.cpp.i
+
+.PHONY : src/segmentation.i
+
+# target to preprocess a source file
+src/segmentation.cpp.i:
+	$(MAKE) -f CMakeFiles/segmentator.dir/build.make CMakeFiles/segmentator.dir/src/segmentation.cpp.i
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/src/segmentation.cpp.i
+.PHONY : src/segmentation.cpp.i
+
+src/segmentation.s: src/segmentation.cpp.s
+
+.PHONY : src/segmentation.s
+
+# target to generate assembly for a file
+src/segmentation.cpp.s:
+	$(MAKE) -f CMakeFiles/segmentator.dir/build.make CMakeFiles/segmentator.dir/src/segmentation.cpp.s
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/src/segmentation.cpp.s
+.PHONY : src/segmentation.cpp.s
 
 # Help Target
 help:
@@ -159,9 +218,14 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... comparator"
+	@echo "... segmentator"
+	@echo "... mylib"
 	@echo "... src/comparator.o"
 	@echo "... src/comparator.i"
 	@echo "... src/comparator.s"
+	@echo "... src/segmentation.o"
+	@echo "... src/segmentation.i"
+	@echo "... src/segmentation.s"
 .PHONY : help
 
 

@@ -63,7 +63,7 @@ CMAKE_BINARY_DIR = /home/adrian/PointCloudComparator/build
 # Target rules for target CMakeFiles/comparator.dir
 
 # All Build rule for target.
-CMakeFiles/comparator.dir/all:
+CMakeFiles/comparator.dir/all: CMakeFiles/mylib.dir/all
 	$(MAKE) -f CMakeFiles/comparator.dir/build.make CMakeFiles/comparator.dir/depend
 	$(MAKE) -f CMakeFiles/comparator.dir/build.make CMakeFiles/comparator.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/adrian/PointCloudComparator/build/CMakeFiles --progress-num=1,2 "Built target comparator"
@@ -76,7 +76,7 @@ all: CMakeFiles/comparator.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/comparator.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/PointCloudComparator/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/PointCloudComparator/build/CMakeFiles 5
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/comparator.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/PointCloudComparator/build/CMakeFiles 0
 .PHONY : CMakeFiles/comparator.dir/rule
@@ -93,6 +93,80 @@ CMakeFiles/comparator.dir/clean:
 
 # clean rule for target.
 clean: CMakeFiles/comparator.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/segmentator.dir
+
+# All Build rule for target.
+CMakeFiles/segmentator.dir/all: CMakeFiles/mylib.dir/all
+	$(MAKE) -f CMakeFiles/segmentator.dir/build.make CMakeFiles/segmentator.dir/depend
+	$(MAKE) -f CMakeFiles/segmentator.dir/build.make CMakeFiles/segmentator.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/adrian/PointCloudComparator/build/CMakeFiles --progress-num=6,7 "Built target segmentator"
+.PHONY : CMakeFiles/segmentator.dir/all
+
+# Include target in all.
+all: CMakeFiles/segmentator.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/segmentator.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/PointCloudComparator/build/CMakeFiles 5
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/segmentator.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/PointCloudComparator/build/CMakeFiles 0
+.PHONY : CMakeFiles/segmentator.dir/rule
+
+# Convenience name for target.
+segmentator: CMakeFiles/segmentator.dir/rule
+
+.PHONY : segmentator
+
+# clean rule for target.
+CMakeFiles/segmentator.dir/clean:
+	$(MAKE) -f CMakeFiles/segmentator.dir/build.make CMakeFiles/segmentator.dir/clean
+.PHONY : CMakeFiles/segmentator.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/segmentator.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/mylib.dir
+
+# All Build rule for target.
+CMakeFiles/mylib.dir/all:
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/depend
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/adrian/PointCloudComparator/build/CMakeFiles --progress-num=3,4,5 "Built target mylib"
+.PHONY : CMakeFiles/mylib.dir/all
+
+# Include target in all.
+all: CMakeFiles/mylib.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/mylib.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/PointCloudComparator/build/CMakeFiles 3
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/mylib.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/PointCloudComparator/build/CMakeFiles 0
+.PHONY : CMakeFiles/mylib.dir/rule
+
+# Convenience name for target.
+mylib: CMakeFiles/mylib.dir/rule
+
+.PHONY : mylib
+
+# clean rule for target.
+CMakeFiles/mylib.dir/clean:
+	$(MAKE) -f CMakeFiles/mylib.dir/build.make CMakeFiles/mylib.dir/clean
+.PHONY : CMakeFiles/mylib.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/mylib.dir/clean
 
 .PHONY : clean
 
