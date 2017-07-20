@@ -48,7 +48,6 @@ void setViewerPose(pcl::visualization::PCLVisualizer& viewer,
 /*void spatial_change_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudA,
  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudB) {*/
 void spatial_change_detection(std::string filename, std::string filename2) {
-
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudA(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	if (pcl::io::loadPLYFile(filename, *cloudA) == -1) {
@@ -89,12 +88,21 @@ void spatial_change_detection(std::string filename, std::string filename2) {
 	octree.getPointIndicesFromNewVoxels(newPointIdxVector);
 
 	// Output points
-	std::cout << "Output from getPointIndicesFromNewVoxels:" << std::endl;
-	for (size_t i = 0; i < newPointIdxVector.size(); ++i)
-		std::cout << i << "# Index:" << newPointIdxVector[i] << "  Point:"
-				<< cloudB->points[newPointIdxVector[i]].x << " "
-				<< cloudB->points[newPointIdxVector[i]].y << " "
-				<< cloudB->points[newPointIdxVector[i]].z << std::endl;
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudDiff(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	for (size_t i = 0; i < newPointIdxVector.size(); ++i) {
+		pcl::PointXYZRGB point;
+		//cloudDiff->points[i] = cloudB->points[newPointIdxVector[i]];
+		point.x = cloudB->points[newPointIdxVector[i]].x;
+		point.y = cloudB->points[newPointIdxVector[i]].y;
+		point.z = cloudB->points[newPointIdxVector[i]].z;
+		point.rgb = cloudB->points[newPointIdxVector[i]].rgb;
+		cloudDiff->push_back(point);
+	}
+	pcl::visualization::CloudViewer viewer("Cluster viewer");
+	viewer.showCloud(cloudDiff);
+	while (!viewer.wasStopped()) {
+	}
 }
 
 /**
@@ -254,7 +262,7 @@ void processNARF2(std::string filename, std::string filename2) {
 	// ------------------------------------------------------
 	std::vector<int> keypoint_indices2;
 	keypoint_indices2.resize(keypoint_indices.points.size());
-	for (unsigned int i = 0; i < keypoint_indices.size(); ++i) // This step is necessary to get the right vector type
+	for (unsigned int i = 0; i < keypoint_indices.size(); ++i)// This step is necessary to get the right vector type
 		keypoint_indices2[i] = keypoint_indices.points[i];
 	pcl::NarfDescriptor narf_descriptor(&range_image, &keypoint_indices2);
 	narf_descriptor.getParameters().support_size = support_size;
@@ -311,7 +319,7 @@ void processNARF2(std::string filename, std::string filename2) {
 	// ------------------------------------------------------
 	std::vector<int> keypoint_indices4;
 	keypoint_indices4.resize(keypoint_indices3.points.size());
-	for (unsigned int i = 0; i < keypoint_indices3.size(); ++i) // This step is necessary to get the right vector type
+	for (unsigned int i = 0; i < keypoint_indices3.size(); ++i)	// This step is necessary to get the right vector type
 		keypoint_indices4[i] = keypoint_indices3.points[i];
 	pcl::NarfDescriptor narf_descriptor2(&range_image2, &keypoint_indices4);
 	narf_descriptor2.getParameters().support_size = support_size;
@@ -475,7 +483,7 @@ pcl::PointCloud<pcl::Narf36>::Ptr processNARF(
 	// ------------------------------------------------------
 	std::vector<int> keypoint_indices2;
 	keypoint_indices2.resize(keypoint_indices.points.size());
-	for (unsigned int i = 0; i < keypoint_indices.size(); ++i) // This step is necessary to get the right vector type
+	for (unsigned int i = 0; i < keypoint_indices.size(); ++i)// This step is necessary to get the right vector type
 		keypoint_indices2[i] = keypoint_indices.points[i];
 	pcl::NarfDescriptor narf_descriptor(&range_image, &keypoint_indices2);
 	narf_descriptor.getParameters().support_size = support_size;
@@ -512,8 +520,8 @@ pcl::PointCloud<pcl::PointWithScale> processSift(
 	// Estimate the sift interest points using normals values from xyz as the Intensity variants
 	pcl::SIFTKeypoint<pcl::PointXYZRGB, pcl::PointWithScale> sift;
 	pcl::search::KdTree<pcl::PointXYZRGB> tree = new pcl::search::KdTree<
-			pcl::PointXYZRGB>();	//new API
-	pcl::PointCloud<pcl::PointWithScale> sifts; //(new pcl::PointCloud<pcl::PointWithScale>);
+			pcl::PointXYZRGB>();		//new API
+	pcl::PointCloud<pcl::PointWithScale> sifts;	//(new pcl::PointCloud<pcl::PointWithScale>);
 	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(
 			new pcl::search::KdTree<pcl::PointXYZRGB>);
 	sift.setInputCloud(cloud_xyz_ptr);
@@ -882,19 +890,54 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 				++simil1;
 			else if (morePointsFirst == 2)
 				++simil2;
-
 			if (moreDescriptorsFirst == 1)
 				++simil1;
 			else if (moreDescriptorsFirst == 2)
 				++simil2;
 
-			//Similarity of general pcl
+			//Similarity of general pcl for each segment
 			if (simil1 > simil2)
 				++pcl1;
 			else if (simil1 < simil2)
 				++pcl2;
 		}
 	}
+	//Similarity of general pcl
+	//Number of segments
+	if (clusters_pcl_1.size() > clusters_pcl_2.size())
+		++pcl1;
+	else if (clusters_pcl_2.size() > clusters_pcl_1.size())
+		++pcl2;
+	//Number of points
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud1_ptr(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud1 = *point_cloud1_ptr;
+	if (pcl::io::loadPLYFile(argv[pcl_filename_indices[0]], point_cloud1)
+			== -1) {
+		std::cerr << "Was not able to open file \""
+				<< argv[pcl_filename_indices[0]] << "\".\n";
+	}
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud2_ptr(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud2 = *point_cloud2_ptr;
+	if (pcl::io::loadPLYFile(argv[pcl_filename_indices[1]], point_cloud2)
+			== -1) {
+		std::cerr << "Was not able to open file \""
+				<< argv[pcl_filename_indices[1]] << "\".\n";
+	}
+	if (point_cloud1.points.size() > point_cloud2.points.size()) {
+		std::cout << "PCL1 has more points: " << point_cloud1.points.size()
+				<< " over: " << point_cloud2.points.size() << std::endl;
+		++pcl1;
+	} else if (point_cloud1.points.size() > point_cloud2.points.size()) {
+		std::cout << "PCL2 has more points: " << point_cloud2.points.size()
+				<< " over: " << point_cloud1.points.size() << std::endl;
+		++pcl2;
+	} else {
+		std::cout << "Both pcl have the same number of points: "
+				<< point_cloud2.points.size() << std::endl;
+	}
+	std::cout << "----------------------------" << std::endl;
 	std::cout << "score pcl1: " << pcl1 << std::endl;
 	std::cout << "score pcl2: " << pcl2 << std::endl;
 	if (pcl1 > pcl2)
@@ -942,11 +985,24 @@ int main(int argc, char** argv) {
 
 	double similarity = computeSimilarity(argv, pcl_filename_indices);
 
-	if (similarity == 1)
+	std::cout
+			<< "--------------------------------\n+                              +\n--------------------------------"
+			<< std::endl;
+	if (similarity == 1) {
 		cout << "The first point cloud has more information" << std::endl;
-	else if (similarity == 2)
+		std::cout
+				<< "Points that are in the first pcl, that are not in the other:"
+				<< std::endl;
+		spatial_change_detection(argv[pcl_filename_indices[1]],
+				argv[pcl_filename_indices[0]]);
+	} else if (similarity == 2) {
 		cout << "The second point cloud has more information" << std::endl;
-	else
+		std::cout
+				<< "Points that are in the second pcl, that are not in the other:"
+				<< std::endl;
+		spatial_change_detection(argv[pcl_filename_indices[0]],
+				argv[pcl_filename_indices[1]]);
+	} else
 		cout << "The point clouds have the same information" << std::endl;
 
 	return 1;
