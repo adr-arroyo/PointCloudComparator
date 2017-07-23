@@ -769,6 +769,30 @@ void processFPFH(std::string filename, std::string filename2) {
 	cout << "Computed " << descriptors->points.size() << " FPFH descriptors\n";
 }
 
+/*int numSameDescriptors(pcl::PointCloud<RIFT32>::Ptr descriptors) {
+ int repe = 0;
+ std::vector<RIFT32> repeatedEl;
+ for (int i = 0; i < descriptors->points.size(); ++i) {
+ RIFT32 des = descriptors->points[i];
+ if (!repeatedEl.empty())
+ if (std::find(repeatedEl.begin(), repeatedEl.end(), des)
+ != repeatedEl.end()) {
+ repe++;
+ } else {
+ repeatedEl.push_back(des);
+ }
+ }
+ return repe;
+ }*/
+
+double computeVariance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
+	double variance = 0;
+	//Computation of mean of y coordinate
+	double mean = 0;
+
+	return variance;
+}
+
 double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_1 =
 			region_growing_segmentation(argv[pcl_filename_indices[0]]);
@@ -802,10 +826,12 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	for (int j = 0; j < clusters_pcl_2.size(); ++j) {
 		descriptors2RIFT.push_back(processRIFT(clusters_pcl_2[j]));
 	}
+	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors1RIFT;
 
 	for (int i = 0; i < clusters_pcl_1.size(); ++i) {
 		des1VHF = processVHF(clusters_pcl_1[i]);
 		des1RIFT = processRIFT(clusters_pcl_1[i]);
+		descriptors1RIFT.push_back(des1RIFT);
 		numberDescriptors1[i] = des1RIFT->points.size();
 		maxCor2 = 0;
 		for (int j = 0; j < clusters_pcl_2.size(); ++j) {
@@ -866,11 +892,11 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 			else if (clusters_pcl_1.at(i)->points.size()
 					< clusters_pcl_2.at(matches[i])->points.size())
 				morePointsFirst = 2;
-			std::cout << "Points pcl 1: " << clusters_pcl_1.at(i)->points.size()
-					<< std::endl;
-			std::cout << "Points pcl 2: "
-					<< clusters_pcl_2.at(matches[i])->points.size()
-					<< std::endl;
+			/*std::cout << "Points pcl 1: " << clusters_pcl_1.at(i)->points.size()
+			 << std::endl;
+			 std::cout << "Points pcl 2: "
+			 << clusters_pcl_2.at(matches[i])->points.size()
+			 << std::endl;*/
 			//Number of descriptors comparison
 			int moreDescriptorsFirst = 0;
 			if (numberDescriptors1[i]
@@ -880,8 +906,12 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 					< descriptors2RIFT[matches[i]]->points.size())
 				moreDescriptorsFirst = 2;
 			//TODO descriptores repetidos??
+			//int repetidos1 = numSameDescriptors(descriptors1RIFT[i]);
+			//int repetidos2 = numSameDescriptors(descriptors2RIFT[i]);
 
-			//Surface analysis
+			//Surface analysis: variance
+			double var1 = computeVariance(clusters_pcl_1[i]);
+			double var2 = computeVariance(clusters_pcl_2[matches[i]]);
 
 			//Similarity of segments
 			int simil1 = 0;
@@ -894,15 +924,24 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 				++simil1;
 			else if (moreDescriptorsFirst == 2)
 				++simil2;
+			/*if (repetidos1 > repetidos2) {
+			 ++simil2;
+			 std::cout << "First segment has " << repetidos1
+			 << " repeated descriptors" << std::endl;
+			 } else if (repetidos2 > repetidos1) {
+			 ++simil1;
+			 std::cout << "Second segment has " << repetidos2
+			 << " repeated descriptors" << std::endl;
+			 }*/
 
-			//Similarity of general pcl for each segment
+			//Information of general pcl for each segment
 			if (simil1 > simil2)
 				++pcl1;
 			else if (simil1 < simil2)
 				++pcl2;
 		}
 	}
-	//Similarity of general pcl
+	//Information of general pcl
 	//Number of segments
 	if (clusters_pcl_1.size() > clusters_pcl_2.size())
 		++pcl1;

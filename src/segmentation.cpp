@@ -56,7 +56,8 @@ int planar_segmentation(std::string filename) {
 	return (0);
 }
 
-int cluster_segmentation(std::string filename) {
+std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentation(
+		std::string filename) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_f(
@@ -71,7 +72,7 @@ int cluster_segmentation(std::string filename) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	vg.setInputCloud(point_cloud_ptr);
-	vg.setLeafSize(0.001f, 0.001f, 0.001f);
+	vg.setLeafSize(0.025f, 0.025f, 0.025f);
 	vg.filter(*cloud_filtered);
 	std::cout << "PointCloud after filtering has: "
 			<< cloud_filtered->points.size() << " data points." << std::endl;
@@ -125,13 +126,14 @@ int cluster_segmentation(std::string filename) {
 
 	std::vector<pcl::PointIndices> cluster_indices;
 	pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
-	ec.setClusterTolerance(0.02); // 2cm
+	ec.setClusterTolerance(0.05); // 2cm
 	ec.setMinClusterSize(100);
-	ec.setMaxClusterSize(25000);
+	ec.setMaxClusterSize(250000);
 	ec.setSearchMethod(tree);
 	ec.setInputCloud(cloud_filtered);
 	ec.extract(cluster_indices);
 
+	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl;
 	int j = 0;
 	for (std::vector<pcl::PointIndices>::const_iterator it =
 			cluster_indices.begin(); it != cluster_indices.end(); ++it) {
@@ -145,18 +147,18 @@ int cluster_segmentation(std::string filename) {
 		cloud_cluster->is_dense = true;
 
 		std::cout << "PointCloud representing the Cluster: "
-				<< cloud_cluster->points.size() << " data points." << std::endl;
-		std::stringstream ss;
-		ss << "cloud_cluster_" << j << ".ply";
-		writer.write<pcl::PointXYZRGB>(ss.str(), *cloud_cluster, false); //*
-		j++;
-		pcl::visualization::CloudViewer viewer("Cloud cluster - q to quit");
-		viewer.showCloud(cloud_cluster);
-		while (!viewer.wasStopped()) {
-		}
+		 << cloud_cluster->points.size() << " data points." << std::endl;
+		 pcl::visualization::CloudViewer viewer("Cloud cluster - q to quit");
+		 viewer.showCloud(cloud_cluster);
+		 while (!viewer.wasStopped()) {
+		 }
+		std::vector<int> indices2;
+		pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
+		clusters_pcl.push_back(cloud_cluster);
+		indices2.clear();
 	}
 
-	return (0);
+	return clusters_pcl;
 }
 
 int color_growing_segmentation(std::string filename) {
