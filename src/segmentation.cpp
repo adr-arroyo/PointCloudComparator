@@ -275,8 +275,8 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 
 	std::cout << "Number of clusters is equal to " << clusters.size()
 			<< std::endl;
-	std::cout << "First cluster has " << clusters[0].indices.size()
-			<< " points." << endl;
+	/*std::cout << "First cluster has " << clusters[0].indices.size()
+			<< " points." << endl;*/
 	/*std::cout << "These are the indices of the points of the initial"
 	 << std::endl << "cloud that belong to the first cluster:"
 	 << std::endl;
@@ -291,10 +291,10 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_cloud =
 			reg.getColoredCloud();
-	pcl::PLYWriter writer;
+	/*pcl::PLYWriter writer;
 	std::stringstream ss;
 	ss << "region_growing_cloud.ply";
-	writer.write<pcl::PointXYZRGB>(ss.str(), *colored_cloud, false);
+	writer.write<pcl::PointXYZRGB>(ss.str(), *colored_cloud, false);*/
 	pcl::visualization::CloudViewer viewer("Cluster viewer");
 	viewer.showCloud(colored_cloud);
 	while (!viewer.wasStopped()) {

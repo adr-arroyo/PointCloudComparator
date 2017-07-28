@@ -8,6 +8,7 @@
 
 #ifndef INCLUDE_SEGMENTATION_H_
 #define INCLUDE_SEGMENTATION_H_
+#define PCL_NO_PRECOMPILE
 
 #include <pcl/console/parse.h>
 #include <pcl/ModelCoefficients.h>

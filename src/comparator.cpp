@@ -105,76 +105,6 @@ void spatial_change_detection(std::string filename, std::string filename2) {
 	}
 }
 
-/**
- * Distance between two rift descriptors
- */
-double distanceRIFT(RIFT32 p1, RIFT32 p2) {
-	double dis = 0;
-	for (int i = 0; i < 32; ++i) {
-		dis += pow(p1.histogram[i] - p2.histogram[i], 2);
-		/*if (!pcl_isfinite(p1.histogram[i])) {
-		 /*std::cout << "des1 is not finite " << std::endl;
-		 for (int j = 0; j < 32; ++j) {
-		 std::cout << ", " << p1.histogram[j];
-		 }
-		 std::cout << std::endl;
-		 }*/
-	}
-	dis = sqrt(dis);
-	return dis;
-}
-
-int matchRIFTFeatures(pcl::PointCloud<RIFT32>::Ptr descriptors1,
-		pcl::PointCloud<RIFT32>::Ptr descriptors2) {
-	int correspondences = 0;
-	for (int i = 0; i < descriptors1->points.size(); ++i) {
-		RIFT32 des1 = descriptors1->points[i];
-		double minDis = 100000000000000000;
-		double actDis = 0;
-		//Find closest descriptor
-		for (int j = 0; j < descriptors2->points.size(); ++j) {
-			actDis = distanceRIFT(des1, descriptors2->points[j]);
-			//std::cout << "act distance: " << actDis << std::endl;
-			if (actDis < minDis) {
-				minDis = actDis;
-			}
-		}
-		//std::cout << "min distance: " << minDis << std::endl;
-		//If distance between both descriptors is less than threshold we found correspondence
-		if (minDis < 0.5)
-			++correspondences;
-	}
-	return correspondences;
-}
-
-/*int matchRIFTFeaturesKnn(pcl::PointCloud<RIFT32>::Ptr descriptors1,
- pcl::PointCloud<RIFT32>::Ptr descriptors2) {
- // A kd-tree object that uses the FLANN library for fast search of nearest neighbors.
- pcl::KdTreeFLANN<RIFT32> matching = new pcl::KdTreeFLANN<RIFT32>(false);
- pcl::KdTree<RIFT32>::PointCloudConstPtr ptr_descriptors1(descriptors1);
- matching.setInputCloud(ptr_descriptors1);
- // A Correspondence object stores the indices of the query and the match,
- // and the distance/weight.
- std::vector<int> correspondence;
-
- // Check every descriptor computed for the scene.
- for (size_t i = 0; i < descriptors2->points.size(); ++i) {
- std::vector<int> neighbors(1);
- std::vector<float> squaredDistances(1);
- // Find the nearest neighbor (in descriptor space)...
- int neighborCount = matching.nearestKSearch(descriptors2->at(i), 1,
- neighbors, squaredDistances);
- // ...and add a new correspondence if the distance is less than a threshold
- // (SHOT distances are between 0 and 1, other descriptors use different metrics).
- if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
- //correspondence.push_back(neighbors[0], static_cast<int>(i), squaredDistances[0]);
- correspondence.push_back(neighbors[0]);
- }
- }
- std::cout << "Found " << correspondence.size() << " correspondences\n";
- return correspondence.size();
- }*/
-
 void processNARF2(std::string filename, std::string filename2) {
 // ------------------------------------------------------------------
 // -----Read ply file-----
@@ -520,8 +450,8 @@ pcl::PointCloud<pcl::PointWithScale> processSift(
 	// Estimate the sift interest points using normals values from xyz as the Intensity variants
 	pcl::SIFTKeypoint<pcl::PointXYZRGB, pcl::PointWithScale> sift;
 	pcl::search::KdTree<pcl::PointXYZRGB> tree = new pcl::search::KdTree<
-			pcl::PointXYZRGB>();		//new API
-	pcl::PointCloud<pcl::PointWithScale> sifts;	//(new pcl::PointCloud<pcl::PointWithScale>);
+			pcl::PointXYZRGB>();
+	pcl::PointCloud<pcl::PointWithScale> sifts;
 	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(
 			new pcl::search::KdTree<pcl::PointXYZRGB>);
 	sift.setInputCloud(cloud_xyz_ptr);
@@ -534,7 +464,7 @@ pcl::PointCloud<pcl::PointWithScale> processSift(
 	return sifts;
 }
 
-bool matchVHF(pcl::PointCloud<pcl::VFHSignature308>::Ptr vhf1,
+double matchVHF(pcl::PointCloud<pcl::VFHSignature308>::Ptr vhf1,
 		pcl::PointCloud<pcl::VFHSignature308>::Ptr vhf2) {
 	double dis = 0;
 	for (int i = 0; i < vhf1->at(0).descriptorSize(); ++i) {
@@ -542,7 +472,7 @@ bool matchVHF(pcl::PointCloud<pcl::VFHSignature308>::Ptr vhf1,
 		//std::cout << "des1 position: " << p1.histogram[i] << std::endl;
 	}
 	dis = sqrt(dis);
-	return dis < 0.5;
+	return dis;
 }
 
 pcl::PointCloud<pcl::VFHSignature308>::Ptr processVHF(
@@ -579,6 +509,80 @@ pcl::PointCloud<pcl::VFHSignature308>::Ptr processVHF(
 
 	//cout << "Computed " << descriptor->points.size() << " VHF descriptor\n";
 	return descriptor;
+}
+
+/**
+ * Distance between two rift descriptors
+ */
+double distanceRIFT(RIFT32 p1, RIFT32 p2) {
+	double dis = 0;
+	for (int i = 0; i < 32; ++i) {
+		dis += pow(p1.histogram[i] - p2.histogram[i], 2);
+		/*if (!pcl_isfinite(p1.histogram[i])) {
+		 /*std::cout << "des1 is not finite " << std::endl;
+		 for (int j = 0; j < 32; ++j) {
+		 std::cout << ", " << p1.histogram[j];
+		 }
+		 std::cout << std::endl;
+		 }*/
+	}
+	dis = sqrt(dis);
+	return dis;
+}
+
+int matchRIFTFeatures(pcl::PointCloud<RIFT32>::Ptr descriptors1,
+		pcl::PointCloud<RIFT32>::Ptr descriptors2) {
+	int correspondences = 0;
+	for (int i = 0; i < descriptors1->points.size(); ++i) {
+		RIFT32 des1 = descriptors1->points[i];
+		double minDis = 100000000000000000;
+		double actDis = 0;
+		//Find closest descriptor
+		for (int j = 0; j < descriptors2->points.size(); ++j) {
+			actDis = distanceRIFT(des1, descriptors2->points[j]);
+			//std::cout << "act distance: " << actDis << std::endl;
+			if (actDis < minDis) {
+				minDis = actDis;
+			}
+		}
+		//std::cout << "min distance: " << minDis << std::endl;
+		//If distance between both descriptors is less than threshold we found correspondence
+		if (minDis < 0.5)
+			++correspondences;
+	}
+	return correspondences;
+}
+
+std::vector<int> matchRIFTFeaturesKnn(pcl::PointCloud<RIFT32>::Ptr descriptors1,
+		pcl::PointCloud<RIFT32>::Ptr descriptors2) {
+
+	// A kd-tree object that uses the FLANN library for fast search of nearest neighbors.
+	pcl::KdTreeFLANN<RIFT32> matching = new pcl::KdTreeFLANN<RIFT32>(false);
+	matching.setInputCloud(descriptors1);
+	// A Correspondence object stores the indices of the query and the match,
+	// and the distance/weight.
+	std::vector<int> correspondence(1);
+
+	// Check every descriptor computed for the scene.
+	for (size_t i = 0; i < descriptors2->points.size(); ++i) {
+		std::vector<int> neighbors(1);
+		std::vector<float> squaredDistances(1);
+		if (pcl_isfinite(descriptors2->at(i).histogram[0])) {
+			// Find the nearest neighbor (in descriptor space)...
+			int neighborCount = matching.nearestKSearch(descriptors2->at(i), 1,
+					neighbors, squaredDistances);
+			// ...and add a new correspondence if the distance is less than a threshold
+			// (SHOT distances are between 0 and 1, other descriptors use different metrics).
+			if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
+				//correspondence.push_back(neighbors[0], static_cast<int>(i), squaredDistances[0]);
+				correspondence.push_back(neighbors[0]);
+			}
+		} else
+			std::cout << "Found NaN in RIFT descriptors" << std::endl;
+	}
+	//std::cout << "Found " << correspondence.size() << " correspondences\n";
+
+	return correspondence;
 }
 
 //void processRIFT(std::string filename, std::string filename2) {
@@ -622,9 +626,11 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 			if (sqrt(
 					pow(pointSift.x - point.x, 2)
 							+ pow(pointSift.y - point.y, 2)
-							+ pow(pointSift.z - point.z, 2)) < 0.005) {
+							+ pow(pointSift.z - point.z, 2)) < 0.05) {
 				point_cloud_sift.push_back(point);
-				//std::cout << point.x << " " << point.y << " " << point.z << std::endl;
+				/*std::cout << point_cloud_sift.back().x << " "
+				 << point_cloud_sift.back().y << " "
+				 << point_cloud_sift.back().z << std::endl;*/
 				break;
 			}
 		}
@@ -651,8 +657,8 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 	 while (!viewer2.wasStopped()) {
 	 }*/
 
-	cout << "Keypoint cloud has " << point_cloud_sift.points.size()
-			<< " points\n";
+	/*cout << "Keypoint cloud has " << point_cloud_sift.points.size()
+	 << " points\n";*/
 
 	// Object for storing the point cloud with intensity value.
 	pcl::PointCloud<pcl::PointXYZI>::Ptr cloudIntensityKeypoints(
@@ -680,7 +686,7 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 
 	// Estimate the normals.
 	pcl::NormalEstimation<pcl::PointXYZI, pcl::Normal> normalEstimation;
-	normalEstimation.setInputCloud(cloudIntensityGlobal);
+	normalEstimation.setInputCloud(cloudIntensityKeypoints);
 	//normalEstimation.setSearchSurface(cloudIntensityGlobal);
 	normalEstimation.setRadiusSearch(0.03);
 	pcl::search::KdTree<pcl::PointXYZI>::Ptr kdtree(
@@ -688,11 +694,24 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 	normalEstimation.setSearchMethod(kdtree);
 	normalEstimation.compute(*normals);
 
+	std::vector<int> indices;
+	pcl::removeNaNNormalsFromPointCloud(*normals, *normals, indices);
+	std::cout << "Point cloud normals size after removing NaNs: "
+			<< normals->points.size() << std::endl;
+	pcl::PointCloud<pcl::PointXYZI>::Ptr cloudIntensityGlobal2(
+			new pcl::PointCloud<pcl::PointXYZI>);
+	for (int i = 0; i < indices.size(); ++i) {
+		cloudIntensityGlobal2->push_back(
+				cloudIntensityKeypoints->points[indices[i]]);
+		/*cloudIntensityGlobal2->push_back(
+		 cloudIntensityGlobal->points[indices[i]]);*/
+	}
+
 	// Compute the intensity gradients.
 	pcl::IntensityGradientEstimation<pcl::PointXYZI, pcl::Normal,
 			pcl::IntensityGradient,
 			pcl::common::IntensityFieldAccessor<pcl::PointXYZI> > ge;
-	ge.setInputCloud(cloudIntensityGlobal);
+	ge.setInputCloud(cloudIntensityGlobal2);
 	//ge.setSearchSurface(cloudIntensityGlobal);
 	ge.setInputNormals(normals);
 	ge.setRadiusSearch(0.03);
@@ -700,8 +719,8 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 
 	// RIFT estimation object.
 	pcl::RIFTEstimation<pcl::PointXYZI, pcl::IntensityGradient, RIFT32> rift;
-	rift.setInputCloud(cloudIntensityKeypoints);
-	rift.setSearchSurface(cloudIntensityGlobal);
+	rift.setInputCloud(cloudIntensityGlobal2);
+	//rift.setSearchSurface(cloudIntensityGlobal);
 	rift.setSearchMethod(kdtree);
 	// Set the intensity gradients to use.
 	rift.setInputGradient(gradients);
@@ -716,48 +735,49 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 	rift.compute(*descriptors);
 	cout << "Computed " << descriptors->points.size() << " RIFT descriptors\n";
 
-	//matchRIFTFeatures(*descriptors, *descriptors);
 	return descriptors;
 }
 
-void processFPFH(std::string filename, std::string filename2) {
-	// ------------------------------------------------------------------
-	// -----Read ply file-----
-	// ------------------------------------------------------------------
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudColor(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
+pcl::PointCloud<pcl::FPFHSignature33>::Ptr processFPFH(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudColor) {
 	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud = *cloudColor;
-	if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
-		cerr << "Was not able to open file \"" << filename << "\".\n";
-		printUsage("");
-	}
 	// Object for storing the normals.
 	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 	// Object for storing the FPFH descriptors for each point.
 	pcl::PointCloud<pcl::FPFHSignature33>::Ptr descriptors(
 			new pcl::PointCloud<pcl::FPFHSignature33>());
 
-	pcl::VoxelGrid<pcl::PointXYZRGB> vg;
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
-	vg.setInputCloud(cloudColor);
-	vg.setLeafSize(0.01f, 0.01f, 0.01f);
-	vg.filter(*cloud_filtered);
-	std::cout << "PointCloud after filtering has: "
-			<< cloud_filtered->points.size() << " data points." << std::endl;
+	/*pcl::VoxelGrid<pcl::PointXYZRGB> vg;
+	 pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 vg.setInputCloud(cloudColor);
+	 vg.setLeafSize(0.01f, 0.01f, 0.01f);
+	 vg.filter(*cloud_filtered);
+	 std::cout << "PointCloud after filtering has: "
+	 << cloud_filtered->points.size() << " data points." << std::endl;*/
 
 	// Estimate the normals.
 	pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> normalEstimation;
-	normalEstimation.setInputCloud(cloud_filtered);
+	normalEstimation.setInputCloud(cloudColor);
 	normalEstimation.setRadiusSearch(0.03);
 	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(
 			new pcl::search::KdTree<pcl::PointXYZRGB>);
 	normalEstimation.setSearchMethod(kdtree);
 	normalEstimation.compute(*normals);
+	std::vector<int> indices2;
+	pcl::removeNaNNormalsFromPointCloud(*normals, *normals, indices2);
+	std::cout << "Point cloud normals size after removing NaNs: "
+			<< normals->points.size() << std::endl;
+
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudColorFinal(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	for (int i = 0; i < indices2.size(); ++i) {
+		cloudColorFinal->push_back(cloudColor->points[indices2[i]]);
+	}
 
 	// FPFH estimation object.
 	pcl::FPFHEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::FPFHSignature33> fpfh;
-	fpfh.setInputCloud(cloud_filtered);
+	fpfh.setInputCloud(cloudColorFinal);
 	fpfh.setInputNormals(normals);
 	fpfh.setSearchMethod(kdtree);
 	// Search radius, to look for neighbors. Note: the value given here has to be
@@ -766,7 +786,117 @@ void processFPFH(std::string filename, std::string filename2) {
 
 	fpfh.compute(*descriptors);
 
-	cout << "Computed " << descriptors->points.size() << " FPFH descriptors\n";
+	std::cout << "Computed " << descriptors->points.size()
+			<< " FPFH descriptors" << std::endl;
+	return descriptors;
+}
+
+std::vector<int> matchFPFH(
+		pcl::PointCloud<pcl::FPFHSignature33>::Ptr descriptors1,
+		pcl::PointCloud<pcl::FPFHSignature33>::Ptr descriptors2) {
+
+	// A kd-tree object that uses the FLANN library for fast search of nearest neighbors.
+	pcl::KdTreeFLANN<pcl::FPFHSignature33> matching = new pcl::KdTreeFLANN<
+			pcl::FPFHSignature33>(false);
+	pcl::KdTree<pcl::FPFHSignature33>::PointCloudConstPtr ptr_descriptors1(
+			descriptors1);
+	matching.setInputCloud(descriptors1);
+	// A Correspondence object stores the indices of the query and the match,
+	// and the distance/weight.
+	std::vector<int> correspondence(1);
+
+	// Check every descriptor computed for the scene.
+	for (size_t i = 0; i < descriptors2->points.size(); ++i) {
+		std::vector<int> neighbors(1);
+		std::vector<float> squaredDistances(1);
+		if (pcl_isfinite(descriptors2->at(i).histogram[0])) {
+			// Find the nearest neighbor (in descriptor space)...
+			int neighborCount = matching.nearestKSearch(descriptors2->at(i), 1,
+					neighbors, squaredDistances);
+			// ...and add a new correspondence if the distance is less than a threshold
+			// (SHOT distances are between 0 and 1, other descriptors use different metrics).
+			if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
+				//correspondence.push_back(neighbors[0], static_cast<int>(i), squaredDistances[0]);
+				correspondence.push_back(neighbors[0]);
+			}
+		} else
+			std::cout << "Found NaN in FPFH descriptors" << std::endl;
+	}
+	//std::cout << "Found " << correspondence.size() << " correspondences\n";
+	return correspondence;
+}
+
+pcl::PointCloud<pcl::SHOT352>::Ptr processSHOT(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
+	// Object for storing the normals.
+	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+	// Object for storing the SHOT descriptors for each point.
+	pcl::PointCloud<pcl::SHOT352>::Ptr descriptors(
+			new pcl::PointCloud<pcl::SHOT352>());
+
+	// Estimate the normals.
+	pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> normalEstimation;
+	normalEstimation.setInputCloud(cloud);
+	normalEstimation.setRadiusSearch(0.05);
+	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(
+			new pcl::search::KdTree<pcl::PointXYZRGB>);
+	normalEstimation.setSearchMethod(kdtree);
+	normalEstimation.compute(*normals);
+	std::vector<int> indices2;
+	pcl::removeNaNNormalsFromPointCloud(*normals, *normals, indices2);
+	std::cout << "Point cloud normals size after removing NaNs: "
+			<< normals->points.size() << std::endl;
+
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudFinal(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	for (int i = 0; i < indices2.size(); ++i) {
+		cloudFinal->push_back(cloud->points[indices2[i]]);
+	}
+
+	// SHOT estimation object.
+	pcl::SHOTEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::SHOT352> shot;
+	shot.setInputCloud(cloudFinal);
+	shot.setInputNormals(normals);
+	// The radius that defines which of the keypoint's neighbors are described.
+	// If too large, there may be clutter, and if too small, not enough points may be found.
+	shot.setRadiusSearch(0.04);
+
+	shot.compute(*descriptors);
+	return descriptors;
+}
+
+std::vector<int> matchSHOT(pcl::PointCloud<pcl::SHOT352>::Ptr descriptors1,
+		pcl::PointCloud<pcl::SHOT352>::Ptr descriptors2) {
+
+	// A kd-tree object that uses the FLANN library for fast search of nearest neighbors.
+	pcl::KdTreeFLANN<pcl::SHOT352> matching =
+			new pcl::KdTreeFLANN<pcl::SHOT352>(false);
+	pcl::KdTree<pcl::SHOT352>::PointCloudConstPtr ptr_descriptors1(
+			descriptors1);
+	matching.setInputCloud(descriptors1);
+	// A Correspondence object stores the indices of the query and the match,
+	// and the distance/weight.
+	std::vector<int> correspondence(1);
+
+	// Check every descriptor computed for the scene.
+	for (size_t i = 0; i < descriptors2->points.size(); ++i) {
+		std::vector<int> neighbors(1);
+		std::vector<float> squaredDistances(1);
+		if (pcl_isfinite(descriptors2->at(i).descriptor[0])) {
+			// Find the nearest neighbor (in descriptor space)...
+			int neighborCount = matching.nearestKSearch(descriptors2->at(i), 1,
+					neighbors, squaredDistances);
+			// ...and add a new correspondence if the distance is less than a threshold
+			// (SHOT distances are between 0 and 1, other descriptors use different metrics).
+			if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
+				//correspondence.push_back(neighbors[0], static_cast<int>(i), squaredDistances[0]);
+				correspondence.push_back(neighbors[0]);
+			}
+		} else
+			std::cout << "Found NaN in SHOT descriptors" << std::endl;
+	}
+	//std::cout << "Found " << correspondence.size() << " correspondences\n";
+	return correspondence;
 }
 
 /*int numSameDescriptors(pcl::PointCloud<RIFT32>::Ptr descriptors) {
@@ -801,11 +931,11 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 
 	//TODO precompute normal estimation to pass it to the other functions
 
-	pcl::PointCloud<RIFT32>::Ptr des1RIFT;
+	pcl::PointCloud<RIFT32>::Ptr des1Second;
 	pcl::PointCloud<pcl::VFHSignature308>::Ptr des1VHF;
-	pcl::PointCloud<RIFT32>::Ptr des2RIFT;
+	pcl::PointCloud<RIFT32>::Ptr des2Second;
 	pcl::PointCloud<pcl::VFHSignature308>::Ptr des2VHF;
-	int correspondences;
+	std::vector<int> correspondences;
 	//For each cluster in 1, there is a correspondence in 2
 	int matches[clusters_pcl_1.size()];
 	int maxCor = 0;
@@ -814,6 +944,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	int clus2Max;
 	int clusMax;
 	std::vector<int> numberDescriptors1(clusters_pcl_1.size());
+	double dis = 10000000000000;
 
 	//Precompute of VHF
 	/*std::vector<pcl::PointCloud<pcl::VFHSignature308>::Ptr> descriptors2VHF;
@@ -821,52 +952,71 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	 descriptors2VHF.push_back(processVHF(clusters_pcl_2[j]));
 	 }*/
 
-	//TODO Precompute of RIFT si o no??
-	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors2RIFT;
+	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors2;
 	for (int j = 0; j < clusters_pcl_2.size(); ++j) {
-		descriptors2RIFT.push_back(processRIFT(clusters_pcl_2[j]));
+		descriptors2.push_back(processRIFT(clusters_pcl_2[j]));
 	}
-	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors1RIFT;
+	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors1;
 
 	for (int i = 0; i < clusters_pcl_1.size(); ++i) {
-		des1VHF = processVHF(clusters_pcl_1[i]);
-		des1RIFT = processRIFT(clusters_pcl_1[i]);
-		descriptors1RIFT.push_back(des1RIFT);
-		numberDescriptors1[i] = des1RIFT->points.size();
+		//des1VHF = processVHF(clusters_pcl_1[i]);
+		des1Second = processRIFT(clusters_pcl_1[i]);
+		descriptors1.push_back(des1Second);
+		numberDescriptors1[i] = des1Second->points.size();
+
+		//Centroid computation
+		Eigen::Vector4f centroid;
+		pcl::compute3DCentroid(clusters_pcl_1[i],centroid);
+
 		maxCor2 = 0;
+		double disAct = 0;
+		dis = 100000000;
+		matches[i] = -1;
 		for (int j = 0; j < clusters_pcl_2.size(); ++j) {
-			matches[i] = -1;
-			des2VHF = processVHF(clusters_pcl_2[j]);
+			//des2VHF = descriptors2VHF.at(j);
 			//If the global descriptors are similar, we jump to next comparison
-			if (matchVHF(des1VHF, des2VHF)) {
-				double coef = (clusters_pcl_1.at(i)->points.size()
-						/ clusters_pcl_2.at(j)->points.size());
-				if (coef > 0.8 && coef < 1.2) {
-					des2RIFT = descriptors2RIFT[j];
-					if (des2RIFT->points.size() != 0
-							&& des1RIFT->points.size() != 0) {
-						std::cout << "Points pcl 1: "
-								<< clusters_pcl_1.at(i)->points.size()
-								<< std::endl;
-						std::cout << "Points pcl 2: "
-								<< clusters_pcl_2.at(j)->points.size()
-								<< std::endl;
-						correspondences = matchRIFTFeatures(des1RIFT, des2RIFT);
-						std::cout << "Number of correspondences of clusters "
-								<< i << " and " << j << " is: "
-								<< correspondences << std::endl;
-						//If at least half of the descriptors match, we assume its a correspondence
-						if (/*correspondences > des1RIFT->size() / 2
-						 &&*/correspondences > maxCor2) {
-							maxCor2 = correspondences;
-							clusMax = j;
-							matches[i] = clusMax;
-						}
-					}
+			//disAct = matchVHF(des1VHF, des2VHF);
+			//if (disAct < 50000) {
+			//double coef = (clusters_pcl_1.at(i)->points.size()
+			//		/ clusters_pcl_2.at(j)->points.size());
+			//if (coef > 0.8 && coef < 1.2) {
+			des2Second = descriptors2[j];
+			if (!des2Second->empty() and !des1Second->empty()
+					and des2Second->points.size() > 3
+					and des1Second->points.size() > 3) {
+				std::cout << "Points pcl 1: " << des1Second->points.size()
+						<< std::endl;
+				std::cout << "Points pcl 2: " << des2Second->points.size()
+						<< std::endl;
+				correspondences = matchRIFTFeaturesKnn(des1Second, des2Second);
+
+				if (des1Second->points.size() > des2Second->points.size())
+					std::cout << "Percentage of correspondences of clusters "
+							<< i << " and " << j << " is: "
+							<< correspondences.size()
+									/ des1Second->points.size() * 100
+							<< std::endl;
+				else
+					std::cout << "Percentage of correspondences of clusters "
+							<< i << " and " << j << " is: "
+							<< correspondences.size()
+									/ des2Second->points.size() * 100
+							<< std::endl;
+
+				//If at least half of the descriptors match, we assume its a correspondence
+				if (correspondences.size() > des1Second->size() / 1.5
+						and correspondences.size() > maxCor2) {
+					maxCor2 = correspondences.size();
+					clusMax = j;
+					matches[i] = clusMax;
+					std::cout << "Match accepted" << std::endl;
 				}
-				//}
-			} else
-				std::cout << "VHF Not similar" << std::endl;
+			}
+			//}
+			//}
+			/*} else
+			 std::cout << "VHF Not similar for " << i << " and " << j
+			 << std::endl;*/
 		}
 	}
 
@@ -899,15 +1049,14 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 			 << std::endl;*/
 			//Number of descriptors comparison
 			int moreDescriptorsFirst = 0;
-			if (numberDescriptors1[i]
-					> descriptors2RIFT[matches[i]]->points.size())
+			if (numberDescriptors1[i] > descriptors2[matches[i]]->points.size())
 				moreDescriptorsFirst = 1;
 			else if (numberDescriptors1[i]
-					< descriptors2RIFT[matches[i]]->points.size())
+					< descriptors2[matches[i]]->points.size())
 				moreDescriptorsFirst = 2;
 			//TODO descriptores repetidos??
 			//int repetidos1 = numSameDescriptors(descriptors1RIFT[i]);
-			//int repetidos2 = numSameDescriptors(descriptors2RIFT[i]);
+			//int repetidos2 = numSameDescriptors(descriptors2[i]);
 
 			//Surface analysis: variance
 			double var1 = computeVariance(clusters_pcl_1[i]);
@@ -939,7 +1088,8 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 				++pcl1;
 			else if (simil1 < simil2)
 				++pcl2;
-		}
+		} else
+			std::cout << "No match" << std::endl;
 	}
 	//Information of general pcl
 	//Number of segments
@@ -968,7 +1118,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		std::cout << "PCL1 has more points: " << point_cloud1.points.size()
 				<< " over: " << point_cloud2.points.size() << std::endl;
 		++pcl1;
-	} else if (point_cloud1.points.size() > point_cloud2.points.size()) {
+	} else if (point_cloud1.points.size() < point_cloud2.points.size()) {
 		std::cout << "PCL2 has more points: " << point_cloud2.points.size()
 				<< " over: " << point_cloud1.points.size() << std::endl;
 		++pcl2;
@@ -1024,25 +1174,25 @@ int main(int argc, char** argv) {
 
 	double similarity = computeSimilarity(argv, pcl_filename_indices);
 
-	std::cout
-			<< "--------------------------------\n+                              +\n--------------------------------"
-			<< std::endl;
+	std::cout << "--------------------------------\n" << std::endl;
 	if (similarity == 1) {
 		cout << "The first point cloud has more information" << std::endl;
 		std::cout
 				<< "Points that are in the first pcl, that are not in the other:"
 				<< std::endl;
-		spatial_change_detection(argv[pcl_filename_indices[1]],
-				argv[pcl_filename_indices[0]]);
+		/*spatial_change_detection(argv[pcl_filename_indices[1]],
+		 argv[pcl_filename_indices[0]]);*/
 	} else if (similarity == 2) {
 		cout << "The second point cloud has more information" << std::endl;
 		std::cout
 				<< "Points that are in the second pcl, that are not in the other:"
 				<< std::endl;
-		spatial_change_detection(argv[pcl_filename_indices[0]],
-				argv[pcl_filename_indices[1]]);
+		/*spatial_change_detection(argv[pcl_filename_indices[0]],
+		 argv[pcl_filename_indices[1]]);*/
 	} else
 		cout << "The point clouds have the same information" << std::endl;
+
+	std::cout << "--------------------------------\n" << std::endl;
 
 	return 1;
 }

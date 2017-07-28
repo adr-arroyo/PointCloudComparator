@@ -8,6 +8,7 @@
 
 #ifndef INCLUDE_COMPARATOR_H_
 #define INCLUDE_COMPARATOR_H_
+#define PCL_NO_PRECOMPILE
 
 #include <iostream>
 #include <boost/thread/thread.hpp>
@@ -22,6 +23,7 @@
 #include <pcl/point_types.h>
 #include <pcl/features/pfh.h>
 #include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/kdtree/impl/kdtree_flann.hpp>
 #include <pcl/surface/gp3.h>
 #include <pcl/features/spin_image.h>
 #include <cmath>
@@ -33,11 +35,17 @@
 #include <pcl/features/intensity_gradient.h>
 #include <pcl/features/rift.h>
 #include <pcl/filters/voxel_grid.h>
-#include<pcl/point_types_conversion.h>
+#include <pcl/point_types_conversion.h>
+#include <pcl/common/centroid.h>
 #include <pcl/features/fpfh.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/octree/octree.h>
+#include <pcl/features/shot.h>
+#include <pcl/recognition/cg/geometric_consistency.h>
 #include "../include/segmentation.h"
+/*#include <CGAL/linear_least_squares_fitting_3.h>
+#include <CGAL/Simple_cartesian.h>*/
+
 
 void processNARF(std::string filename, std::string filename2);
 

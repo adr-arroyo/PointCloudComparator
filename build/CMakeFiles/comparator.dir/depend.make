@@ -282,6 +282,8 @@ CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/feature
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/impl/pfh.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/impl/range_image_border_extractor.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/impl/rift.hpp
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/impl/shot.hpp
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/impl/shot_lrf.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/impl/spin_image.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/impl/vfh.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/intensity_gradient.h
@@ -291,6 +293,8 @@ CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/feature
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/pfh_tools.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/range_image_border_extractor.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/rift.h
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/shot.h
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/shot_lrf.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/spin_image.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/features/vfh.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/filters/boost.h
@@ -356,11 +360,16 @@ CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/point_t
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/point_types_conversion.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/range_image/impl/range_image.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/range_image/range_image.h
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/recognition/cg/correspondence_grouping.h
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/recognition/cg/geometric_consistency.h
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/recognition/impl/cg/correspondence_grouping.hpp
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/recognition/impl/cg/geometric_consistency.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/register_point_struct.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/boost.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/convergence_criteria.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/correspondence_estimation.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/correspondence_rejection.h
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/correspondence_rejection_sample_consensus.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/correspondence_sorting.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/correspondence_types.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/default_convergence_criteria.h
@@ -368,6 +377,7 @@ CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registr
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/icp.h
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/impl/correspondence_estimation.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/impl/correspondence_rejection.hpp
+CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/impl/correspondence_rejection_sample_consensus.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/impl/correspondence_types.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/impl/default_convergence_criteria.hpp
 CMakeFiles/comparator.dir/src/comparator.cpp.o: /usr/include/pcl-1.7/pcl/registration/impl/icp.hpp

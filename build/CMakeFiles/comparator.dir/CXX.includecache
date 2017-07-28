@@ -33,6 +33,8 @@ pcl/features/pfh.h
 -
 pcl/kdtree/kdtree_flann.h
 -
+pcl/kdtree/impl/kdtree_flann.hpp
+-
 pcl/surface/gp3.h
 -
 pcl/features/spin_image.h
@@ -63,8 +65,14 @@ pcl/visualization/cloud_viewer.h
 -
 pcl/octree/octree.h
 -
+pcl/features/shot.h
+-
+pcl/recognition/cg/geometric_consistency.h
+-
 ../include/segmentation.h
 /home/adrian/PointCloudComparator/include/segmentation.h
+CGAL/Simple_cartesian.h
+-
 
 /home/adrian/PointCloudComparator/include/segmentation.h
 pcl/console/parse.h
@@ -1666,6 +1674,20 @@ pcl/range_image/range_image.h
 pcl/features/rift.h
 -
 
+/usr/include/pcl-1.7/pcl/features/impl/shot.hpp
+pcl/features/shot.h
+-
+pcl/features/shot_lrf.h
+-
+utility
+-
+
+/usr/include/pcl-1.7/pcl/features/impl/shot_lrf.hpp
+utility
+-
+pcl/features/shot_lrf.h
+-
+
 /usr/include/pcl-1.7/pcl/features/impl/spin_image.hpp
 limits
 -
@@ -1744,6 +1766,22 @@ pcl/features/impl/range_image_border_extractor.hpp
 pcl/features/feature.h
 -
 pcl/features/impl/rift.hpp
+-
+
+/usr/include/pcl-1.7/pcl/features/shot.h
+pcl/point_types.h
+-
+pcl/features/feature.h
+-
+pcl/features/impl/shot.hpp
+-
+
+/usr/include/pcl-1.7/pcl/features/shot_lrf.h
+pcl/point_types.h
+-
+pcl/features/feature.h
+-
+pcl/features/impl/shot_lrf.hpp
 -
 
 /usr/include/pcl-1.7/pcl/features/spin_image.h
@@ -2458,6 +2496,36 @@ typeinfo
 pcl/range_image/impl/range_image.hpp
 -
 
+/usr/include/pcl-1.7/pcl/recognition/cg/correspondence_grouping.h
+pcl/pcl_base.h
+-
+pcl/correspondence.h
+-
+pcl/console/print.h
+-
+pcl/recognition/impl/cg/correspondence_grouping.hpp
+-
+
+/usr/include/pcl-1.7/pcl/recognition/cg/geometric_consistency.h
+pcl/recognition/cg/correspondence_grouping.h
+-
+pcl/point_cloud.h
+-
+pcl/recognition/impl/cg/geometric_consistency.hpp
+-
+
+/usr/include/pcl-1.7/pcl/recognition/impl/cg/correspondence_grouping.hpp
+
+/usr/include/pcl-1.7/pcl/recognition/impl/cg/geometric_consistency.hpp
+pcl/recognition/cg/geometric_consistency.h
+-
+pcl/registration/correspondence_types.h
+-
+pcl/registration/correspondence_rejection_sample_consensus.h
+-
+pcl/common/io.h
+-
+
 /usr/include/pcl-1.7/pcl/register_point_struct.h
 pcl/pcl_macros.h
 -
@@ -2536,6 +2604,18 @@ pcl/search/kdtree.h
 pcl/registration/impl/correspondence_rejection.hpp
 -
 
+/usr/include/pcl-1.7/pcl/registration/correspondence_rejection_sample_consensus.h
+pcl/registration/correspondence_rejection.h
+-
+pcl/sample_consensus/ransac.h
+-
+pcl/sample_consensus/sac_model_registration.h
+-
+pcl/common/transforms.h
+-
+pcl/registration/impl/correspondence_rejection_sample_consensus.hpp
+-
+
 /usr/include/pcl-1.7/pcl/registration/correspondence_sorting.h
 pcl/registration/correspondence_types.h
 -
@@ -2591,6 +2671,10 @@ pcl/common/copy_point.h
 -
 
 /usr/include/pcl-1.7/pcl/registration/impl/correspondence_rejection.hpp
+
+/usr/include/pcl-1.7/pcl/registration/impl/correspondence_rejection_sample_consensus.hpp
+boost/unordered_map.hpp
+-
 
 /usr/include/pcl-1.7/pcl/registration/impl/correspondence_types.hpp
 limits
