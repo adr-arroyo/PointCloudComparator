@@ -59,6 +59,8 @@ pcl/filters/voxel_grid.h
 -
 pcl/point_types_conversion.h
 -
+pcl/common/centroid.h
+-
 pcl/features/fpfh.h
 -
 pcl/visualization/cloud_viewer.h

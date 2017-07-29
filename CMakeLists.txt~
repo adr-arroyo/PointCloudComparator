@@ -9,7 +9,7 @@ set(PCL_INCLUDE_DIRS "/usr/include/pcl-1.7")
 set(PCL_LIBRARY_DIRS "/usr/lib/")
 
 
-include_directories(${PCL_INCLUDE_DIRS} "/usr/include/eigen3" "include" "/usr/include/CGAL")
+include_directories(${PCL_INCLUDE_DIRS} "include")
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
