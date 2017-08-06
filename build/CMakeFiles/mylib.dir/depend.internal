@@ -307,9 +307,13 @@ CMakeFiles/mylib.dir/src/comparator.cpp.o
  /usr/include/pcl-1.7/pcl/filters/impl/filter_indices.hpp
  /usr/include/pcl-1.7/pcl/filters/impl/morphological_filter.hpp
  /usr/include/pcl-1.7/pcl/filters/impl/passthrough.hpp
+ /usr/include/pcl-1.7/pcl/filters/impl/radius_outlier_removal.hpp
+ /usr/include/pcl-1.7/pcl/filters/impl/statistical_outlier_removal.hpp
  /usr/include/pcl-1.7/pcl/filters/impl/voxel_grid.hpp
  /usr/include/pcl-1.7/pcl/filters/morphological_filter.h
  /usr/include/pcl-1.7/pcl/filters/passthrough.h
+ /usr/include/pcl-1.7/pcl/filters/radius_outlier_removal.h
+ /usr/include/pcl-1.7/pcl/filters/statistical_outlier_removal.h
  /usr/include/pcl-1.7/pcl/filters/voxel_grid.h
  /usr/include/pcl-1.7/pcl/for_each_type.h
  /usr/include/pcl-1.7/pcl/geometry/planar_polygon.h

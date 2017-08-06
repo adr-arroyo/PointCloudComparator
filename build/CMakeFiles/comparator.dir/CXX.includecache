@@ -61,6 +61,10 @@ pcl/point_types_conversion.h
 -
 pcl/common/centroid.h
 -
+pcl/filters/statistical_outlier_removal.h
+-
+pcl/filters/radius_outlier_removal.h
+-
 pcl/features/fpfh.h
 -
 pcl/visualization/cloud_viewer.h
@@ -1892,6 +1896,18 @@ pcl/filters/passthrough.h
 pcl/common/io.h
 -
 
+/usr/include/pcl-1.7/pcl/filters/impl/radius_outlier_removal.hpp
+pcl/filters/radius_outlier_removal.h
+-
+pcl/common/io.h
+-
+
+/usr/include/pcl-1.7/pcl/filters/impl/statistical_outlier_removal.hpp
+pcl/filters/statistical_outlier_removal.h
+-
+pcl/common/io.h
+-
+
 /usr/include/pcl-1.7/pcl/filters/impl/voxel_grid.hpp
 pcl/common/common.h
 -
@@ -1918,6 +1934,22 @@ pcl/filters/impl/morphological_filter.hpp
 pcl/filters/filter_indices.h
 -
 pcl/filters/impl/passthrough.hpp
+-
+
+/usr/include/pcl-1.7/pcl/filters/radius_outlier_removal.h
+pcl/filters/filter_indices.h
+-
+pcl/search/pcl_search.h
+-
+pcl/filters/impl/radius_outlier_removal.hpp
+-
+
+/usr/include/pcl-1.7/pcl/filters/statistical_outlier_removal.h
+pcl/filters/filter_indices.h
+-
+pcl/search/pcl_search.h
+-
+pcl/filters/impl/statistical_outlier_removal.hpp
 -
 
 /usr/include/pcl-1.7/pcl/filters/voxel_grid.h

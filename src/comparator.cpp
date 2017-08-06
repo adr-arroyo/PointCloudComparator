@@ -268,7 +268,7 @@ void processNARF2(std::string filename, std::string filename2) {
 	cout << "Extracted " << narf_descriptors2.size() << " descriptors for "
 			<< keypoint_indices3.points.size() << " keypoints.\n";
 
-	//Comparacion truño
+	//Comparacion basica
 	/*int j=0;
 	 pcl::Narf36 feat1;
 	 pcl::Narf36 feat2;
@@ -572,9 +572,7 @@ std::vector<int> matchRIFTFeaturesKnn(pcl::PointCloud<RIFT32>::Ptr descriptors1,
 		int neighborCount = matching.nearestKSearch(descriptors2->at(i), 1,
 				neighbors, squaredDistances);
 		// ...and add a new correspondence if the distance is less than a threshold
-		// (SHOT distances are between 0 and 1, other descriptors use different metrics).
-		if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
-			//correspondence.push_back(neighbors[0], static_cast<int>(i), squaredDistances[0]);
+		if (neighborCount == 1 && squaredDistances[0] < 0.01f) {
 			correspondence.push_back(neighbors[0]);
 		}
 		//} else
@@ -622,7 +620,7 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 	 point = cloud->points[j];
 	 /*if (pointSift.x == point.x && pointSift.y == point.y
 	 && pointSift.z == point.z) {*/
-	//TODO comparacion un poco truño - por alguna razon los keypoints de sift no tienen la misma coordenada q los puntos de la nube original
+	//TODO comparacion un poco basica - por alguna razon los keypoints de sift no tienen la misma coordenada q los puntos de la nube original
 	/*if (sqrt(
 	 pow(pointSift.x - point.x, 2)
 	 + pow(pointSift.y - point.y, 2)
@@ -739,6 +737,7 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 		RIFT32 des = descriptors->points[i];
 		if (pcl_isfinite(des.histogram[0])) {
 			descriptors2->push_back(des);
+			//std::cout << "RIFT value: " << des.histogram[0] << std::endl;
 		}
 	}
 
@@ -835,40 +834,78 @@ std::vector<int> matchFPFH(
 
 pcl::PointCloud<pcl::SHOT352>::Ptr processSHOT(
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
+
+	pcl::PointCloud<pcl::PointWithScale> sifts = processSift(cloud);
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Color(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud_sift = *cloud_Color;
+	int total = sifts.points.size() / 10;
+	for (int i = 0; i < total; ++i) {
+		pcl::PointWithScale pointSift = sifts.points[rand() % total];
+		pcl::PointXYZRGB point;
+		for (int j = 0; j < cloud->points.size(); ++j) {
+			point = cloud->points[j];
+			/*if (pointSift.x == point.x && pointSift.y == point.y
+			 && pointSift.z == point.z) {*/
+			//TODO comparacion un poco basica - por alguna razon los keypoints de sift no tienen la misma coordenada q los puntos de la nube original
+			if (sqrt(
+					pow(pointSift.x - point.x, 2)
+							+ pow(pointSift.y - point.y, 2)
+							+ pow(pointSift.z - point.z, 2)) < 0.01) {
+				point_cloud_sift.push_back(point);
+				/*std::cout << point_cloud_sift.back().x << " "
+				 << point_cloud_sift.back().y << " "
+				 << point_cloud_sift.back().z << std::endl;*/
+				break;
+			}
+		}
+	}
+
 	// Object for storing the normals.
 	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 	// Object for storing the SHOT descriptors for each point.
 	pcl::PointCloud<pcl::SHOT352>::Ptr descriptors(
 			new pcl::PointCloud<pcl::SHOT352>());
 
-	// Estimate the normals.
-	pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> normalEstimation;
-	normalEstimation.setInputCloud(cloud);
-	normalEstimation.setRadiusSearch(0.05);
-	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(
-			new pcl::search::KdTree<pcl::PointXYZRGB>);
-	normalEstimation.setSearchMethod(kdtree);
-	normalEstimation.compute(*normals);
-	std::vector<int> indices2;
-	pcl::removeNaNNormalsFromPointCloud(*normals, *normals, indices2);
-	std::cout << "Point cloud normals size after removing NaNs: "
-			<< normals->points.size() << std::endl;
+	if (cloud_Color->size() > 3) {
+		// Estimate the normals.
+		pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> normalEstimation;
+		normalEstimation.setInputCloud(cloud_Color);
+		normalEstimation.setRadiusSearch(0.05);
+		pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(
+				new pcl::search::KdTree<pcl::PointXYZRGB>);
+		normalEstimation.setSearchMethod(kdtree);
+		normalEstimation.compute(*normals);
+		std::vector<int> indices2;
+		pcl::removeNaNNormalsFromPointCloud(*normals, *normals, indices2);
+		std::cout << "Point cloud normals size after removing NaNs: "
+				<< normals->points.size() << std::endl;
 
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudFinal(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
-	for (int i = 0; i < indices2.size(); ++i) {
-		cloudFinal->push_back(cloud->points[indices2[i]]);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudFinal(
+				new pcl::PointCloud<pcl::PointXYZRGB>);
+		for (int i = 0; i < indices2.size(); ++i) {
+			cloudFinal->push_back(cloud_Color->points[indices2[i]]);
+		}
+
+		// SHOT estimation object.
+		pcl::SHOTEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::SHOT352> shot;
+		shot.setInputCloud(cloudFinal);
+		shot.setInputNormals(normals);
+		// The radius that defines which of the keypoint's neighbors are described.
+		// If too large, there may be clutter, and if too small, not enough points may be found.
+		shot.setRadiusSearch(0.04);
+
+		shot.compute(*descriptors);
 	}
-
-	// SHOT estimation object.
-	pcl::SHOTEstimation<pcl::PointXYZRGB, pcl::Normal, pcl::SHOT352> shot;
-	shot.setInputCloud(cloudFinal);
-	shot.setInputNormals(normals);
-	// The radius that defines which of the keypoint's neighbors are described.
-	// If too large, there may be clutter, and if too small, not enough points may be found.
-	shot.setRadiusSearch(0.04);
-
-	shot.compute(*descriptors);
+	if (descriptors->size() == 0) {
+		pcl::SHOT352 des;
+		for (int i = 0; i < 352; ++i) {
+			des.descriptor[i] = 0;
+			if (i < 9)
+				des.rf[i] = 0;
+		}
+		descriptors->push_back(des);
+	}
 	return descriptors;
 }
 
@@ -933,10 +970,43 @@ double computeVariance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
 float distanceCentroids(std::vector<float> c1, std::vector<float> c2) {
 	float distance = pow(c1[0] - c2[0], 2) + pow(c1[1] - c2[1], 2)
 			+ pow(c1[2] - c2[2], 2);
-	std::cout << "centroid x: "<< c1[0] << " and " << c2[0] << std::endl;
-	std::cout << "centroid y: "<< c1[1] << " and " << c2[1] << std::endl;
-	std::cout << "centroid z: "<< c1[1] << " and " << c2[2] << std::endl;
+	//std::cout << "centroid x: " << c1[0] << " and " << c2[0] << std::endl;
+	//std::cout << "centroid y: " << c1[1] << " and " << c2[1] << std::endl;
+	//std::cout << "centroid z: " << c1[1] << " and " << c2[2] << std::endl;
 	return sqrt(distance);
+}
+
+std::vector<int> closestCentroids(std::vector<float> centroid1,
+		std::vector<std::vector<float> > centroids2) {
+	std::vector<int> correspondence(3);
+	std::vector<float> distances(centroids2.size());
+	for (int i = 0; i < centroids2.size(); ++i) {
+		distances.push_back(distanceCentroids(centroid1, centroids2[i]));
+	}
+	std::sort(distances.begin(), distances.end());
+	correspondence.push_back(distances[0]);
+	correspondence.push_back(distances[1]);
+	correspondence.push_back(distances[2]);
+	return correspondence;
+}
+
+int closestCentroid(std::vector<float> centroid1,
+		std::vector<std::vector<float> > centroids2, std::set<int> indices) {
+	int indice = -1;
+	std::vector<float> distances(centroids2.size());
+	float minDis = 1000000000000;
+	float actDis = 0;
+	for (int i = 0; i < centroids2.size(); ++i) {
+		//If centroid i is not previously found
+		if (indices.find(i) == indices.end()) {
+			actDis = distanceCentroids(centroid1, centroids2[i]);
+			if (actDis < minDis) {
+				minDis = actDis;
+				indice = i;
+			}
+		}
+	}
+	return indice;
 }
 
 double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
@@ -952,6 +1022,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	pcl::PointCloud<RIFT32>::Ptr des2Second;
 	pcl::PointCloud<pcl::VFHSignature308>::Ptr des2VHF;
 	std::vector<int> correspondences;
+	std::vector<int> correspondences2;
 	//For each cluster in 1, there is a correspondence in 2
 	int matches[clusters_pcl_1.size()];
 	int maxCor = 0;
@@ -960,7 +1031,6 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	int clus2Max;
 	int clusMax;
 	std::vector<int> numberDescriptors1(clusters_pcl_1.size());
-	double dis = 10000000000000;
 
 	//Precompute of VHF
 	/*std::vector<pcl::PointCloud<pcl::VFHSignature308>::Ptr> descriptors2VHF;
@@ -969,9 +1039,11 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	 }*/
 
 	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors2;
+	std::vector<pcl::PointCloud<pcl::SHOT352>::Ptr> descriptors2SHOT;
 	std::vector<std::vector<float> > centroidsPCL2;
 	for (int j = 0; j < clusters_pcl_2.size(); ++j) {
 		descriptors2.push_back(processRIFT(clusters_pcl_2[j]));
+		//descriptors2SHOT.push_back(processSHOT(clusters_pcl_2[j]));
 		//Centroid computation
 		std::vector<float> centroid;
 		centroid.push_back(0);
@@ -989,11 +1061,13 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		centroidsPCL2.push_back(centroid);
 	}
 	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors1;
+	std::vector<pcl::PointCloud<pcl::SHOT352>::Ptr> descriptors1SHOT;
 	std::vector<std::vector<float> > centroidsPCL1;
 	for (int i = 0; i < clusters_pcl_1.size(); ++i) {
 		//des1VHF = processVHF(clusters_pcl_1[i]);
 		des1Second = processRIFT(clusters_pcl_1[i]);
 		descriptors1.push_back(des1Second);
+		//descriptors1SHOT.push_back(processSHOT(clusters_pcl_1[i]));
 		numberDescriptors1[i] = des1Second->points.size();
 
 		//Centroid computation
@@ -1013,67 +1087,87 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		centroidsPCL1.push_back(centroid);
 
 		maxCor2 = 0;
-		double disAct = 0;
-		dis = 100000000;
 		matches[i] = -1;
-		for (int j = 0; j < clusters_pcl_2.size(); ++j) {
-			//des2VHF = descriptors2VHF.at(j);
-			//If the global descriptors are similar, we jump to next comparison
-			//disAct = matchVHF(des1VHF, des2VHF);
-			//if (disAct < 50000) {
-			if (distanceCentroids(centroid, centroidsPCL2.at(j)) < 0.005) {
-				des2Second = descriptors2[j];
+		//for (int j = 0; j < clusters_pcl_2.size(); ++j) {
+		//if (distanceCentroids(centroid, centroidsPCL2[j]) < 0.05) {
+		//Get 3 closests centroids
+		std::set<int> indices;
+		std::vector<int> closest;
+		int closest1 = closestCentroid(centroid, centroidsPCL2, indices);
+		indices.insert(closest1);
+		closest.push_back(closest1);
+		int closest2 = closestCentroid(centroid, centroidsPCL2, indices);
+		indices.insert(closest2);
+		closest.push_back(closest2);
+		int closest3 = closestCentroid(centroid, centroidsPCL2, indices);
+		closest.push_back(closest3);
+
+		for (int j = 0; j < 3; ++j) {
+			int closeCentroid = closest[j];
+			if (closeCentroid != -1) {
+				des2Second = descriptors2[closeCentroid];
 				if (!des2Second->empty() and !des1Second->empty()
 						and des2Second->points.size() > 3
-						and des1Second->points.size() > 3) {
-					double coef = (descriptors2[j]->points.size()
+						and des1Second->points.size() > 3
+						/*and descriptors1SHOT[i]->size() > 3
+						 and descriptors2SHOT[j]->size() > 3*/) {
+					double coef = (descriptors2[closeCentroid]->points.size()
 							/ des1Second->points.size());
-					if (coef > 0.8 && coef < 1.2) {
+					if (coef > 0.5 && coef < 2) {
 						std::cout << "Points pcl 1: "
 								<< des1Second->points.size() << std::endl;
 						std::cout << "Points pcl 2: "
 								<< des2Second->points.size() << std::endl;
 						correspondences = matchRIFTFeaturesKnn(des1Second,
 								des2Second);
+						/*correspondences2 = matchSHOT(descriptors1SHOT[i],
+						 descriptors2SHOT[j]);*/
 
 						if (des1Second->points.size()
 								> des2Second->points.size()) {
 							std::cout
-									<< "Percentage of correspondences of clusters "
-									<< i << " and " << j << " is: "
+									<< "Percentage of RIFT correspondences of clusters "
+									<< i << " and " << closeCentroid << " is: "
 									<< correspondences.size()
 											/ des1Second->points.size() * 100
 									<< std::endl;
 							//If at least half of the descriptors match, we assume its a correspondence
 							if (correspondences.size()
 									/ des1Second->points.size() > 0.75
-									and correspondences.size() > maxCor2) {
+									and correspondences.size() > maxCor2
+									/*and correspondences2.size()
+									 / descriptors1SHOT[i]->size()
+									 > 0.5*/) {
 								maxCor2 = correspondences.size();
-								clusMax = j;
+								clusMax = closeCentroid;
 								matches[i] = clusMax;
 								std::cout << "Match accepted" << std::endl;
 							}
 						} else {
 							std::cout
-									<< "Percentage of correspondences of clusters "
-									<< i << " and " << j << " is: "
+									<< "Percentage of RIFT correspondences of clusters "
+									<< i << " and " << closeCentroid << " is: "
 									<< correspondences.size()
 											/ des2Second->points.size() * 100
 									<< std::endl;
 							//If at least half of the descriptors match, we assume its a correspondence
 							if (correspondences.size()
 									/ des2Second->points.size() > 0.75
-									and correspondences.size() > maxCor2) {
+									and correspondences.size() > maxCor2
+									/*and correspondences2.size()
+									 / descriptors2SHOT[j]->size()
+									 > 0.5*/) {
 								maxCor2 = correspondences.size();
-								clusMax = j;
+								clusMax = closeCentroid;
 								matches[i] = clusMax;
-								std::cout << "Match accepted" << std::endl;
+								//std::cout << "Match accepted" << std::endl;
 							}
 						}
 					}
 				}
 			} else
-				std::cout << "Distance of centroids too large" << std::endl;
+				std::cout << "Distance of centroid " << j << "too large"
+						<< std::endl;
 			//}
 			/*} else
 			 std::cout << "VHF Not similar for " << i << " and " << j
@@ -1120,8 +1214,8 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 			//int repetidos2 = numSameDescriptors(descriptors2[i]);
 
 			//Surface analysis: variance
-			double var1 = computeVariance(clusters_pcl_1[i]);
-			double var2 = computeVariance(clusters_pcl_2[matches[i]]);
+			//double var1 = computeVariance(clusters_pcl_1[i]);
+			//double var2 = computeVariance(clusters_pcl_2[matches[i]]);
 
 			//Similarity of segments
 			int simil1 = 0;
@@ -1152,14 +1246,16 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		} else
 			std::cout << "No match" << std::endl;
 	}
-	//Information of general pcl
-	//Number of segments
+//Information of general pcl
+//Number of segments
 	if (clusters_pcl_1.size() > clusters_pcl_2.size())
 		++pcl1;
 	else if (clusters_pcl_2.size() > clusters_pcl_1.size())
 		++pcl2;
-	//Number of points
+//Noise measurement: percentage of points removed (noisy points) with respect to original pcl
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud1_ptr(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud1_nonoise_ptr(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud1 = *point_cloud1_ptr;
 	if (pcl::io::loadPLYFile(argv[pcl_filename_indices[0]], point_cloud1)
@@ -1169,24 +1265,59 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	}
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud2_ptr(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud2_nonoise_ptr(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud2 = *point_cloud2_ptr;
 	if (pcl::io::loadPLYFile(argv[pcl_filename_indices[1]], point_cloud2)
 			== -1) {
 		std::cerr << "Was not able to open file \""
 				<< argv[pcl_filename_indices[1]] << "\".\n";
 	}
-	if (point_cloud1.points.size() > point_cloud2.points.size()) {
-		std::cout << "PCL1 has more points: " << point_cloud1.points.size()
-				<< " over: " << point_cloud2.points.size() << std::endl;
-		++pcl1;
-	} else if (point_cloud1.points.size() < point_cloud2.points.size()) {
-		std::cout << "PCL2 has more points: " << point_cloud2.points.size()
-				<< " over: " << point_cloud1.points.size() << std::endl;
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+//Noise pcl 1
+	pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
+	sor.setInputCloud(point_cloud1_ptr);
+	sor.setMeanK(50);
+	sor.setStddevMulThresh(1.0);
+	sor.filter(*point_cloud1_nonoise_ptr);
+	/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;
+	 outrem.setInputCloud(point_cloud1_ptr);
+	 outrem.setRadiusSearch(0.8);
+	 outrem.setMinNeighborsInRadius(2);
+	 outrem.filter(*point_cloud1_nonoise_ptr);*/
+	double noise1 =
+			(point_cloud1_ptr->size() - point_cloud1_nonoise_ptr->size())
+					/ point_cloud1_ptr->size();
+//Noise pcl 2
+	pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor2;
+	sor2.setInputCloud(point_cloud2_ptr);
+	sor2.setMeanK(50);
+	sor2.setStddevMulThresh(1.0);
+	sor2.filter(*point_cloud2_nonoise_ptr);
+	/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem2;
+	 outrem.setInputCloud(point_cloud2_ptr);
+	 outrem.setRadiusSearch(0.8);
+	 outrem.setMinNeighborsInRadius(2);
+	 outrem.filter(*point_cloud2_nonoise_ptr);*/
+	double noise2 =
+			(point_cloud2_ptr->size() - point_cloud2_nonoise_ptr->size())
+					/ point_cloud2_ptr->size();
+//std::cout << "PCL1 num points: " << point_cloud1_ptr->size() << std::endl;
+	if (noise1 > noise2) {
+		std::cout << "PCL1 has more noisy points: (%) " << noise1 * 100
+				<< " over: (%) " << noise2 * 100 << std::endl;
 		++pcl2;
+	} else if (noise1 < noise2) {
+		std::cout << "PCL2 has more noisy points: (%) " << noise2 * 100
+				<< " over: (%) " << noise1 * 100 << std::endl;
+		++pcl1;
 	} else {
-		std::cout << "Both pcl have the same number of points: "
-				<< point_cloud2.points.size() << std::endl;
+		std::cout << "Both pcl have the same percentage of noisy points: "
+				<< noise1 * 100 << std::endl;
 	}
+
 	std::cout << "----------------------------" << std::endl;
 	std::cout << "score pcl1: " << pcl1 << std::endl;
 	std::cout << "score pcl2: " << pcl2 << std::endl;
