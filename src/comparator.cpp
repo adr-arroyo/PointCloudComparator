@@ -572,7 +572,7 @@ std::vector<int> matchRIFTFeaturesKnn(pcl::PointCloud<RIFT32>::Ptr descriptors1,
 		int neighborCount = matching.nearestKSearch(descriptors2->at(i), 1,
 				neighbors, squaredDistances);
 		// ...and add a new correspondence if the distance is less than a threshold
-		if (neighborCount == 1 && squaredDistances[0] < 0.01f) {
+		if (neighborCount == 1 && squaredDistances[0] < 0.05f) {
 			correspondence.push_back(neighbors[0]);
 		}
 		//} else
@@ -583,20 +583,8 @@ std::vector<int> matchRIFTFeaturesKnn(pcl::PointCloud<RIFT32>::Ptr descriptors1,
 	return correspondence;
 }
 
-//void processRIFT(std::string filename, std::string filename2) {
 pcl::PointCloud<RIFT32>::Ptr processRIFT(
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
-	// ------------------------------------------------------------------
-	// -----Read ply file-----
-	// ------------------------------------------------------------------
-	//Asign pointer to the keypoints cloud
-	/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudColor(
-	 new pcl::PointCloud<pcl::PointXYZRGB>);
-	 pcl::PointCloud<pcl::PointXYZRGB>& point_cloud = *cloudColor;
-	 if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
-	 cerr << "Was not able to open file \"" << filename << "\".\n";
-	 printUsage("");
-	 }*/
 
 	// Object for storing the point cloud with intensity value.
 	pcl::PointCloud<pcl::PointXYZI>::Ptr cloudIntensityGlobal(
@@ -604,35 +592,122 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 	// Convert the RGB to intensity.
 	pcl::PointCloudXYZRGBtoXYZI(*cloud, *cloudIntensityGlobal);
 
+	/*
+	 pcl::visualization::CloudViewer viewer("Cluster viewer");
+	 viewer.showCloud(cloud_Color_test);
+	 while (!viewer.wasStopped()) {
+	 }
+
+	 pcl::visualization::CloudViewer viewer2("Cluster viewer");
+	 viewer2.showCloud(cloud_Color);
+	 while (!viewer2.wasStopped()) {
+	 }*/
+
+	// Object for storing the intensity gradients.
+	pcl::PointCloud<pcl::IntensityGradient>::Ptr gradients(
+			new pcl::PointCloud<pcl::IntensityGradient>);
+	// Object for storing the normals.
+	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+	// Object for storing the RIFT descriptor for each point.
+	pcl::PointCloud<RIFT32>::Ptr descriptors(new pcl::PointCloud<RIFT32>());
+
+	/*pcl::VoxelGrid<pcl::PointXYZRGB> vg;
+	 pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 vg.setInputCloud(cloudColor);
+	 vg.setLeafSize(0.01f, 0.01f, 0.01f);
+	 vg.filter(*cloud_filtered);
+	 std::cout << "PointCloud after filtering has: "
+	 << cloud_filtered->points.size() << " data points." << std::endl;*/
+
+	// Estimate the normals.
+	pcl::NormalEstimation<pcl::PointXYZI, pcl::Normal> normalEstimation;
+	normalEstimation.setInputCloud(cloudIntensityGlobal);
+	//normalEstimation.setSearchSurface(cloudIntensityGlobal);
+	normalEstimation.setRadiusSearch(0.03);
+	pcl::search::KdTree<pcl::PointXYZI>::Ptr kdtree(
+			new pcl::search::KdTree<pcl::PointXYZI>);
+	normalEstimation.setSearchMethod(kdtree);
+	normalEstimation.compute(*normals);
+
+	std::vector<int> indices;
+	pcl::removeNaNNormalsFromPointCloud(*normals, *normals, indices);
+	std::cout << "Point cloud normals size after removing NaNs: "
+			<< normals->points.size() << std::endl;
+	pcl::PointCloud<pcl::PointXYZI>::Ptr cloudIntensityGlobal2(
+			new pcl::PointCloud<pcl::PointXYZI>);
+	for (int i = 0; i < indices.size(); ++i) {
+		cloudIntensityGlobal2->push_back(
+				cloudIntensityGlobal->points[indices[i]]);
+	}
+
+	// Compute the intensity gradients.
+	pcl::IntensityGradientEstimation<pcl::PointXYZI, pcl::Normal,
+			pcl::IntensityGradient,
+			pcl::common::IntensityFieldAccessor<pcl::PointXYZI> > ge;
+	ge.setInputCloud(cloudIntensityGlobal2);
+	//ge.setSearchSurface(cloudIntensityGlobal);
+	ge.setInputNormals(normals);
+	ge.setRadiusSearch(0.03);
+	ge.compute(*gradients);
+
+	// RIFT estimation object.
+	pcl::RIFTEstimation<pcl::PointXYZI, pcl::IntensityGradient, RIFT32> rift;
+	rift.setInputCloud(cloudIntensityGlobal2);
+	//rift.setSearchSurface(cloudIntensityGlobal);
+	rift.setSearchMethod(kdtree);
+	// Set the intensity gradients to use.
+	rift.setInputGradient(gradients);
+	// Radius, to get all neighbors within.
+	rift.setRadiusSearch(0.05);
+	// Set the number of bins to use in the distance dimension.
+	rift.setNrDistanceBins(4);
+	// Set the number of bins to use in the gradient orientation dimension.
+	rift.setNrGradientBins(8);
+	// Note: you must change the output histogram size to reflect the previous values.
+
+	rift.compute(*descriptors);
+	cout << "Computed " << descriptors->points.size() << " RIFT descriptors\n";
+	pcl::PointCloud<RIFT32>::Ptr descriptors2(new pcl::PointCloud<RIFT32>());
+	for (int i = 0; i < descriptors->points.size(); ++i) {
+		RIFT32 des = descriptors->points[i];
+		if (pcl_isfinite(des.histogram[0])) {
+			descriptors2->push_back(des);
+			//std::cout << "RIFT value: " << des.histogram[0] << std::endl;
+		}
+	}
+
+	return descriptors2;
+}
+
+pcl::PointCloud<RIFT32>::Ptr processRIFTwithSIFT(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
+
 	//We find the sift interesting keypoints in the pointclouds
-	/*pcl::PointCloud<pcl::PointWithScale> sifts = processSift(filename,
-	 filename2);*/
-	//pcl::PointCloud<pcl::PointWithScale> sifts = processSift(cloud);
+	pcl::PointCloud<pcl::PointWithScale> sifts = processSift(cloud);
 	//We find the corresponding point of the sift keypoint in the original
 	//cloud and store it with RGB so that it can be transformed into intensity
-	/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Color(
-	 new pcl::PointCloud<pcl::PointXYZRGB>);
-	 pcl::PointCloud<pcl::PointXYZRGB>& point_cloud_sift = *cloud_Color;
-	 for (int i = 0; i < sifts.points.size(); ++i) {
-	 pcl::PointWithScale pointSift = sifts.points[i];
-	 pcl::PointXYZRGB point;
-	 for (int j = 0; j < cloud->points.size(); ++j) {
-	 point = cloud->points[j];
-	 /*if (pointSift.x == point.x && pointSift.y == point.y
-	 && pointSift.z == point.z) {*/
-	//TODO comparacion un poco basica - por alguna razon los keypoints de sift no tienen la misma coordenada q los puntos de la nube original
-	/*if (sqrt(
-	 pow(pointSift.x - point.x, 2)
-	 + pow(pointSift.y - point.y, 2)
-	 + pow(pointSift.z - point.z, 2)) < 0.05) {
-	 point_cloud_sift.push_back(point);
-	 /*std::cout << point_cloud_sift.back().x << " "
-	 << point_cloud_sift.back().y << " "
-	 << point_cloud_sift.back().z << std::endl;*/
-	/*break;
-	 }
-	 }
-	 }*/
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Color(
+			new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud_sift = *cloud_Color;
+	for (int i = 0; i < sifts.points.size(); ++i) {
+		pcl::PointWithScale pointSift = sifts.points[i];
+		pcl::PointXYZRGB point;
+		for (int j = 0; j < cloud->points.size(); ++j) {
+			point = cloud->points[j];
+			//TODO comparacion un poco basica - por alguna razon los keypoints de sift no tienen la misma coordenada q los puntos de la nube original
+			if (sqrt(
+					pow(pointSift.x - point.x, 2)
+							+ pow(pointSift.y - point.y, 2)
+							+ pow(pointSift.z - point.z, 2)) < 0.05) {
+				point_cloud_sift.push_back(point);
+				/*std::cout << point_cloud_sift.back().x << " "
+				 << point_cloud_sift.back().y << " "
+				 << point_cloud_sift.back().z << std::endl;*/
+				break;
+			}
+		}
+	}
 
 	/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Color_test(
 	 new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -679,12 +754,12 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 	 << cloud_filtered->points.size() << " data points." << std::endl;*/
 
 	// Convert the RGB to intensity.
-	/*pcl::PointCloudXYZRGBtoXYZI(*cloud_Color, *cloudIntensityKeypoints);
-	 std::cout << "Size: " << cloudIntensityKeypoints->points.size() << "\n";*/
+	pcl::PointCloudXYZRGBtoXYZI(*cloud_Color, *cloudIntensityKeypoints);
+	std::cout << "Size: " << cloudIntensityKeypoints->points.size() << "\n";
 
 	// Estimate the normals.
 	pcl::NormalEstimation<pcl::PointXYZI, pcl::Normal> normalEstimation;
-	normalEstimation.setInputCloud(cloudIntensityGlobal);
+	normalEstimation.setInputCloud(cloudIntensityKeypoints);
 	//normalEstimation.setSearchSurface(cloudIntensityGlobal);
 	normalEstimation.setRadiusSearch(0.03);
 	pcl::search::KdTree<pcl::PointXYZI>::Ptr kdtree(
@@ -700,7 +775,7 @@ pcl::PointCloud<RIFT32>::Ptr processRIFT(
 			new pcl::PointCloud<pcl::PointXYZI>);
 	for (int i = 0; i < indices.size(); ++i) {
 		cloudIntensityGlobal2->push_back(
-				cloudIntensityGlobal->points[indices[i]]);
+				cloudIntensityKeypoints->points[indices[i]]);
 		/*cloudIntensityGlobal2->push_back(
 		 cloudIntensityGlobal->points[indices[i]]);*/
 	}
@@ -1042,8 +1117,10 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	std::vector<pcl::PointCloud<pcl::SHOT352>::Ptr> descriptors2SHOT;
 	std::vector<std::vector<float> > centroidsPCL2;
 	for (int j = 0; j < clusters_pcl_2.size(); ++j) {
-		descriptors2.push_back(processRIFT(clusters_pcl_2[j]));
-		//descriptors2SHOT.push_back(processSHOT(clusters_pcl_2[j]));
+		if (clusters_pcl_2[j]->size() > 100000)
+			descriptors2.push_back(processRIFTwithSIFT(clusters_pcl_2[j]));
+		else
+			descriptors2.push_back(processRIFT(clusters_pcl_2[j]));
 		//Centroid computation
 		std::vector<float> centroid;
 		centroid.push_back(0);
@@ -1065,6 +1142,10 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	std::vector<std::vector<float> > centroidsPCL1;
 	for (int i = 0; i < clusters_pcl_1.size(); ++i) {
 		//des1VHF = processVHF(clusters_pcl_1[i]);
+		if (clusters_pcl_1[i]->size() > 100000)
+			des1Second = processRIFTwithSIFT(clusters_pcl_1[i]);
+		else
+			des1Second = processRIFT(clusters_pcl_1[i]);
 		des1Second = processRIFT(clusters_pcl_1[i]);
 		descriptors1.push_back(des1Second);
 		//descriptors1SHOT.push_back(processSHOT(clusters_pcl_1[i]));
@@ -1133,7 +1214,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 									<< std::endl;
 							//If at least half of the descriptors match, we assume its a correspondence
 							if (correspondences.size()
-									/ des1Second->points.size() > 0.75
+									/ des1Second->points.size() > 0.25
 									and correspondences.size() > maxCor2
 									/*and correspondences2.size()
 									 / descriptors1SHOT[i]->size()
@@ -1152,7 +1233,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 									<< std::endl;
 							//If at least half of the descriptors match, we assume its a correspondence
 							if (correspondences.size()
-									/ des2Second->points.size() > 0.75
+									/ des2Second->points.size() > 0.25
 									and correspondences.size() > maxCor2
 									/*and correspondences2.size()
 									 / descriptors2SHOT[j]->size()
@@ -1253,70 +1334,70 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	else if (clusters_pcl_2.size() > clusters_pcl_1.size())
 		++pcl2;
 //Noise measurement: percentage of points removed (noisy points) with respect to original pcl
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud1_ptr(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud1_nonoise_ptr(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud1 = *point_cloud1_ptr;
-	if (pcl::io::loadPLYFile(argv[pcl_filename_indices[0]], point_cloud1)
-			== -1) {
-		std::cerr << "Was not able to open file \""
-				<< argv[pcl_filename_indices[0]] << "\".\n";
-	}
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud2_ptr(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud2_nonoise_ptr(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud2 = *point_cloud2_ptr;
-	if (pcl::io::loadPLYFile(argv[pcl_filename_indices[1]], point_cloud2)
-			== -1) {
-		std::cerr << "Was not able to open file \""
-				<< argv[pcl_filename_indices[1]] << "\".\n";
-	}
-	std::cout << std::endl;
-	std::cout << std::endl;
+	/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud1_ptr(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud1_nonoise_ptr(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 pcl::PointCloud<pcl::PointXYZRGB>& point_cloud1 = *point_cloud1_ptr;
+	 if (pcl::io::loadPLYFile(argv[pcl_filename_indices[0]], point_cloud1)
+	 == -1) {
+	 std::cerr << "Was not able to open file \""
+	 << argv[pcl_filename_indices[0]] << "\".\n";
+	 }
+	 pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud2_ptr(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud2_nonoise_ptr(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+	 pcl::PointCloud<pcl::PointXYZRGB>& point_cloud2 = *point_cloud2_ptr;
+	 if (pcl::io::loadPLYFile(argv[pcl_filename_indices[1]], point_cloud2)
+	 == -1) {
+	 std::cerr << "Was not able to open file \""
+	 << argv[pcl_filename_indices[1]] << "\".\n";
+	 }
+	 std::cout << std::endl;
+	 std::cout << std::endl;
 
-//Noise pcl 1
-	pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
-	sor.setInputCloud(point_cloud1_ptr);
-	sor.setMeanK(50);
-	sor.setStddevMulThresh(1.0);
-	sor.filter(*point_cloud1_nonoise_ptr);
-	/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;
+	 //Noise pcl 1
+	 pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
+	 sor.setInputCloud(point_cloud1_ptr);
+	 sor.setMeanK(50);
+	 sor.setStddevMulThresh(1.0);
+	 sor.filter(*point_cloud1_nonoise_ptr);
+	 /*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;
 	 outrem.setInputCloud(point_cloud1_ptr);
 	 outrem.setRadiusSearch(0.8);
 	 outrem.setMinNeighborsInRadius(2);
 	 outrem.filter(*point_cloud1_nonoise_ptr);*/
-	double noise1 =
-			(point_cloud1_ptr->size() - point_cloud1_nonoise_ptr->size())
-					/ point_cloud1_ptr->size();
-//Noise pcl 2
-	pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor2;
-	sor2.setInputCloud(point_cloud2_ptr);
-	sor2.setMeanK(50);
-	sor2.setStddevMulThresh(1.0);
-	sor2.filter(*point_cloud2_nonoise_ptr);
-	/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem2;
+	/*double noise1 =
+	 (point_cloud1_ptr->size() - point_cloud1_nonoise_ptr->size())
+	 / point_cloud1_ptr->size();
+	 //Noise pcl 2
+	 pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor2;
+	 sor2.setInputCloud(point_cloud2_ptr);
+	 sor2.setMeanK(50);
+	 sor2.setStddevMulThresh(1.0);
+	 sor2.filter(*point_cloud2_nonoise_ptr);
+	 /*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem2;
 	 outrem.setInputCloud(point_cloud2_ptr);
 	 outrem.setRadiusSearch(0.8);
 	 outrem.setMinNeighborsInRadius(2);
 	 outrem.filter(*point_cloud2_nonoise_ptr);*/
-	double noise2 =
-			(point_cloud2_ptr->size() - point_cloud2_nonoise_ptr->size())
-					/ point_cloud2_ptr->size();
-//std::cout << "PCL1 num points: " << point_cloud1_ptr->size() << std::endl;
-	if (noise1 > noise2) {
-		std::cout << "PCL1 has more noisy points: (%) " << noise1 * 100
-				<< " over: (%) " << noise2 * 100 << std::endl;
-		++pcl2;
-	} else if (noise1 < noise2) {
-		std::cout << "PCL2 has more noisy points: (%) " << noise2 * 100
-				<< " over: (%) " << noise1 * 100 << std::endl;
-		++pcl1;
-	} else {
-		std::cout << "Both pcl have the same percentage of noisy points: "
-				<< noise1 * 100 << std::endl;
-	}
+	/*double noise2 =
+	 (point_cloud2_ptr->size() - point_cloud2_nonoise_ptr->size())
+	 / point_cloud2_ptr->size();
+	 //std::cout << "PCL1 num points: " << point_cloud1_ptr->size() << std::endl;
+	 if (noise1 > noise2) {
+	 std::cout << "PCL1 has more noisy points: (%) " << noise1 * 100
+	 << " over: (%) " << noise2 * 100 << std::endl;
+	 ++pcl2;
+	 } else if (noise1 < noise2) {
+	 std::cout << "PCL2 has more noisy points: (%) " << noise2 * 100
+	 << " over: (%) " << noise1 * 100 << std::endl;
+	 ++pcl1;
+	 } else {
+	 std::cout << "Both pcl have the same percentage of noisy points: "
+	 << noise1 * 100 << std::endl;
+	 }*/
 
 	std::cout << "----------------------------" << std::endl;
 	std::cout << "score pcl1: " << pcl1 << std::endl;

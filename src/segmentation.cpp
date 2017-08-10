@@ -161,7 +161,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentati
 	return clusters_pcl;
 }
 
-int color_growing_segmentation(std::string filename) {
+std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(std::string filename) {
 	pcl::search::Search<pcl::PointXYZRGB>::Ptr tree = boost::shared_ptr<
 			pcl::search::Search<pcl::PointXYZRGB> >(
 			new pcl::search::KdTree<pcl::PointXYZRGB>);
@@ -171,6 +171,9 @@ int color_growing_segmentation(std::string filename) {
 	if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
 		std::cerr << "Was not able to open file \"" << filename << "\".\n";
 	}
+
+	std::vector<int> indices2;
+	pcl::removeNaNFromPointCloud(*point_cloud_ptr, *point_cloud_ptr, indices2);
 
 	pcl::IndicesPtr indices(new std::vector<int>);
 	pcl::PassThrough<pcl::PointXYZRGB> pass;
@@ -183,15 +186,11 @@ int color_growing_segmentation(std::string filename) {
 	reg.setInputCloud(point_cloud_ptr);
 	reg.setIndices(indices);
 	reg.setSearchMethod(tree);
-	/*Defaults:
+	/*Defaults:*/
 	 reg.setDistanceThreshold(10);
 	 reg.setPointColorThreshold(6);
 	 reg.setRegionColorThreshold(5);
-	 reg.setMinClusterSize(600);*/
-	reg.setDistanceThreshold(15);
-	reg.setPointColorThreshold(3);
-	reg.setRegionColorThreshold(1);
-	reg.setMinClusterSize(400);
+	 reg.setMinClusterSize(200);
 
 	std::vector<pcl::PointIndices> clusters;
 	reg.extract(clusters);
@@ -199,16 +198,29 @@ int color_growing_segmentation(std::string filename) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_cloud =
 			reg.getColoredCloud();
 	pcl::visualization::CloudViewer viewer("Cluster viewer");
-	pcl::PLYWriter writer;
-	std::stringstream ss;
-	ss << "color_growing_cloud.ply";
-	writer.write<pcl::PointXYZRGB>(ss.str(), *colored_cloud, false);
 	viewer.showCloud(colored_cloud);
 	while (!viewer.wasStopped()) {
 		boost::this_thread::sleep(boost::posix_time::microseconds(100));
 	}
 
-	return (0);
+	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl;
+		for (int i = 0; i < clusters.size(); ++i) {
+			pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(
+					new pcl::PointCloud<pcl::PointXYZRGB>);
+			cloud_cluster->width = clusters[i].indices.size();
+			cloud_cluster->height = 1;
+			cloud_cluster->is_dense = true;
+			for (int j = 0; j < clusters[i].indices.size(); ++j) {
+				//Take the corresponding point of the filtered cloud from the indices for the new pcl
+				cloud_cluster->push_back(
+						point_cloud_ptr->at(clusters[i].indices[j]));
+			}
+			indices2.clear();
+			pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
+			clusters_pcl.push_back(cloud_cluster);
+		}
+
+		return clusters_pcl;
 }
 
 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
@@ -311,7 +323,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 		for (int j = 0; j < clusters[i].indices.size(); ++j) {
 			//Take the corresponding point of the filtered cloud from the indices for the new pcl
 			cloud_cluster->push_back(
-					cloud_filtered->at(clusters[i].indices[j]));
+					point_cloud_ptr->at(clusters[i].indices[j]));
 		}
 		indices2.clear();
 		pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
