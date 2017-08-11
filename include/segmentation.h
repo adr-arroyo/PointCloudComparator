@@ -30,12 +30,14 @@
 
 int planar_segmentation(std::string filename);
 
-std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentation(std::string filename);
+std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentation(
+		std::string filename);
 
-std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(std::string filename);
+std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr);
 
 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
-		std::string filename);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr);
 
 int ground_segmentation(std::string filename);
 

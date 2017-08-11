@@ -9,6 +9,8 @@
 /home/adrian/PointCloudComparator/include/comparator.h
 iostream
 -
+fstream
+-
 boost/thread/thread.hpp
 -
 pcl/range_image/range_image.h

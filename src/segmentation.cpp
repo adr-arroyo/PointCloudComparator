@@ -147,11 +147,11 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentati
 		cloud_cluster->is_dense = true;
 
 		std::cout << "PointCloud representing the Cluster: "
-		 << cloud_cluster->points.size() << " data points." << std::endl;
-		 pcl::visualization::CloudViewer viewer("Cloud cluster - q to quit");
-		 viewer.showCloud(cloud_cluster);
-		 while (!viewer.wasStopped()) {
-		 }
+				<< cloud_cluster->points.size() << " data points." << std::endl;
+		pcl::visualization::CloudViewer viewer("Cloud cluster - q to quit");
+		viewer.showCloud(cloud_cluster);
+		while (!viewer.wasStopped()) {
+		}
 		std::vector<int> indices2;
 		pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
 		clusters_pcl.push_back(cloud_cluster);
@@ -161,19 +161,12 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentati
 	return clusters_pcl;
 }
 
-std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(std::string filename) {
+std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr) {
 	pcl::search::Search<pcl::PointXYZRGB>::Ptr tree = boost::shared_ptr<
 			pcl::search::Search<pcl::PointXYZRGB> >(
 			new pcl::search::KdTree<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud = *point_cloud_ptr;
-	if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
-		std::cerr << "Was not able to open file \"" << filename << "\".\n";
-	}
-
-	std::vector<int> indices2;
-	pcl::removeNaNFromPointCloud(*point_cloud_ptr, *point_cloud_ptr, indices2);
 
 	pcl::IndicesPtr indices(new std::vector<int>);
 	pcl::PassThrough<pcl::PointXYZRGB> pass;
@@ -187,10 +180,10 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(s
 	reg.setIndices(indices);
 	reg.setSearchMethod(tree);
 	/*Defaults:*/
-	 reg.setDistanceThreshold(10);
-	 reg.setPointColorThreshold(6);
-	 reg.setRegionColorThreshold(5);
-	 reg.setMinClusterSize(200);
+	reg.setDistanceThreshold(10);
+	reg.setPointColorThreshold(6);
+	reg.setRegionColorThreshold(5);
+	reg.setMinClusterSize(200);
 
 	std::vector<pcl::PointIndices> clusters;
 	reg.extract(clusters);
@@ -202,38 +195,31 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(s
 	while (!viewer.wasStopped()) {
 		boost::this_thread::sleep(boost::posix_time::microseconds(100));
 	}
-
+	std::vector<int> indices2;
 	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl;
-		for (int i = 0; i < clusters.size(); ++i) {
-			pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(
-					new pcl::PointCloud<pcl::PointXYZRGB>);
-			cloud_cluster->width = clusters[i].indices.size();
-			cloud_cluster->height = 1;
-			cloud_cluster->is_dense = true;
-			for (int j = 0; j < clusters[i].indices.size(); ++j) {
-				//Take the corresponding point of the filtered cloud from the indices for the new pcl
-				cloud_cluster->push_back(
-						point_cloud_ptr->at(clusters[i].indices[j]));
-			}
-			indices2.clear();
-			pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
-			clusters_pcl.push_back(cloud_cluster);
+	for (int i = 0; i < clusters.size(); ++i) {
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(
+				new pcl::PointCloud<pcl::PointXYZRGB>);
+		cloud_cluster->width = clusters[i].indices.size();
+		cloud_cluster->height = 1;
+		cloud_cluster->is_dense = true;
+		for (int j = 0; j < clusters[i].indices.size(); ++j) {
+			//Take the corresponding point of the filtered cloud from the indices for the new pcl
+			cloud_cluster->push_back(
+					point_cloud_ptr->at(clusters[i].indices[j]));
 		}
+		indices2.clear();
+		pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
+		clusters_pcl.push_back(cloud_cluster);
+	}
 
-		return clusters_pcl;
+	return clusters_pcl;
 }
 
 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
-		std::string filename) {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr) {
 	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud = *point_cloud_ptr;
-	if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
-		std::cerr << "Was not able to open file \"" << filename << "\".\n";
-	}
 	std::vector<int> indices2;
-	pcl::removeNaNFromPointCloud(*point_cloud_ptr, *point_cloud_ptr, indices2);
-
 	// Create the filtering object: downsample the dataset using a leaf size of 1cm
 	pcl::VoxelGrid<pcl::PointXYZRGB> vg;
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
@@ -288,7 +274,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 	std::cout << "Number of clusters is equal to " << clusters.size()
 			<< std::endl;
 	/*std::cout << "First cluster has " << clusters[0].indices.size()
-			<< " points." << endl;*/
+	 << " points." << endl;*/
 	/*std::cout << "These are the indices of the points of the initial"
 	 << std::endl << "cloud that belong to the first cluster:"
 	 << std::endl;
@@ -304,9 +290,9 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_cloud =
 			reg.getColoredCloud();
 	/*pcl::PLYWriter writer;
-	std::stringstream ss;
-	ss << "region_growing_cloud.ply";
-	writer.write<pcl::PointXYZRGB>(ss.str(), *colored_cloud, false);*/
+	 std::stringstream ss;
+	 ss << "region_growing_cloud.ply";
+	 writer.write<pcl::PointXYZRGB>(ss.str(), *colored_cloud, false);*/
 	pcl::visualization::CloudViewer viewer("Cluster viewer");
 	viewer.showCloud(colored_cloud);
 	while (!viewer.wasStopped()) {
@@ -326,9 +312,16 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 					point_cloud_ptr->at(clusters[i].indices[j]));
 		}
 		indices2.clear();
-		pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
+		//pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
 		clusters_pcl.push_back(cloud_cluster);
 	}
+
+	/*for (int i = 0; i < clusters_pcl.size(); ++i) {
+		pcl::visualization::CloudViewer viewer("Cluster viewer");
+		viewer.showCloud(clusters_pcl[i]);
+		while (!viewer.wasStopped()) {
+		}
+	}*/
 
 	return clusters_pcl;
 }

@@ -11,6 +11,7 @@
 #define PCL_NO_PRECOMPILE
 
 #include <iostream>
+#include <fstream>
 #include <boost/thread/thread.hpp>
 #include <pcl/range_image/range_image.h>
 #include <pcl/io/ply_io.h>
