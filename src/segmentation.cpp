@@ -242,12 +242,12 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 	normal_estimator.setKSearch(50);
 	normal_estimator.compute(*normals);
 
-	pcl::IndicesPtr indices(new std::vector<int>);
+	/*pcl::IndicesPtr indices(new std::vector<int>);
 	pcl::PassThrough<pcl::PointXYZRGB> pass;
 	pass.setInputCloud(cloud_filtered);
 	pass.setFilterFieldName("z");
 	pass.setFilterLimits(0.0, 1.0);
-	pass.filter(*indices);
+	pass.filter(*indices);*/
 
 	pcl::RegionGrowing<pcl::PointXYZRGB, pcl::Normal> reg;
 	/*Defaults

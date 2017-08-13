@@ -1,608 +1,392 @@
-Results of comparison between /home/adrian/PCLDatasets/cuarto2.ply and /home/adrian/PCLDatasets/cuarto2MLSSmoothing.ply
+Results of comparison between /home/adrian/PCLDatasets/estanteriayventilador.ply and /home/adrian/PCLDatasets/cuarto2.ply
 --------------------------------------------------------------------------------
 
-Number of clusters of PCL 1: 77
-Number of clusters of PCL 2: 71
+Number of clusters of PCL 1: 17
+Number of clusters of PCL 2: 77
 
 ------------------------------------
 Information of clusters of PCL2:
 ------------------------------------
 PCL2 cluster 0:
-	Number of points: 20638
-	Number of descriptors: 20420
-	Coordinates of centroid: [0.990425,-0.0642364,-0.532323]
+	Number of points: 8627
+	Number of descriptors: 8433
+	Coordinates of centroid: [1.04556,0.0307063,-0.363602]
 PCL2 cluster 1:
-	Number of points: 10909
-	Number of descriptors: 10762
-	Coordinates of centroid: [1.08399,0.133213,-0.174521]
+	Number of points: 11703
+	Number of descriptors: 11496
+	Coordinates of centroid: [1.08505,0.131017,-0.161151]
 PCL2 cluster 2:
-	Number of points: 217
-	Number of descriptors: 45
-	Coordinates of centroid: [1.09207,0.175148,-0.197777]
-PCL2 cluster 3:
-	Number of points: 5262
-	Number of descriptors: 5042
-	Coordinates of centroid: [1.0728,0.0141989,-0.216394]
-PCL2 cluster 4:
-	Number of points: 491
-	Number of descriptors: 447
-	Coordinates of centroid: [1.00043,0.108751,-0.523393]
-PCL2 cluster 5:
-	Number of points: 215
-	Number of descriptors: 158
-	Coordinates of centroid: [1.07296,0.29178,-0.145157]
-PCL2 cluster 6:
-	Number of points: 6469
-	Number of descriptors: 6287
-	Coordinates of centroid: [0.966925,-0.0974806,-0.594108]
-PCL2 cluster 7:
-	Number of points: 1134
-	Number of descriptors: 1072
-	Coordinates of centroid: [1.08724,0.215862,-0.170733]
-PCL2 cluster 8:
-	Number of points: 20645
-	Number of descriptors: 20549
-	Coordinates of centroid: [1.02485,0.0720068,-0.472031]
-PCL2 cluster 9:
-	Number of points: 148
-	Number of descriptors: 107
-	Coordinates of centroid: [1.11289,0.250685,-0.209672]
-PCL2 cluster 10:
-	Number of points: 215
-	Number of descriptors: 211
-	Coordinates of centroid: [1.1519,-0.104498,0.322831]
-PCL2 cluster 11:
-	Number of points: 364
-	Number of descriptors: 311
-	Coordinates of centroid: [1.07708,0.201144,-0.132833]
-PCL2 cluster 12:
-	Number of points: 3946
-	Number of descriptors: 3829
-	Coordinates of centroid: [0.982134,0.120483,-0.557617]
-PCL2 cluster 13:
-	Number of points: 1355
-	Number of descriptors: 1150
-	Coordinates of centroid: [1.08715,0.203166,-0.167435]
-PCL2 cluster 14:
-	Number of points: 567
-	Number of descriptors: 484
-	Coordinates of centroid: [1.03469,-0.0762477,-0.741718]
-PCL2 cluster 15:
-	Number of points: 7217
-	Number of descriptors: 6939
-	Coordinates of centroid: [1.0683,0.141874,-0.241764]
-PCL2 cluster 16:
-	Number of points: 64
-	Number of descriptors: 6
-	Coordinates of centroid: [1.08925,-0.139295,-1.12081]
-PCL2 cluster 17:
-	Number of points: 13055
-	Number of descriptors: 12712
-	Coordinates of centroid: [1.06539,0.14561,-0.222328]
-PCL2 cluster 18:
-	Number of points: 118
-	Number of descriptors: 79
-	Coordinates of centroid: [1.04675,0.264619,-0.284275]
-PCL2 cluster 19:
-	Number of points: 372
-	Number of descriptors: 267
-	Coordinates of centroid: [1.11157,0.218655,-0.0466826]
-PCL2 cluster 20:
-	Number of points: 83
-	Number of descriptors: 54
-	Coordinates of centroid: [0.862358,-0.143672,-0.407161]
-PCL2 cluster 21:
-	Number of points: 7737
-	Number of descriptors: 7590
-	Coordinates of centroid: [1.08961,0.237643,-0.150079]
-PCL2 cluster 22:
-	Number of points: 217
-	Number of descriptors: 48
-	Coordinates of centroid: [1.06495,-0.0365898,-0.206518]
-PCL2 cluster 23:
-	Number of points: 156
-	Number of descriptors: 3
-	Coordinates of centroid: [1.04885,0.159606,-0.354219]
-PCL2 cluster 24:
-	Number of points: 188
-	Number of descriptors: 92
-	Coordinates of centroid: [1.10637,-0.257848,-0.176483]
-PCL2 cluster 25:
-	Number of points: 220
-	Number of descriptors: 148
-	Coordinates of centroid: [1.09954,0.328841,-0.0219699]
-PCL2 cluster 26:
-	Number of points: 82
-	Number of descriptors: 12
-	Coordinates of centroid: [1.12836,0.297502,-0.0246301]
-PCL2 cluster 27:
-	Number of points: 763
-	Number of descriptors: 627
-	Coordinates of centroid: [1.09005,0.219879,-0.198066]
-PCL2 cluster 28:
-	Number of points: 172
-	Number of descriptors: 50
-	Coordinates of centroid: [1.089,-0.0858075,-0.164908]
-PCL2 cluster 29:
-	Number of points: 5190
-	Number of descriptors: 4691
-	Coordinates of centroid: [1.08089,0.175462,-0.212344]
-PCL2 cluster 30:
-	Number of points: 152
-	Number of descriptors: 61
-	Coordinates of centroid: [1.06133,-0.191664,-0.175421]
-PCL2 cluster 31:
-	Number of points: 117
-	Number of descriptors: 72
-	Coordinates of centroid: [1.04933,0.152379,-0.604937]
-PCL2 cluster 32:
-	Number of points: 86
-	Number of descriptors: 49
-	Coordinates of centroid: [1.16455,-0.150067,0.268688]
-PCL2 cluster 33:
-	Number of points: 70
-	Number of descriptors: 43
-	Coordinates of centroid: [1.05897,0.128265,-0.2486]
-PCL2 cluster 34:
-	Number of points: 350
-	Number of descriptors: 259
-	Coordinates of centroid: [1.03124,0.169883,-0.419735]
-PCL2 cluster 35:
-	Number of points: 196
-	Number of descriptors: 111
-	Coordinates of centroid: [1.03561,-0.0273074,-0.684288]
-PCL2 cluster 36:
-	Number of points: 89
-	Number of descriptors: 63
-	Coordinates of centroid: [1.10072,0.336971,-0.049382]
-PCL2 cluster 37:
-	Number of points: 139
-	Number of descriptors: 70
-	Coordinates of centroid: [1.05695,0.356414,-0.365969]
-PCL2 cluster 38:
-	Number of points: 1300
-	Number of descriptors: 1129
-	Coordinates of centroid: [1.04799,0.200462,-0.368218]
-PCL2 cluster 39:
-	Number of points: 144
-	Number of descriptors: 86
-	Coordinates of centroid: [0.975827,0.122025,-0.468971]
-PCL2 cluster 40:
-	Number of points: 151
-	Number of descriptors: 61
-	Coordinates of centroid: [1.06111,0.20779,-0.21942]
-PCL2 cluster 41:
-	Number of points: 53
-	Number of descriptors: 46
-	Coordinates of centroid: [1.07307,0.181379,-0.235461]
-PCL2 cluster 42:
-	Number of points: 63
-	Number of descriptors: 6
-	Coordinates of centroid: [1.16631,0.193556,-0.0225455]
-PCL2 cluster 43:
-	Number of points: 974
-	Number of descriptors: 914
-	Coordinates of centroid: [1.10999,0.24481,-0.0106345]
-PCL2 cluster 44:
-	Number of points: 54
-	Number of descriptors: 22
-	Coordinates of centroid: [1.05929,-0.0323716,-0.101487]
-PCL2 cluster 45:
-	Number of points: 50
-	Number of descriptors: 0
-	Coordinates of centroid: [1.1216,0.272945,-0.129413]
-PCL2 cluster 46:
-	Number of points: 54
-	Number of descriptors: 15
-	Coordinates of centroid: [1.13106,0.248155,-0.46866]
-PCL2 cluster 47:
-	Number of points: 567
-	Number of descriptors: 328
-	Coordinates of centroid: [1.03475,0.145082,-0.386649]
-PCL2 cluster 48:
-	Number of points: 74
-	Number of descriptors: 26
-	Coordinates of centroid: [0.970319,0.151555,-0.486568]
-PCL2 cluster 49:
-	Number of points: 1525
-	Number of descriptors: 1288
-	Coordinates of centroid: [1.08708,0.269998,-0.0999109]
-PCL2 cluster 50:
-	Number of points: 73
-	Number of descriptors: 43
-	Coordinates of centroid: [0.950572,0.100375,-0.443698]
-PCL2 cluster 51:
-	Number of points: 60
-	Number of descriptors: 20
-	Coordinates of centroid: [1.06529,0.0982118,-0.242262]
-PCL2 cluster 52:
-	Number of points: 711
-	Number of descriptors: 439
-	Coordinates of centroid: [1.06304,0.270889,-0.231555]
-PCL2 cluster 53:
-	Number of points: 174
-	Number of descriptors: 92
-	Coordinates of centroid: [1.09866,0.218361,-0.21181]
-PCL2 cluster 54:
-	Number of points: 53
-	Number of descriptors: 6
-	Coordinates of centroid: [0.964124,-0.0412247,-0.412238]
-PCL2 cluster 55:
-	Number of points: 52
-	Number of descriptors: 13
-	Coordinates of centroid: [1.17892,-0.141049,0.0558506]
-PCL2 cluster 56:
-	Number of points: 65
-	Number of descriptors: 33
-	Coordinates of centroid: [1.15928,-0.159295,-0.878887]
-PCL2 cluster 57:
-	Number of points: 134
-	Number of descriptors: 82
-	Coordinates of centroid: [1.14662,-0.258377,0.259256]
-PCL2 cluster 58:
-	Number of points: 99
-	Number of descriptors: 65
-	Coordinates of centroid: [1.09631,0.0352001,-0.373951]
-PCL2 cluster 59:
-	Number of points: 273
-	Number of descriptors: 216
-	Coordinates of centroid: [1.05468,0.14706,-0.266356]
-PCL2 cluster 60:
-	Number of points: 71
-	Number of descriptors: 29
-	Coordinates of centroid: [0.995666,-0.203943,-0.298634]
-PCL2 cluster 61:
-	Number of points: 477
-	Number of descriptors: 254
-	Coordinates of centroid: [1.03028,0.316546,-0.254458]
-PCL2 cluster 62:
-	Number of points: 130
-	Number of descriptors: 91
-	Coordinates of centroid: [1.1624,0.227982,-0.086591]
-PCL2 cluster 63:
-	Number of points: 155
-	Number of descriptors: 48
-	Coordinates of centroid: [1.03503,-0.185613,-0.668018]
-PCL2 cluster 64:
-	Number of points: 243
+	Number of points: 202
 	Number of descriptors: 142
-	Coordinates of centroid: [1.0698,0.286005,-0.289628]
-PCL2 cluster 65:
-	Number of points: 82
+	Coordinates of centroid: [1.10157,0.231801,0.0564204]
+PCL2 cluster 3:
+	Number of points: 13273
+	Number of descriptors: 13042
+	Coordinates of centroid: [1.02259,-0.329279,-0.508271]
+PCL2 cluster 4:
+	Number of points: 473
+	Number of descriptors: 406
+	Coordinates of centroid: [1.09473,0.239057,-0.242655]
+PCL2 cluster 5:
+	Number of points: 223
+	Number of descriptors: 98
+	Coordinates of centroid: [1.00247,0.189656,-0.352865]
+PCL2 cluster 6:
+	Number of points: 7113
+	Number of descriptors: 6870
+	Coordinates of centroid: [1.04763,-0.255876,-0.598846]
+PCL2 cluster 7:
+	Number of points: 420
+	Number of descriptors: 399
+	Coordinates of centroid: [1.02457,0.0347803,-0.717539]
+PCL2 cluster 8:
+	Number of points: 22628
+	Number of descriptors: 22456
+	Coordinates of centroid: [1.0183,-0.0281762,-0.502936]
+PCL2 cluster 9:
+	Number of points: 215
+	Number of descriptors: 178
+	Coordinates of centroid: [1.05163,0.221109,-0.300374]
+PCL2 cluster 10:
+	Number of points: 1236
+	Number of descriptors: 1185
+	Coordinates of centroid: [1.05119,0.186526,-0.271279]
+PCL2 cluster 11:
+	Number of points: 5340
+	Number of descriptors: 5136
+	Coordinates of centroid: [1.06613,0.00825457,-0.238352]
+PCL2 cluster 12:
+	Number of points: 386
+	Number of descriptors: 329
+	Coordinates of centroid: [1.10006,0.211332,-0.184064]
+PCL2 cluster 13:
+	Number of points: 71
+	Number of descriptors: 42
+	Coordinates of centroid: [1.06316,0.00592978,-0.223474]
+PCL2 cluster 14:
+	Number of points: 239
+	Number of descriptors: 67
+	Coordinates of centroid: [1.10745,-0.234478,-0.973572]
+PCL2 cluster 15:
+	Number of points: 1461
+	Number of descriptors: 1223
+	Coordinates of centroid: [1.03415,0.182621,-0.281595]
+PCL2 cluster 16:
+	Number of points: 67
 	Number of descriptors: 54
-	Coordinates of centroid: [1.12127,0.25014,-0.0866608]
-PCL2 cluster 66:
-	Number of points: 70
-	Number of descriptors: 15
-	Coordinates of centroid: [1.07414,0.080374,-0.237495]
-PCL2 cluster 67:
-	Number of points: 55
-	Number of descriptors: 6
-	Coordinates of centroid: [1.08347,0.193543,-0.402444]
-PCL2 cluster 68:
+	Coordinates of centroid: [0.825147,-0.109254,-0.487946]
+PCL2 cluster 17:
+	Number of points: 3737
+	Number of descriptors: 3593
+	Coordinates of centroid: [0.994907,0.0181192,-0.697515]
+PCL2 cluster 18:
+	Number of points: 241
+	Number of descriptors: 224
+	Coordinates of centroid: [1.1569,-0.0988469,0.317044]
+PCL2 cluster 19:
+	Number of points: 569
+	Number of descriptors: 486
+	Coordinates of centroid: [1.0398,-0.192134,-0.756034]
+PCL2 cluster 20:
+	Number of points: 7926
+	Number of descriptors: 7834
+	Coordinates of centroid: [1.08017,0.225258,-0.182088]
+PCL2 cluster 21:
+	Number of points: 314
+	Number of descriptors: 230
+	Coordinates of centroid: [0.9717,-0.193018,-0.567198]
+PCL2 cluster 22:
+	Number of points: 186
+	Number of descriptors: 144
+	Coordinates of centroid: [1.15069,0.26762,-0.0399334]
+PCL2 cluster 23:
+	Number of points: 7893
+	Number of descriptors: 7583
+	Coordinates of centroid: [1.06159,0.157037,-0.250088]
+PCL2 cluster 24:
+	Number of points: 53
+	Number of descriptors: 31
+	Coordinates of centroid: [1.04642,0.0350926,-0.116375]
+PCL2 cluster 25:
+	Number of points: 224
+	Number of descriptors: 142
+	Coordinates of centroid: [1.10776,0.170517,-0.0830109]
+PCL2 cluster 26:
+	Number of points: 79
+	Number of descriptors: 12
+	Coordinates of centroid: [1.15454,0.250774,-0.0783155]
+PCL2 cluster 27:
+	Number of points: 202
+	Number of descriptors: 156
+	Coordinates of centroid: [1.17346,0.152143,-0.043452]
+PCL2 cluster 28:
+	Number of points: 14874
+	Number of descriptors: 14519
+	Coordinates of centroid: [1.05273,0.134988,-0.272507]
+PCL2 cluster 29:
+	Number of points: 119
+	Number of descriptors: 74
+	Coordinates of centroid: [0.992849,0.162999,-0.321957]
+PCL2 cluster 30:
+	Number of points: 166
+	Number of descriptors: 22
+	Coordinates of centroid: [1.05448,0.204109,-0.401316]
+PCL2 cluster 31:
+	Number of points: 193
+	Number of descriptors: 89
+	Coordinates of centroid: [1.068,0.063465,-0.200091]
+PCL2 cluster 32:
+	Number of points: 815
+	Number of descriptors: 627
+	Coordinates of centroid: [1.10193,0.239455,-0.183782]
+PCL2 cluster 33:
+	Number of points: 85
+	Number of descriptors: 61
+	Coordinates of centroid: [1.0386,0.109486,-0.354789]
+PCL2 cluster 34:
+	Number of points: 250
+	Number of descriptors: 73
+	Coordinates of centroid: [1.06472,-0.0852902,-0.190869]
+PCL2 cluster 35:
+	Number of points: 134
+	Number of descriptors: 80
+	Coordinates of centroid: [1.1273,0.188609,-0.334889]
+PCL2 cluster 36:
+	Number of points: 71
+	Number of descriptors: 62
+	Coordinates of centroid: [1.00672,0.0649921,-0.367029]
+PCL2 cluster 37:
+	Number of points: 6220
+	Number of descriptors: 5892
+	Coordinates of centroid: [1.07313,0.182619,-0.214474]
+PCL2 cluster 38:
+	Number of points: 204
+	Number of descriptors: 149
+	Coordinates of centroid: [1.0544,0.347124,-0.453724]
+PCL2 cluster 39:
+	Number of points: 110
+	Number of descriptors: 77
+	Coordinates of centroid: [0.993028,0.149243,-0.378907]
+PCL2 cluster 40:
+	Number of points: 181
+	Number of descriptors: 115
+	Coordinates of centroid: [1.05081,0.215273,-0.280685]
+PCL2 cluster 41:
+	Number of points: 359
+	Number of descriptors: 275
+	Coordinates of centroid: [1.06247,0.233805,-0.371442]
+PCL2 cluster 42:
+	Number of points: 830
+	Number of descriptors: 530
+	Coordinates of centroid: [1.03772,0.0970383,-0.373951]
+PCL2 cluster 43:
+	Number of points: 86
+	Number of descriptors: 54
+	Coordinates of centroid: [1.13646,0.104619,-0.0582219]
+PCL2 cluster 44:
+	Number of points: 141
+	Number of descriptors: 74
+	Coordinates of centroid: [1.03291,0.376027,-0.285856]
+PCL2 cluster 45:
+	Number of points: 177
+	Number of descriptors: 42
+	Coordinates of centroid: [1.20626,-0.0743787,0.0674593]
+PCL2 cluster 46:
+	Number of points: 64
+	Number of descriptors: 37
+	Coordinates of centroid: [1.15572,-0.0431978,-0.0300174]
+PCL2 cluster 47:
+	Number of points: 821
+	Number of descriptors: 756
+	Coordinates of centroid: [1.13548,0.229336,-0.0457668]
+PCL2 cluster 48:
+	Number of points: 57
+	Number of descriptors: 13
+	Coordinates of centroid: [1.11102,0.194605,-0.09891]
+PCL2 cluster 49:
+	Number of points: 53
+	Number of descriptors: 20
+	Coordinates of centroid: [0.912408,0.0152976,-0.389999]
+PCL2 cluster 50:
+	Number of points: 1308
+	Number of descriptors: 1165
+	Coordinates of centroid: [1.04532,0.218155,-0.344362]
+PCL2 cluster 51:
+	Number of points: 51
+	Number of descriptors: 33
+	Coordinates of centroid: [1.16022,-0.199966,0.264891]
+PCL2 cluster 52:
+	Number of points: 205
+	Number of descriptors: 130
+	Coordinates of centroid: [1.13962,0.211786,-0.103765]
+PCL2 cluster 53:
+	Number of points: 314
+	Number of descriptors: 232
+	Coordinates of centroid: [1.06136,0.0877795,-0.321771]
+PCL2 cluster 54:
 	Number of points: 56
-	Number of descriptors: 28
-	Coordinates of centroid: [1.10082,0.23612,-0.00571549]
+	Number of descriptors: 13
+	Coordinates of centroid: [1.19764,-0.133339,0.184379]
+PCL2 cluster 55:
+	Number of points: 1544
+	Number of descriptors: 1336
+	Coordinates of centroid: [1.10082,0.249705,-0.112069]
+PCL2 cluster 56:
+	Number of points: 202
+	Number of descriptors: 139
+	Coordinates of centroid: [0.970304,0.144007,-0.50477]
+PCL2 cluster 57:
+	Number of points: 736
+	Number of descriptors: 427
+	Coordinates of centroid: [1.06224,0.262063,-0.215437]
+PCL2 cluster 58:
+	Number of points: 84
+	Number of descriptors: 26
+	Coordinates of centroid: [1.05603,0.153709,-0.468052]
+PCL2 cluster 59:
+	Number of points: 56
+	Number of descriptors: 30
+	Coordinates of centroid: [0.871831,-0.297099,-0.365989]
+PCL2 cluster 60:
+	Number of points: 104
+	Number of descriptors: 12
+	Coordinates of centroid: [0.989392,0.154743,-0.574251]
+PCL2 cluster 61:
+	Number of points: 93
+	Number of descriptors: 19
+	Coordinates of centroid: [1.01291,-0.0947493,-0.28798]
+PCL2 cluster 62:
+	Number of points: 54
+	Number of descriptors: 12
+	Coordinates of centroid: [1.01504,0.000862411,-0.267449]
+PCL2 cluster 63:
+	Number of points: 203
+	Number of descriptors: 55
+	Coordinates of centroid: [1.06262,-0.0061972,-0.22478]
+PCL2 cluster 64:
+	Number of points: 102
+	Number of descriptors: 64
+	Coordinates of centroid: [1.12612,0.0561843,-0.175805]
+PCL2 cluster 65:
+	Number of points: 471
+	Number of descriptors: 246
+	Coordinates of centroid: [1.05961,0.367918,-0.227841]
+PCL2 cluster 66:
+	Number of points: 134
+	Number of descriptors: 84
+	Coordinates of centroid: [1.0921,0.215118,-0.186658]
+PCL2 cluster 67:
+	Number of points: 142
+	Number of descriptors: 112
+	Coordinates of centroid: [1.16387,-0.155426,0.255784]
+PCL2 cluster 68:
+	Number of points: 64
+	Number of descriptors: 7
+	Coordinates of centroid: [1.11485,-0.0774711,-0.0923592]
 PCL2 cluster 69:
-	Number of points: 78
-	Number of descriptors: 32
-	Coordinates of centroid: [1.12377,0.270511,0.0254443]
+	Number of points: 170
+	Number of descriptors: 108
+	Coordinates of centroid: [1.12252,0.175644,-0.0926416]
 PCL2 cluster 70:
-	Number of points: 52
-	Number of descriptors: 4
-	Coordinates of centroid: [1.09965,0.212602,-0.185137]
+	Number of points: 59
+	Number of descriptors: 27
+	Coordinates of centroid: [0.969877,0.378986,-0.313739]
+PCL2 cluster 71:
+	Number of points: 130
+	Number of descriptors: 18
+	Coordinates of centroid: [1.03805,0.257074,-0.300384]
+PCL2 cluster 72:
+	Number of points: 77
+	Number of descriptors: 34
+	Coordinates of centroid: [1.09967,0.330767,-0.0683014]
+PCL2 cluster 73:
+	Number of points: 55
+	Number of descriptors: 17
+	Coordinates of centroid: [1.07347,0.190033,-0.221427]
+PCL2 cluster 74:
+	Number of points: 78
+	Number of descriptors: 29
+	Coordinates of centroid: [1.03426,0.286146,-0.170968]
+PCL2 cluster 75:
+	Number of points: 59
+	Number of descriptors: 28
+	Coordinates of centroid: [1.02146,0.00788686,-0.305692]
+PCL2 cluster 76:
+	Number of points: 72
+	Number of descriptors: 34
+	Coordinates of centroid: [1.10212,0.273892,-0.0801706]
 
 ------------------------------------
 Information of clusters of PCL 1:
 ------------------------------------
 PCL1 cluster 0:
-	Number of points: 8627
-	Number of descriptors: 8433
-	Coordinates of centroid: [1.04556,0.0307063,-0.363602]
+	Number of points: 1434
+	Number of descriptors: 1434
+	Coordinates of centroid: [0.667333,0.000463226,0.244614]
 PCL1 cluster 1:
-	Number of points: 11703
-	Number of descriptors: 11496
-	Coordinates of centroid: [1.08505,0.131017,-0.161151]
+	Number of points: 450
+	Number of descriptors: 442
+	Coordinates of centroid: [0.703415,-0.088489,0.0566114]
 PCL1 cluster 2:
-	Number of points: 202
-	Number of descriptors: 142
-	Coordinates of centroid: [1.10157,0.231801,0.0564204]
+	Number of points: 305
+	Number of descriptors: 304
+	Coordinates of centroid: [0.6847,-0.0445465,0.187939]
 PCL1 cluster 3:
-	Number of points: 13273
-	Number of descriptors: 13042
-	Coordinates of centroid: [1.02259,-0.329279,-0.508271]
+	Number of points: 5929
+	Number of descriptors: 5929
+	Coordinates of centroid: [0.69103,0.0231714,-0.048595]
 PCL1 cluster 4:
-	Number of points: 473
-	Number of descriptors: 406
-	Coordinates of centroid: [1.09473,0.239057,-0.242655]
+	Number of points: 175
+	Number of descriptors: 173
+	Coordinates of centroid: [0.70513,-0.10056,0.035656]
 PCL1 cluster 5:
-	Number of points: 223
-	Number of descriptors: 98
-	Coordinates of centroid: [1.00247,0.189656,-0.352865]
-PCL1 cluster 6:
-	Number of points: 7113
-	Number of descriptors: 6870
-	Coordinates of centroid: [1.04763,-0.255876,-0.598846]
-PCL1 cluster 7:
-	Number of points: 420
-	Number of descriptors: 399
-	Coordinates of centroid: [1.02457,0.0347803,-0.717539]
-PCL1 cluster 8:
-	Number of points: 22628
-	Number of descriptors: 22456
-	Coordinates of centroid: [1.0183,-0.0281762,-0.502936]
-PCL1 cluster 9:
-	Number of points: 215
-	Number of descriptors: 178
-	Coordinates of centroid: [1.05163,0.221109,-0.300374]
-PCL1 cluster 10:
-	Number of points: 1236
-	Number of descriptors: 1185
-	Coordinates of centroid: [1.05119,0.186526,-0.271279]
-PCL1 cluster 11:
-	Number of points: 5340
-	Number of descriptors: 5136
-	Coordinates of centroid: [1.06613,0.00825457,-0.238352]
-PCL1 cluster 12:
-	Number of points: 386
+	Number of points: 342
 	Number of descriptors: 329
-	Coordinates of centroid: [1.10006,0.211332,-0.184064]
-PCL1 cluster 13:
+	Coordinates of centroid: [0.697072,-0.0698429,-0.0181613]
+PCL1 cluster 6:
+	Number of points: 62
+	Number of descriptors: 59
+	Coordinates of centroid: [0.739154,-0.105336,-0.121419]
+PCL1 cluster 7:
+	Number of points: 109
+	Number of descriptors: 106
+	Coordinates of centroid: [0.676762,0.014553,0.192742]
+PCL1 cluster 8:
+	Number of points: 165
+	Number of descriptors: 161
+	Coordinates of centroid: [0.695044,-0.0317759,-0.133895]
+PCL1 cluster 9:
 	Number of points: 71
-	Number of descriptors: 42
-	Coordinates of centroid: [1.06316,0.00592978,-0.223474]
-PCL1 cluster 14:
-	Number of points: 239
-	Number of descriptors: 67
-	Coordinates of centroid: [1.10745,-0.234478,-0.973572]
-PCL1 cluster 15:
-	Number of points: 1461
-	Number of descriptors: 1223
-	Coordinates of centroid: [1.03415,0.182621,-0.281595]
-PCL1 cluster 16:
-	Number of points: 67
-	Number of descriptors: 54
-	Coordinates of centroid: [0.825147,-0.109254,-0.487946]
-PCL1 cluster 17:
-	Number of points: 3737
-	Number of descriptors: 3593
-	Coordinates of centroid: [0.994907,0.0181192,-0.697515]
-PCL1 cluster 18:
-	Number of points: 241
-	Number of descriptors: 224
-	Coordinates of centroid: [1.1569,-0.0988469,0.317044]
-PCL1 cluster 19:
-	Number of points: 569
-	Number of descriptors: 486
-	Coordinates of centroid: [1.0398,-0.192134,-0.756034]
-PCL1 cluster 20:
-	Number of points: 7926
-	Number of descriptors: 7834
-	Coordinates of centroid: [1.08017,0.225258,-0.182088]
-PCL1 cluster 21:
-	Number of points: 314
-	Number of descriptors: 230
-	Coordinates of centroid: [0.9717,-0.193018,-0.567198]
-PCL1 cluster 22:
-	Number of points: 186
-	Number of descriptors: 144
-	Coordinates of centroid: [1.15069,0.26762,-0.0399334]
-PCL1 cluster 23:
-	Number of points: 7893
-	Number of descriptors: 7583
-	Coordinates of centroid: [1.06159,0.157037,-0.250088]
-PCL1 cluster 24:
-	Number of points: 53
-	Number of descriptors: 31
-	Coordinates of centroid: [1.04642,0.0350926,-0.116375]
-PCL1 cluster 25:
-	Number of points: 224
-	Number of descriptors: 142
-	Coordinates of centroid: [1.10776,0.170517,-0.0830109]
-PCL1 cluster 26:
-	Number of points: 79
-	Number of descriptors: 12
-	Coordinates of centroid: [1.15454,0.250774,-0.0783155]
-PCL1 cluster 27:
-	Number of points: 202
-	Number of descriptors: 156
-	Coordinates of centroid: [1.17346,0.152143,-0.043452]
-PCL1 cluster 28:
-	Number of points: 14874
-	Number of descriptors: 14519
-	Coordinates of centroid: [1.05273,0.134988,-0.272507]
-PCL1 cluster 29:
-	Number of points: 119
-	Number of descriptors: 74
-	Coordinates of centroid: [0.992849,0.162999,-0.321957]
-PCL1 cluster 30:
-	Number of points: 166
-	Number of descriptors: 22
-	Coordinates of centroid: [1.05448,0.204109,-0.401316]
-PCL1 cluster 31:
-	Number of points: 193
-	Number of descriptors: 89
-	Coordinates of centroid: [1.068,0.063465,-0.200091]
-PCL1 cluster 32:
-	Number of points: 815
-	Number of descriptors: 627
-	Coordinates of centroid: [1.10193,0.239455,-0.183782]
-PCL1 cluster 33:
-	Number of points: 85
-	Number of descriptors: 61
-	Coordinates of centroid: [1.0386,0.109486,-0.354789]
-PCL1 cluster 34:
-	Number of points: 250
-	Number of descriptors: 73
-	Coordinates of centroid: [1.06472,-0.0852902,-0.190869]
-PCL1 cluster 35:
-	Number of points: 134
-	Number of descriptors: 80
-	Coordinates of centroid: [1.1273,0.188609,-0.334889]
-PCL1 cluster 36:
-	Number of points: 71
-	Number of descriptors: 62
-	Coordinates of centroid: [1.00672,0.0649921,-0.367029]
-PCL1 cluster 37:
-	Number of points: 6220
-	Number of descriptors: 5892
-	Coordinates of centroid: [1.07313,0.182619,-0.214474]
-PCL1 cluster 38:
-	Number of points: 204
-	Number of descriptors: 149
-	Coordinates of centroid: [1.0544,0.347124,-0.453724]
-PCL1 cluster 39:
-	Number of points: 110
-	Number of descriptors: 77
-	Coordinates of centroid: [0.993028,0.149243,-0.378907]
-PCL1 cluster 40:
-	Number of points: 181
-	Number of descriptors: 115
-	Coordinates of centroid: [1.05081,0.215273,-0.280685]
-PCL1 cluster 41:
+	Number of descriptors: 68
+	Coordinates of centroid: [0.727656,-0.157475,0.0291089]
+PCL1 cluster 10:
 	Number of points: 359
-	Number of descriptors: 275
-	Coordinates of centroid: [1.06247,0.233805,-0.371442]
-PCL1 cluster 42:
-	Number of points: 830
-	Number of descriptors: 530
-	Coordinates of centroid: [1.03772,0.0970383,-0.373951]
-PCL1 cluster 43:
-	Number of points: 86
-	Number of descriptors: 54
-	Coordinates of centroid: [1.13646,0.104619,-0.0582219]
-PCL1 cluster 44:
-	Number of points: 141
-	Number of descriptors: 74
-	Coordinates of centroid: [1.03291,0.376027,-0.285856]
-PCL1 cluster 45:
-	Number of points: 177
-	Number of descriptors: 42
-	Coordinates of centroid: [1.20626,-0.0743787,0.0674593]
-PCL1 cluster 46:
-	Number of points: 64
-	Number of descriptors: 37
-	Coordinates of centroid: [1.15572,-0.0431978,-0.0300174]
-PCL1 cluster 47:
-	Number of points: 821
-	Number of descriptors: 756
-	Coordinates of centroid: [1.13548,0.229336,-0.0457668]
-PCL1 cluster 48:
-	Number of points: 57
-	Number of descriptors: 13
-	Coordinates of centroid: [1.11102,0.194605,-0.09891]
-PCL1 cluster 49:
-	Number of points: 53
-	Number of descriptors: 20
-	Coordinates of centroid: [0.912408,0.0152976,-0.389999]
-PCL1 cluster 50:
-	Number of points: 1308
-	Number of descriptors: 1165
-	Coordinates of centroid: [1.04532,0.218155,-0.344362]
-PCL1 cluster 51:
-	Number of points: 51
-	Number of descriptors: 33
-	Coordinates of centroid: [1.16022,-0.199966,0.264891]
-PCL1 cluster 52:
-	Number of points: 205
-	Number of descriptors: 130
-	Coordinates of centroid: [1.13962,0.211786,-0.103765]
-PCL1 cluster 53:
-	Number of points: 314
-	Number of descriptors: 232
-	Coordinates of centroid: [1.06136,0.0877795,-0.321771]
-PCL1 cluster 54:
-	Number of points: 56
-	Number of descriptors: 13
-	Coordinates of centroid: [1.19764,-0.133339,0.184379]
-PCL1 cluster 55:
-	Number of points: 1544
-	Number of descriptors: 1336
-	Coordinates of centroid: [1.10082,0.249705,-0.112069]
-PCL1 cluster 56:
-	Number of points: 202
-	Number of descriptors: 139
-	Coordinates of centroid: [0.970304,0.144007,-0.50477]
-PCL1 cluster 57:
-	Number of points: 736
-	Number of descriptors: 427
-	Coordinates of centroid: [1.06224,0.262063,-0.215437]
-PCL1 cluster 58:
-	Number of points: 84
-	Number of descriptors: 26
-	Coordinates of centroid: [1.05603,0.153709,-0.468052]
-PCL1 cluster 59:
-	Number of points: 56
+	Number of descriptors: 349
+	Coordinates of centroid: [0.693571,0.0132776,-0.018116]
+PCL1 cluster 11:
+	Number of points: 116
+	Number of descriptors: 110
+	Coordinates of centroid: [0.643736,0.0208723,-0.0824304]
+PCL1 cluster 12:
+	Number of points: 52
 	Number of descriptors: 30
-	Coordinates of centroid: [0.871831,-0.297099,-0.365989]
-PCL1 cluster 60:
-	Number of points: 104
-	Number of descriptors: 12
-	Coordinates of centroid: [0.989392,0.154743,-0.574251]
-PCL1 cluster 61:
-	Number of points: 93
-	Number of descriptors: 19
-	Coordinates of centroid: [1.01291,-0.0947493,-0.28798]
-PCL1 cluster 62:
-	Number of points: 54
-	Number of descriptors: 12
-	Coordinates of centroid: [1.01504,0.000862411,-0.267449]
-PCL1 cluster 63:
-	Number of points: 203
-	Number of descriptors: 55
-	Coordinates of centroid: [1.06262,-0.0061972,-0.22478]
-PCL1 cluster 64:
-	Number of points: 102
-	Number of descriptors: 64
-	Coordinates of centroid: [1.12612,0.0561843,-0.175805]
-PCL1 cluster 65:
-	Number of points: 471
-	Number of descriptors: 246
-	Coordinates of centroid: [1.05961,0.367918,-0.227841]
-PCL1 cluster 66:
-	Number of points: 134
-	Number of descriptors: 84
-	Coordinates of centroid: [1.0921,0.215118,-0.186658]
-PCL1 cluster 67:
-	Number of points: 142
-	Number of descriptors: 112
-	Coordinates of centroid: [1.16387,-0.155426,0.255784]
-PCL1 cluster 68:
-	Number of points: 64
-	Number of descriptors: 7
-	Coordinates of centroid: [1.11485,-0.0774711,-0.0923592]
-PCL1 cluster 69:
-	Number of points: 170
-	Number of descriptors: 108
-	Coordinates of centroid: [1.12252,0.175644,-0.0926416]
-PCL1 cluster 70:
-	Number of points: 59
-	Number of descriptors: 27
-	Coordinates of centroid: [0.969877,0.378986,-0.313739]
-PCL1 cluster 71:
-	Number of points: 130
-	Number of descriptors: 18
-	Coordinates of centroid: [1.03805,0.257074,-0.300384]
-PCL1 cluster 72:
-	Number of points: 77
-	Number of descriptors: 34
-	Coordinates of centroid: [1.09967,0.330767,-0.0683014]
-PCL1 cluster 73:
-	Number of points: 55
-	Number of descriptors: 17
-	Coordinates of centroid: [1.07347,0.190033,-0.221427]
-PCL1 cluster 74:
-	Number of points: 78
-	Number of descriptors: 29
-	Coordinates of centroid: [1.03426,0.286146,-0.170968]
-PCL1 cluster 75:
-	Number of points: 59
-	Number of descriptors: 28
-	Coordinates of centroid: [1.02146,0.00788686,-0.305692]
-PCL1 cluster 76:
-	Number of points: 72
-	Number of descriptors: 34
-	Coordinates of centroid: [1.10212,0.273892,-0.0801706]
+	Coordinates of centroid: [0.686931,0.113204,-0.111675]
+PCL1 cluster 13:
+	Number of points: 545
+	Number of descriptors: 531
+	Coordinates of centroid: [0.711982,-0.00941146,0.071823]
+PCL1 cluster 14:
+	Number of points: 152
+	Number of descriptors: 129
+	Coordinates of centroid: [0.691051,-0.0110132,0.146443]
+PCL1 cluster 15:
+	Number of points: 89
+	Number of descriptors: 78
+	Coordinates of centroid: [0.702214,0.0815604,0.0417499]
+PCL1 cluster 16:
+	Number of points: 94
+	Number of descriptors: 83
+	Coordinates of centroid: [0.659851,0.0528842,-0.149936]
 
 ------------------------------------
 Information of matches of clusters of PCL 1 and PCL 2:
@@ -615,19 +399,13 @@ Information of matches of clusters of PCL 1 and PCL 2:
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 		Cluster 3 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 4 of PCL 1 with cluster 52 of PCL 2:
-		Segment of PCL 2 has more points: 711
-		Segment of PCL 2 has more descriptors: 439 over: 406
-		Segment of PCL 2 has more elements based on color differences: 1 over 2.
+		Cluster 4 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 		Cluster 5 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 		Cluster 6 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 7 of PCL 1 with cluster 14 of PCL 2:
-		Segment of PCL 2 has more points: 567
-		Segment of PCL 2 has more descriptors: 484 over: 399
-		Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: 2.
+		Cluster 7 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 		Cluster 8 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
@@ -637,136 +415,24 @@ Information of matches of clusters of PCL 1 and PCL 2:
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 		Cluster 11 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 12 of PCL 1 has no match in PCL 2
+	Matched cluster 12 of PCL 1 with cluster 24 of PCL 2:
+		Segment of PCL 2 has more points: 53 over: 52
+		Segment of PCL 2 has more descriptors: 31 over: 30
+		Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: 0
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 		Cluster 13 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 		Cluster 14 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 15 of PCL 1 has no match in PCL 2
+	Matched cluster 15 of PCL 1 with cluster 2 of PCL 2:
+		Segment of PCL 2 has more points: 202 over: 89
+		Segment of PCL 2 has more descriptors: 142 over: 78
+		Segment of PCL 2 has more elements based on color differences: 0 over 1
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 16 of PCL 1 with cluster 20 of PCL 2:
-		Segment of PCL 2 has more points: 83
-		Both segments have the same number of descriptors: 54
-		Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: 0.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 17 of PCL 1 with cluster 6 of PCL 2:
-		Segment of PCL 2 has more points: 6469
-		Segment of PCL 2 has more descriptors: 6287 over: 3593
-		Segment of PCL 2 has more elements based on color differences: 9 over 12.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 18 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 19 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 20 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 21 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 22 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 23 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 24 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 25 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 26 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 27 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 28 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 29 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 30 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 31 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 32 of PCL 1 with cluster 27 of PCL 2:
-		Segment of PCL 1 has more points: 815
-		Both segments have the same number of descriptors: 627
-		Segment of PCL 1 has more elements based on color differences: 2 over 1.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 33 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 34 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 35 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 36 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 37 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 38 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 39 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 40 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 41 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 42 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 43 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 44 of PCL 1 with cluster 64 of PCL 2:
-		Segment of PCL 2 has more points: 243
-		Segment of PCL 2 has more descriptors: 142 over: 74
-		Segment of PCL 2 has more elements based on color differences: 0 over 1.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 45 of PCL 1 with cluster 32 of PCL 2:
-		Segment of PCL 1 has more points: 177
-		Segment of PCL 2 has more descriptors: 49 over: 42
-		Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: 0.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 46 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 47 of PCL 1 with cluster 43 of PCL 2:
-		Segment of PCL 2 has more points: 974
-		Segment of PCL 2 has more descriptors: 914 over: 756
-		Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: 3.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 48 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 49 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 50 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 51 of PCL 1 with cluster 32 of PCL 2:
-		Segment of PCL 2 has more points: 86
-		Segment of PCL 2 has more descriptors: 49 over: 33
-		Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: 0.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 52 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 53 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 54 of PCL 1 with cluster 55 of PCL 2:
-		Segment of PCL 1 has more points: 56
-		Both segments have the same number of descriptors: 13
-		Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: 0.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 55 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 56 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 57 of PCL 1 with cluster 52 of PCL 2:
-		Segment of PCL 1 has more points: 736
-		Segment of PCL 2 has more descriptors: 439 over: 427
-		Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: 2.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 58 of PCL 1 has no match in PCL 2
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-	Matched cluster 59 of PCL 1 with cluster 20 of PCL 2:
-		Segment of PCL 2 has more points: 83
-		Segment of PCL 2 has more descriptors: 54 over: 30
-		Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: 0.
-      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-		Cluster 60 of PCL 1 has no match in PCL 2
+		Cluster 16 of PCL 1 has no match in PCL 2
       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 
 ----------------------------
 
-Total score pcl1: 3
-Total score pcl2: 8
+Total score pcl1: 0
+Total score pcl2: 3

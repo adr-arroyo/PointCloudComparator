@@ -1154,6 +1154,11 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_2 =
 				region_growing_segmentation(point_cloud2_ptr);
 
+		myfile << "Number of points of PCL 1: " << point_cloud1_ptr->size()
+				<< "\n";
+		myfile << "Number of points of PCL 2: " << point_cloud2_ptr->size()
+				<< "\n";
+		myfile << "++++++++++++++++++++++++++++++++++++++++\n";
 		myfile << "Number of clusters of PCL 1: " << clusters_pcl_1.size()
 				<< "\n";
 		myfile << "Number of clusters of PCL 2: " << clusters_pcl_2.size()
@@ -1167,7 +1172,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		std::vector<int> correspondences;
 		std::vector<int> correspondences2;
 		//For each cluster in 1, there is a correspondence in 2
-		int matches[clusters_pcl_1.size()];
+		std::vector<int> matches;
 		int maxCor = 0;
 		int maxCor2 = 0;
 		int clus1Max;
@@ -1255,7 +1260,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 			myfile << "\tCoordinates of centroid: [" << centroid[0] << ","
 					<< centroid[1] << "," << centroid[2] << "]\n";
 			maxCor2 = 0;
-			matches[i] = -1;
+			matches.push_back(-1);
 			//for (int j = 0; j < clusters_pcl_2.size(); ++j) {
 			//if (distanceCentroids(centroid, centroidsPCL2[j]) < 0.05) {
 			//Get 3 closests centroids
@@ -1346,7 +1351,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 
 		int pcl1 = 0;
 		int pcl2 = 0;
-		for (int i = 0; i < sizeof(matches) / 5; ++i) {
+		for (int i = 0; i < matches.size(); ++i) {
 			//For each match
 			if (matches[i] != -1) {
 				//Similarity of segments
@@ -1363,7 +1368,6 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 				 viewer3.showCloud(clusters_pcl_2[matches[i]]);
 				 while (!viewer3.wasStopped()) {
 				 }*/
-
 				//Number of points comparison
 				if (clusters_pcl_1.at(i)->points.size()
 						> clusters_pcl_2.at(matches[i])->points.size()) {
@@ -1379,10 +1383,11 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 							<< clusters_pcl_2.at(matches[i])->points.size()
 							<< " over: " << clusters_pcl_1.at(i)->points.size()
 							<< "\n";
-				} else
+				} else {
 					myfile
 							<< "\t\tBoth segments have the same number of points: "
 							<< clusters_pcl_1.at(i)->points.size() << "\n";
+				}
 
 				//Number of descriptors comparison
 				if (numberDescriptors1[i] > descriptors2[matches[i]]->size()) {
