@@ -1581,7 +1581,7 @@ int main(int argc, char** argv) {
 		std::cout << "Visualization of clusters is on." << std::endl;
 	}
 	if (pcl::console::find_argument(argc, argv, "-v") >= 0) {
-		seeClusters = true;
+		noise = true;
 		std::cout << "Noise analysis is on." << std::endl;
 	}
 	std::cout << "------------------------------------" << std::endl;
