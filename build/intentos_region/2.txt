@@ -1,9 +1,0 @@
-	reg.setMinClusterSize(50);
-	reg.setMaxClusterSize(1000000);
-	reg.setSearchMethod(tree);
-	reg.setNumberOfNeighbours(100);
-	reg.setInputCloud(cloud_filtered);
-	//reg.setIndices (indices);
-	reg.setInputNormals(normals);
-	reg.setSmoothnessThreshold(2.0 / 180.0 * M_PI);
-	reg.setCurvatureThreshold(1.0);

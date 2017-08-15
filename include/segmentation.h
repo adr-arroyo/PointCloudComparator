@@ -1,7 +1,6 @@
 /*
  * segmentation.hpp
  *
- *  Created on: 24 jun. 2017
  *      Author: Adrian Arroyo - adr.arroyo.perez@gmail.com
 
  */
@@ -37,7 +36,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr);
 
 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr, bool show);
 
 int ground_segmentation(std::string filename);
 

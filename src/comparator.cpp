@@ -1,5 +1,9 @@
-/* \author Adrian Arroyo - adr.arroyo.perez@gmail.com */
+/*
+ * comparator.cpp
+ *
+ *      Author: Adrian Arroyo - adr.arroyo.perez@gmail.com
 
+ */
 #include "../include/comparator.h"
 
 typedef pcl::Histogram<32> RIFT32;
@@ -14,36 +18,32 @@ pcl::RangeImage::CoordinateFrame coordinate_frame =
 		pcl::RangeImage::CAMERA_FRAME;
 bool setUnseenToMaxRange = false;
 bool rotation_invariant = true;
+bool seeClusters = false;
+bool noise = false;
 
 // --------------
 // -----Help-----
 // --------------
-void printUsage(const char* progName) {
-	std::cout << "\n\nUsage: " << progName << " [options] <scene.pcd>\n\n"
+void printUsage() {
+	std::cout
+			<< "\n\nUsage: [options] </pathToScene1.ply> </pathToScene2.ply>\n\n"
 			<< "Options:\n" << "-------------------------------------------\n"
-			<< "-r <float>   angular resolution in degrees (default "
-			<< angular_resolution << ")\n"
-			<< "-c <int>     coordinate frame (default "
-			<< (int) coordinate_frame << ")\n"
-			<< "-m           Treat all unseen points to max range\n"
-			<< "-s <float>   support size for the interest points (diameter of the used sphere - "
-					"default " << support_size << ")\n"
-			<< "-o <0/1>     switch rotational invariant version of the feature on/off"
-			<< " (default " << (int) rotation_invariant << ")\n"
-			<< "-h           this help\n" << "\n\n";
+			<< "-n activate noise analysis \n"
+			<< "-v activate visualization of clusters and matches\n"
+			<< "-h show this help\n" << "\n\n";
 }
 
-void setViewerPose(pcl::visualization::PCLVisualizer& viewer,
-		const Eigen::Affine3f& viewer_pose) {
-	Eigen::Vector3f pos_vector = viewer_pose * Eigen::Vector3f(0, 0, 0);
-	Eigen::Vector3f look_at_vector = viewer_pose.rotation()
-			* Eigen::Vector3f(0, 0, 1) + pos_vector;
-	Eigen::Vector3f up_vector = viewer_pose.rotation()
-			* Eigen::Vector3f(0, -1, 0);
-	viewer.setCameraPosition(pos_vector[0], pos_vector[1], pos_vector[2],
-			look_at_vector[0], look_at_vector[1], look_at_vector[2],
-			up_vector[0], up_vector[1], up_vector[2]);
-}
+/*void setViewerPose(pcl::visualization::PCLVisualizer& viewer,
+ const Eigen::Affine3f& viewer_pose) {
+ Eigen::Vector3f pos_vector = viewer_pose * Eigen::Vector3f(0, 0, 0);
+ Eigen::Vector3f look_at_vector = viewer_pose.rotation()
+ * Eigen::Vector3f(0, 0, 1) + pos_vector;
+ Eigen::Vector3f up_vector = viewer_pose.rotation()
+ * Eigen::Vector3f(0, -1, 0);
+ viewer.setCameraPosition(pos_vector[0], pos_vector[1], pos_vector[2],
+ look_at_vector[0], look_at_vector[1], look_at_vector[2],
+ up_vector[0], up_vector[1], up_vector[2]);
+ }*/
 
 /*void spatial_change_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudA,
  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudB) {*/
@@ -52,14 +52,14 @@ void spatial_change_detection(std::string filename, std::string filename2) {
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	if (pcl::io::loadPLYFile(filename, *cloudA) == -1) {
 		cerr << "Was not able to open file \"" << filename << "\".\n";
-		printUsage("");
+		printUsage();
 	}
 
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudB(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	if (pcl::io::loadPLYFile(filename2, *cloudB) == -1) {
 		cerr << "Was not able to open file \"" << filename2 << "\".\n";
-		printUsage("");
+		printUsage();
 	}
 
 	srand((unsigned int) time(NULL));
@@ -116,7 +116,7 @@ void processNARF2(std::string filename, std::string filename2) {
 	Eigen::Affine3f scene_sensor_pose(Eigen::Affine3f::Identity());
 	if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
 		cerr << "Was not able to open file \"" << filename << "\".\n";
-		printUsage("");
+		printUsage();
 	}
 	scene_sensor_pose = Eigen::Affine3f(
 			Eigen::Translation3f(point_cloud.sensor_origin_[0],
@@ -209,7 +209,7 @@ void processNARF2(std::string filename, std::string filename2) {
 
 	if (pcl::io::loadPLYFile(filename2, point_cloud2) == -1) {
 		cerr << "Was not able to open file \"" << filename2 << "\".\n";
-		printUsage("");
+		printUsage();
 	}
 	/*point_cloud2=point_cloud;
 	 point_cloud2.resize(point_cloud.size()/2);*/
@@ -438,7 +438,7 @@ pcl::PointCloud<pcl::PointWithScale> processSift(
 	 pcl::PointCloud<pcl::PointXYZRGB>& cloud_xyz = *cloud_xyz_ptr;
 	 if (pcl::io::loadPLYFile(filename, cloud_xyz) == -1) {
 	 cerr << "Was not able to open file \"" << filename << "\".\n";
-	 printUsage("");
+	 printUsage();
 	 }*/
 
 	// Parameters for sift computation
@@ -1150,9 +1150,9 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		/*myfile
 		 << "ICP has converged. Point clouds segmentation is as follows: \n";*/
 		std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_1 =
-				region_growing_segmentation(point_cloud1_ptr);
+				region_growing_segmentation(point_cloud1_ptr, seeClusters);
 		std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_2 =
-				region_growing_segmentation(point_cloud2_ptr);
+				region_growing_segmentation(point_cloud2_ptr, seeClusters);
 
 		myfile << "Number of points of PCL 1: " << point_cloud1_ptr->size()
 				<< "\n";
@@ -1359,15 +1359,17 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 				int simil2 = 0;
 				myfile << "\tMatched cluster " << i << " of PCL 1 with cluster "
 						<< matches[i] << " of PCL 2:\n";
-				//Show both segments
-				/*pcl::visualization::CloudViewer viewer2("Cluster viewer");
-				 viewer2.showCloud(clusters_pcl_1[i]);
-				 while (!viewer2.wasStopped()) {
-				 }
-				 pcl::visualization::CloudViewer viewer3("Cluster viewer");
-				 viewer3.showCloud(clusters_pcl_2[matches[i]]);
-				 while (!viewer3.wasStopped()) {
-				 }*/
+				if (seeClusters) {
+					//Show both segments
+					pcl::visualization::CloudViewer viewer2("Cluster viewer");
+					viewer2.showCloud(clusters_pcl_1[i]);
+					while (!viewer2.wasStopped()) {
+					}
+					pcl::visualization::CloudViewer viewer3("Cluster viewer");
+					viewer3.showCloud(clusters_pcl_2[matches[i]]);
+					while (!viewer3.wasStopped()) {
+					}
+				}
 				//Number of points comparison
 				if (clusters_pcl_1.at(i)->points.size()
 						> clusters_pcl_2.at(matches[i])->points.size()) {
@@ -1472,48 +1474,58 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		std::cout << std::endl;
 		std::cout << std::endl;
 
-		//Noise measurement: percentage of points removed (noisy points) with respect to original pcl
-		//Noise pcl 1
-		/*pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
-		 sor.setInputCloud(point_cloud1_ptr);
-		 sor.setMeanK(50);
-		 sor.setStddevMulThresh(1.0);
-		 sor.filter(*point_cloud1_nonoise_ptr);
-		 /*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;
-		 outrem.setInputCloud(point_cloud1_ptr);
-		 outrem.setRadiusSearch(0.8);
-		 outrem.setMinNeighborsInRadius(2);
-		 outrem.filter(*point_cloud1_nonoise_ptr);*/
-		/*double noise1 =
-		 (point_cloud1_ptr->size() - point_cloud1_nonoise_ptr->size())
-		 / point_cloud1_ptr->size();
-		 //Noise pcl 2
-		 pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor2;
-		 sor2.setInputCloud(point_cloud2_ptr);
-		 sor2.setMeanK(50);
-		 sor2.setStddevMulThresh(1.0);
-		 sor2.filter(*point_cloud2_nonoise_ptr);
-		 /*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem2;
-		 outrem.setInputCloud(point_cloud2_ptr);
-		 outrem.setRadiusSearch(0.8);
-		 outrem.setMinNeighborsInRadius(2);
-		 outrem.filter(*point_cloud2_nonoise_ptr);*/
-		/*double noise2 =
-		 (point_cloud2_ptr->size() - point_cloud2_nonoise_ptr->size())
-		 / point_cloud2_ptr->size();
-		 //std::cout << "PCL1 num points: " << point_cloud1_ptr->size() << std::endl;
-		 if (noise1 > noise2) {
-		 std::cout << "PCL1 has more noisy points: (%) " << noise1 * 100
-		 << " over: (%) " << noise2 * 100 << std::endl;
-		 ++pcl2;
-		 } else if (noise1 < noise2) {
-		 std::cout << "PCL2 has more noisy points: (%) " << noise2 * 100
-		 << " over: (%) " << noise1 * 100 << std::endl;
-		 ++pcl1;
-		 } else {
-		 std::cout << "Both pcl have the same percentage of noisy points: "
-		 << noise1 * 100 << std::endl;
-		 }*/
+		if (noise) {
+			//Noise measurement: percentage of points removed (noisy points) with respect to original pcl
+			//Noise pcl 1
+			pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
+			sor.setInputCloud(point_cloud1_ptr);
+			sor.setMeanK(50);
+			sor.setStddevMulThresh(1.0);
+			sor.filter(*point_cloud1_nonoise_ptr);
+			/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;
+			 outrem.setInputCloud(point_cloud1_ptr);
+			 outrem.setRadiusSearch(0.8);
+			 outrem.setMinNeighborsInRadius(2);
+			 outrem.filter(*point_cloud1_nonoise_ptr);*/
+			double noise1 = (point_cloud1_ptr->size()
+					- point_cloud1_nonoise_ptr->size())
+					/ point_cloud1_ptr->size();
+			//Noise pcl 2
+			pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor2;
+			sor2.setInputCloud(point_cloud2_ptr);
+			sor2.setMeanK(50);
+			sor2.setStddevMulThresh(1.0);
+			sor2.filter(*point_cloud2_nonoise_ptr);
+			/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem2;
+			 outrem.setInputCloud(point_cloud2_ptr);
+			 outrem.setRadiusSearch(0.8);
+			 outrem.setMinNeighborsInRadius(2);
+			 outrem.filter(*point_cloud2_nonoise_ptr);*/
+			double noise2 = (point_cloud2_ptr->size()
+					- point_cloud2_nonoise_ptr->size())
+					/ point_cloud2_ptr->size();
+			myfile
+					<< "----------------------------------------\n Noise analysis: \n";
+			if (noise1 > noise2) {
+				std::cout << "PCL1 has more noisy points: (%) " << noise1 * 100
+						<< " over: (%) " << noise2 * 100 << std::endl;
+				myfile << "\tPCL1 has more noisy points: (%) " << noise1 * 100
+						<< " over: (%) " << noise2 * 100 << "\n";
+				++pcl2;
+			} else if (noise1 < noise2) {
+				std::cout << "PCL2 has more noisy points: (%) " << noise2 * 100
+						<< " over: (%) " << noise1 * 100 << std::endl;
+				myfile << "\tPCL2 has more noisy points: (%) " << noise2 * 100
+						<< " over: (%) " << noise1 * 100 << "\n";
+				++pcl1;
+			} else {
+				std::cout
+						<< "Both pcl have the same percentage of noisy points: "
+						<< noise1 * 100 << std::endl;
+				myfile << "Both pcl have the same percentage of noisy points: "
+						<< noise1 * 100 << "\n";
+			}
+		}
 
 		std::cout << "----------------------------" << std::endl;
 		std::cout << "score pcl1: " << pcl1 << std::endl;
@@ -1559,31 +1571,20 @@ int main(int argc, char** argv) {
 // --------------------------------------
 // -----Parse Command Line Arguments-----
 // --------------------------------------
+	std::cout << "------------------------------------" << std::endl;
 	if (pcl::console::find_argument(argc, argv, "-h") >= 0) {
-		printUsage(argv[0]);
-		return 0;
+		printUsage();
+		return 1;
 	}
-	if (pcl::console::find_argument(argc, argv, "-m") >= 0) {
-		setUnseenToMaxRange = true;
-		cout
-				<< "Setting unseen values in range image to maximum range readings.\n";
+	if (pcl::console::find_argument(argc, argv, "-n") >= 0) {
+		seeClusters = true;
+		std::cout << "Visualization of clusters is on." << std::endl;
 	}
-	if (pcl::console::parse(argc, argv, "-o", rotation_invariant) >= 0)
-		cout << "Switching rotation invariant feature version "
-				<< (rotation_invariant ? "on" : "off") << ".\n";
-	int tmp_coordinate_frame;
-	if (pcl::console::parse(argc, argv, "-c", tmp_coordinate_frame) >= 0) {
-		coordinate_frame = pcl::RangeImage::CoordinateFrame(
-				tmp_coordinate_frame);
-		cout << "Using coordinate frame " << (int) coordinate_frame << ".\n";
+	if (pcl::console::find_argument(argc, argv, "-v") >= 0) {
+		seeClusters = true;
+		std::cout << "Noise analysis is on." << std::endl;
 	}
-	if (pcl::console::parse(argc, argv, "-s", support_size) >= 0)
-		cout << "Setting support size to " << support_size << ".\n";
-	if (pcl::console::parse(argc, argv, "-r", angular_resolution) >= 0)
-		cout << "Setting angular resolution to " << angular_resolution
-				<< "deg.\n";
-	angular_resolution = pcl::deg2rad(angular_resolution);
-
+	std::cout << "------------------------------------" << std::endl;
 	std::vector<int> pcl_filename_indices =
 			pcl::console::parse_file_extension_argument(argc, argv, "ply");
 
@@ -1592,17 +1593,17 @@ int main(int argc, char** argv) {
 	std::cout << "--------------------------------\n" << std::endl;
 	if (similarity == 1) {
 		cout << "The first point cloud has more information" << std::endl;
-		std::cout
-				<< "Points that are in the first pcl, that are not in the other:"
-				<< std::endl;
-		/*spatial_change_detection(argv[pcl_filename_indices[1]],
+		/*std::cout
+		 << "Points that are in the first pcl, that are not in the other:"
+		 << std::endl;
+		 spatial_change_detection(argv[pcl_filename_indices[1]],
 		 argv[pcl_filename_indices[0]]);*/
 	} else if (similarity == 2) {
 		cout << "The second point cloud has more information" << std::endl;
-		std::cout
-				<< "Points that are in the second pcl, that are not in the other:"
-				<< std::endl;
-		/*spatial_change_detection(argv[pcl_filename_indices[0]],
+		/*std::cout
+		 << "Points that are in the second pcl, that are not in the other:"
+		 << std::endl;
+		 spatial_change_detection(argv[pcl_filename_indices[0]],
 		 argv[pcl_filename_indices[1]]);*/
 	} else if (similarity == 0)
 		cout << "The point clouds have the same information" << std::endl;
