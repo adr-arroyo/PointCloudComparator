@@ -11,7 +11,7 @@
 
 **This programm was developed for the master thesis "3D maps and knowledge extraction" of UPF's master in Intelligent Interactive Systems**
 
-This package uses: ![PCL library](http://www.willowgarage.com/sites/default/files/pointcloudlibrary_vert_small_pos.png)
+	This package uses: 	![PCL library](http://www.willowgarage.com/sites/default/files/pointcloudlibrary_vert_small_pos.png)
 
 This software will compare two input pointclouds, providing with some metrics about their relationship. Number of points, descriptors, noise and number of elements based on color differences are the current metrics. 
 The program finds matches of clusters between each point cloud and then compares those matches, it also shows each of the cluster of each match on screen. Additionally, there is a "results.txt" file in "./build" in which appears the information of the segments along with the results of the comparison of each match. At the end of the file there is a "score"; the point cloud with higher score is the one that has more information according to the current metrics.

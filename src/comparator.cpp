@@ -446,9 +446,9 @@ pcl::PointCloud<pcl::PointWithScale> processSift(
 	 }*/
 
 	// Parameters for sift computation
-	const float min_scale = 0.01f;
-	const int n_octaves = 3;
-	const int n_scales_per_octave = 4;
+	const float min_scale = 0.005f;
+	const int n_octaves = 5;
+	const int n_scales_per_octave = 5;
 	const float min_contrast = 0.001f;
 
 	// Estimate the sift interest points using normals values from xyz as the Intensity variants
@@ -1188,8 +1188,8 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		clusters_pcl_1 = euclidean_cluster_segmentation(point_cloud1_ptr);
 		clusters_pcl_2 = euclidean_cluster_segmentation(point_cloud2_ptr);
 	} else {
-		clusters_pcl_1 = region_growing_segmentation(point_cloud1_ptr, false);
-		clusters_pcl_2 = region_growing_segmentation(point_cloud2_ptr, false);
+		clusters_pcl_1 = region_growing_segmentation(point_cloud1_ptr, true);
+		clusters_pcl_2 = region_growing_segmentation(point_cloud2_ptr, true);
 	}
 
 	myfile << "Number of points of PCL 1: " << point_cloud1_ptr->size() << "\n";
@@ -1218,7 +1218,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	for (int j = 0; j < clusters_pcl_2.size(); ++j) {
 		myfile << "PCL2 cluster " << j << ":\n";
 		myfile << "\tNumber of points: " << clusters_pcl_2[j]->size() << "\n";
-		if (clusters_pcl_2[j]->size() > 30000)
+		if (clusters_pcl_2[j]->size() > 500)
 			descriptors2.push_back(processRIFTwithSIFT(clusters_pcl_2[j]));
 		else
 			descriptors2.push_back(processRIFT(clusters_pcl_2[j]));
@@ -1251,9 +1251,10 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	std::vector<std::vector<float> > centroidsPCL1;
 	for (int i = 0; i < clusters_pcl_1.size(); ++i) {
 		myfile << "PCL1 cluster " << i << ":\n";
-		myfile << "\tNumber of points: " << clusters_pcl_1[i]->size() << "\n";
+		myfile << "\tNumber of points: " << clusters_pcl_1[i]->points.size()
+				<< "\n";
 		//des1VHF = processVHF(clusters_pcl_1[i]);
-		if (clusters_pcl_1[i]->size() > 30000)
+		if (clusters_pcl_1[i]->points.size() > 700)
 			des1Second = processRIFTwithSIFT(clusters_pcl_1[i]);
 		else
 			des1Second = processRIFT(clusters_pcl_1[i]);
@@ -1295,6 +1296,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 		int closest3 = closestCentroid(centroid, centroidsPCL2, indices);
 		closest.push_back(closest3);
 
+		//Try to match the segment of PCL 1 with one of the 3 closest segments found in PCL 2
 		for (int j = 0; j < 3; ++j) {
 			int closeCentroid = closest[j];
 			if (closeCentroid != -1) {
@@ -1302,9 +1304,9 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 				if (!des2Second->empty() and !des1Second->empty()
 						and des2Second->points.size() > 3
 						and des1Second->points.size() > 3) {
-					double coef = (descriptors2[closeCentroid]->points.size()
-							/ des1Second->points.size());
-					if (coef > 0.5 && coef < 2) {
+					double coef = (clusters_pcl_2[closeCentroid]->points.size()
+							/ clusters_pcl_1[i]->points.size());
+					if (coef > 0.5 and coef < 2) {
 						std::cout << "Des pcl 1: " << des1Second->points.size()
 								<< std::endl;
 						std::cout << "Des pcl 2: " << des2Second->points.size()
@@ -1341,10 +1343,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 							//If at least half of the descriptors match, we assume its a correspondence
 							if (correspondences.size()
 									/ des2Second->points.size() > 0.5
-									and correspondences.size() > maxCor2
-									/*and correspondences2.size()
-									 / descriptors2SHOT[j]->size()
-									 > 0.5*/) {
+									and correspondences.size() > maxCor2) {
 								maxCor2 = correspondences.size();
 								clusMax = closeCentroid;
 								matches[i] = clusMax;

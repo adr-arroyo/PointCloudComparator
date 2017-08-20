@@ -70,7 +70,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentati
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	vg.setInputCloud(point_cloud_ptr);
-	vg.setLeafSize(0.02f, 0.02f, 0.02f);
+	vg.setLeafSize(0.025f, 0.025f, 0.025f);
 	vg.filter(*cloud_filtered);
 	std::cout << "PointCloud after filtering has: "
 			<< cloud_filtered->points.size() << " data points." << std::endl;
@@ -224,7 +224,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	vg.setInputCloud(point_cloud_ptr);
-	vg.setLeafSize(0.02f, 0.02f, 0.02f);
+	vg.setLeafSize(0.025f, 0.025f, 0.025f);
 	vg.filter(*cloud_filtered);
 	std::cout << "PointCloud after filtering has: "
 			<< cloud_filtered->points.size() << " data points." << std::endl;
