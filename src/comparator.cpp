@@ -20,6 +20,8 @@ bool setUnseenToMaxRange = false;
 bool rotation_invariant = true;
 bool seeClusters = false;
 bool noise = false;
+bool euclidean = false;
+bool icp = false;
 
 // --------------
 // -----Help-----
@@ -30,6 +32,8 @@ void printUsage() {
 			<< "Options:\n" << "-------------------------------------------\n"
 			<< "-n activate noise analysis \n"
 			<< "-v activate visualization of clusters and matches\n"
+			<< "-i activate ICP algorithm to know if both point clouds are enough similar \n"
+			<< "-e activate euclidean cluster segmentation as main segmentation algorithm; region growing segmentation is default\n"
 			<< "-h show this help\n" << "\n\n";
 }
 
@@ -1131,7 +1135,7 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	}
 
 	std::ofstream myfile;
-	myfile.open("results.txt");
+	myfile.open("../../PointCloudComparatorResults/results.txt");
 	myfile << "Results of comparison between " << argv[pcl_filename_indices[0]]
 			<< " and " << argv[pcl_filename_indices[1]]
 			<< "\n--------------------------------------------------------------------------------\n\n";
@@ -1145,423 +1149,409 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	indices2.clear();
 
 	//ICP
-	//if (performICP(point_cloud1_ptr, point_cloud2_ptr)) {
-	if (true) {
-		/*myfile
-		 << "ICP has converged. Point clouds segmentation is as follows: \n";*/
-		std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_1 =
-				region_growing_segmentation(point_cloud1_ptr, seeClusters);
-		std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_2 =
-				region_growing_segmentation(point_cloud2_ptr, seeClusters);
-
-		myfile << "Number of points of PCL 1: " << point_cloud1_ptr->size()
-				<< "\n";
-		myfile << "Number of points of PCL 2: " << point_cloud2_ptr->size()
-				<< "\n";
-		myfile << "++++++++++++++++++++++++++++++++++++++++\n";
-		myfile << "Number of clusters of PCL 1: " << clusters_pcl_1.size()
-				<< "\n";
-		myfile << "Number of clusters of PCL 2: " << clusters_pcl_2.size()
-				<< "\n";
-
-		//TODO precompute normal estimation to pass it to the other functions
-		pcl::PointCloud<RIFT32>::Ptr des1Second;
-		pcl::PointCloud<pcl::VFHSignature308>::Ptr des1VHF;
-		pcl::PointCloud<RIFT32>::Ptr des2Second;
-		pcl::PointCloud<pcl::VFHSignature308>::Ptr des2VHF;
-		std::vector<int> correspondences;
-		std::vector<int> correspondences2;
-		//For each cluster in 1, there is a correspondence in 2
-		std::vector<int> matches;
-		int maxCor = 0;
-		int maxCor2 = 0;
-		int clus1Max;
-		int clus2Max;
-		int clusMax;
-		std::vector<int> numberDescriptors1;
-
-		//Precompute of VHF
-		/*std::vector<pcl::PointCloud<pcl::VFHSignature308>::Ptr> descriptors2VHF;
-		 for (int j = 0; j < clusters_pcl_2.size(); ++j) {
-		 descriptors2VHF.push_back(processVHF(clusters_pcl_2[j]));
-		 }*/
-
-		std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors2;
-		std::vector<pcl::PointCloud<pcl::SHOT352>::Ptr> descriptors2SHOT;
-		std::vector<std::vector<float> > centroidsPCL2;
-		myfile << "\n------------------------------------\n";
-		myfile << "Information of clusters of PCL2:\n";
-		myfile << "------------------------------------\n";
-		for (int j = 0; j < clusters_pcl_2.size(); ++j) {
-			myfile << "PCL2 cluster " << j << ":\n";
-			myfile << "\tNumber of points: " << clusters_pcl_2[j]->size()
-					<< "\n";
-			if (clusters_pcl_2[j]->size() > 30000)
-				descriptors2.push_back(processRIFTwithSIFT(clusters_pcl_2[j]));
-			else
-				descriptors2.push_back(processRIFT(clusters_pcl_2[j]));
-			myfile << "\tNumber of descriptors: " << descriptors2[j]->size()
-					<< "\n";
-			//Centroid computation
-			std::vector<float> centroid;
-			centroid.push_back(0);
-			centroid.push_back(0);
-			centroid.push_back(0);
-			for (int l = 0; l < clusters_pcl_2.at(j)->size(); ++l) {
-				pcl::PointXYZRGB punto = clusters_pcl_2.at(j)->at(l);
-				centroid[0] += punto.x;
-				centroid[1] += punto.y;
-				centroid[2] += punto.z;
+	if (icp)
+		if (!performICP(point_cloud1_ptr, point_cloud2_ptr)) {
+			myfile << "----------------------------" << "\n\n";
+			myfile
+					<< "ICP could not match the point clouds. They are probably too dissimilar.\n Brief comparison:\n";
+			if (point_cloud1_ptr->size() > point_cloud2_ptr->size()) {
+				std::cout << "PCL1 has more points: "
+						<< point_cloud1_ptr->size() << " over: "
+						<< point_cloud2_ptr->size() << std::endl;
+				myfile << "PCL1 has more points: " << point_cloud1_ptr->size()
+						<< " over: " << point_cloud2_ptr->size() << "\n";
+			} else if (point_cloud2_ptr->size() > point_cloud1_ptr->size()) {
+				std::cout << "PCL2 has more points: "
+						<< point_cloud2_ptr->size() << " over: "
+						<< point_cloud1_ptr->size() << std::endl;
+				myfile << "PCL2 has more points: " << point_cloud2_ptr->size()
+						<< " over: " << point_cloud1_ptr->size() << "\n";
+			} else {
+				std::cout << "Both PCL have the same number of points"
+						<< std::endl;
+				myfile << "Both PCL have the same number of points" << "\n";
 			}
-			centroid[0] = centroid[0] / clusters_pcl_2.at(j)->size();
-			centroid[1] = centroid[1] / clusters_pcl_2.at(j)->size();
-			centroid[2] = centroid[2] / clusters_pcl_2.at(j)->size();
-			centroidsPCL2.push_back(centroid);
-			myfile << "\tCoordinates of centroid: [" << centroid[0] << ","
-					<< centroid[1] << "," << centroid[2] << "]\n";
+			myfile.close();
+			return -1;
+		} else {
+			std::cout
+					<< "ICP has converged. Point clouds segmentation is as follows"
+					<< std::endl;
+			myfile
+					<< "ICP has converged. Point clouds segmentation is as follows: \n";
 		}
 
-		myfile << "\n------------------------------------\n";
-		myfile << "Information of clusters of PCL 1:\n";
-		myfile << "------------------------------------\n";
+	//Segmentation
+	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_1;
+	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl_2;
+	if (euclidean) {
+		clusters_pcl_1 = euclidean_cluster_segmentation(point_cloud1_ptr);
+		clusters_pcl_2 = euclidean_cluster_segmentation(point_cloud2_ptr);
+	} else {
+		clusters_pcl_1 = region_growing_segmentation(point_cloud1_ptr, false);
+		clusters_pcl_2 = region_growing_segmentation(point_cloud2_ptr, false);
+	}
 
-		std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors1;
-		std::vector<pcl::PointCloud<pcl::SHOT352>::Ptr> descriptors1SHOT;
-		std::vector<std::vector<float> > centroidsPCL1;
-		for (int i = 0; i < clusters_pcl_1.size(); ++i) {
-			myfile << "PCL1 cluster " << i << ":\n";
-			myfile << "\tNumber of points: " << clusters_pcl_1[i]->size()
-					<< "\n";
-			//des1VHF = processVHF(clusters_pcl_1[i]);
-			if (clusters_pcl_1[i]->size() > 30000)
-				des1Second = processRIFTwithSIFT(clusters_pcl_1[i]);
-			else
-				des1Second = processRIFT(clusters_pcl_1[i]);
-			myfile << "\tNumber of descriptors: " << des1Second->size() << "\n";
-			descriptors1.push_back(des1Second);
-			//descriptors1SHOT.push_back(processSHOT(clusters_pcl_1[i]));
-			numberDescriptors1.push_back(des1Second->size());
+	myfile << "Number of points of PCL 1: " << point_cloud1_ptr->size() << "\n";
+	myfile << "Number of points of PCL 2: " << point_cloud2_ptr->size() << "\n";
+	myfile << "++++++++++++++++++++++++++++++++++++++++\n";
+	myfile << "Number of clusters of PCL 1: " << clusters_pcl_1.size() << "\n";
+	myfile << "Number of clusters of PCL 2: " << clusters_pcl_2.size() << "\n";
 
-			//Centroid computation
-			std::vector<float> centroid;
-			centroid.push_back(0);
-			centroid.push_back(0);
-			centroid.push_back(0);
-			for (int l = 0; l < clusters_pcl_1.at(i)->size(); ++l) {
-				pcl::PointXYZRGB punto = clusters_pcl_1.at(i)->at(l);
-				centroid[0] += punto.x;
-				centroid[1] += punto.y;
-				centroid[2] += punto.z;
-			}
-			centroid[0] = centroid[0] / clusters_pcl_1.at(i)->size();
-			centroid[1] = centroid[1] / clusters_pcl_1.at(i)->size();
-			centroid[2] = centroid[2] / clusters_pcl_1.at(i)->size();
-			centroidsPCL1.push_back(centroid);
-			myfile << "\tCoordinates of centroid: [" << centroid[0] << ","
-					<< centroid[1] << "," << centroid[2] << "]\n";
-			maxCor2 = 0;
-			matches.push_back(-1);
-			//for (int j = 0; j < clusters_pcl_2.size(); ++j) {
-			//if (distanceCentroids(centroid, centroidsPCL2[j]) < 0.05) {
-			//Get 3 closests centroids
-			std::set<int> indices;
-			std::vector<int> closest;
-			int closest1 = closestCentroid(centroid, centroidsPCL2, indices);
-			indices.insert(closest1);
-			closest.push_back(closest1);
-			int closest2 = closestCentroid(centroid, centroidsPCL2, indices);
-			indices.insert(closest2);
-			closest.push_back(closest2);
-			int closest3 = closestCentroid(centroid, centroidsPCL2, indices);
-			closest.push_back(closest3);
+	//TODO precompute normal estimation to pass it to the other functions
+	pcl::PointCloud<RIFT32>::Ptr des1Second;
+	pcl::PointCloud<RIFT32>::Ptr des2Second;
+	std::vector<int> correspondences;
+	std::vector<int> correspondences2;
+	//For each cluster in 1, there is a correspondence in 2
+	std::vector<int> matches;
+	int maxCor2 = 0;
+	int clusMax;
+	std::vector<int> numberDescriptors1;
+	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors2;
+	std::vector<std::vector<float> > centroidsPCL2;
 
-			for (int j = 0; j < 3; ++j) {
-				int closeCentroid = closest[j];
-				if (closeCentroid != -1) {
-					des2Second = descriptors2[closeCentroid];
-					if (!des2Second->empty() and !des1Second->empty()
-							and des2Second->points.size() > 3
-							and des1Second->points.size() > 3) {
-						double coef =
-								(descriptors2[closeCentroid]->points.size()
-										/ des1Second->points.size());
-						if (coef > 0.5 && coef < 2) {
-							std::cout << "Des pcl 1: "
-									<< des1Second->points.size() << std::endl;
-							std::cout << "Des pcl 2: "
-									<< des2Second->points.size() << std::endl;
-							correspondences = matchRIFTFeaturesKnn(des1Second,
-									des2Second);
-							/*correspondences2 = matchSHOT(descriptors1SHOT[i],
-							 descriptors2SHOT[j]);*/
+	myfile << "\n------------------------------------\n";
+	myfile << "Information of clusters of PCL2:\n";
+	myfile << "------------------------------------\n";
 
-							if (des1Second->points.size()
-									> des2Second->points.size()) {
-								std::cout
-										<< "Percentage of RIFT correspondences of clusters "
-										<< i << " and " << closeCentroid
-										<< " is: "
-										<< correspondences.size()
-												/ des1Second->points.size()
-												* 100 << std::endl;
-								//If at least half of the descriptors match, we assume its a correspondence
-								if (correspondences.size()
-										/ des1Second->points.size() > 0.5
-										and correspondences.size() > maxCor2) {
-									maxCor2 = correspondences.size();
-									clusMax = closeCentroid;
-									matches[i] = clusMax;
-									std::cout << "Match accepted" << std::endl;
-								}
-							} else {
-								std::cout
-										<< "Percentage of RIFT correspondences of clusters "
-										<< i << " and " << closeCentroid
-										<< " is: "
-										<< correspondences.size()
-												/ des2Second->points.size()
-												* 100 << std::endl;
-								//If at least half of the descriptors match, we assume its a correspondence
-								if (correspondences.size()
-										/ des2Second->points.size() > 0.5
-										and correspondences.size() > maxCor2
-										/*and correspondences2.size()
-										 / descriptors2SHOT[j]->size()
-										 > 0.5*/) {
-									maxCor2 = correspondences.size();
-									clusMax = closeCentroid;
-									matches[i] = clusMax;
-									//std::cout << "Match accepted" << std::endl;
-								}
+	for (int j = 0; j < clusters_pcl_2.size(); ++j) {
+		myfile << "PCL2 cluster " << j << ":\n";
+		myfile << "\tNumber of points: " << clusters_pcl_2[j]->size() << "\n";
+		if (clusters_pcl_2[j]->size() > 30000)
+			descriptors2.push_back(processRIFTwithSIFT(clusters_pcl_2[j]));
+		else
+			descriptors2.push_back(processRIFT(clusters_pcl_2[j]));
+		myfile << "\tNumber of descriptors: " << descriptors2[j]->size()
+				<< "\n";
+		//Centroid computation
+		std::vector<float> centroid;
+		centroid.push_back(0);
+		centroid.push_back(0);
+		centroid.push_back(0);
+		for (int l = 0; l < clusters_pcl_2.at(j)->size(); ++l) {
+			pcl::PointXYZRGB punto = clusters_pcl_2.at(j)->at(l);
+			centroid[0] += punto.x;
+			centroid[1] += punto.y;
+			centroid[2] += punto.z;
+		}
+		centroid[0] = centroid[0] / clusters_pcl_2.at(j)->size();
+		centroid[1] = centroid[1] / clusters_pcl_2.at(j)->size();
+		centroid[2] = centroid[2] / clusters_pcl_2.at(j)->size();
+		centroidsPCL2.push_back(centroid);
+		myfile << "\tCoordinates of centroid: [" << centroid[0] << ","
+				<< centroid[1] << "," << centroid[2] << "]\n";
+	}
+
+	myfile << "\n------------------------------------\n";
+	myfile << "Information of clusters of PCL 1:\n";
+	myfile << "------------------------------------\n";
+
+	std::vector<pcl::PointCloud<RIFT32>::Ptr> descriptors1;
+	std::vector<std::vector<float> > centroidsPCL1;
+	for (int i = 0; i < clusters_pcl_1.size(); ++i) {
+		myfile << "PCL1 cluster " << i << ":\n";
+		myfile << "\tNumber of points: " << clusters_pcl_1[i]->size() << "\n";
+		//des1VHF = processVHF(clusters_pcl_1[i]);
+		if (clusters_pcl_1[i]->size() > 30000)
+			des1Second = processRIFTwithSIFT(clusters_pcl_1[i]);
+		else
+			des1Second = processRIFT(clusters_pcl_1[i]);
+		myfile << "\tNumber of descriptors: " << des1Second->size() << "\n";
+		descriptors1.push_back(des1Second);
+		//descriptors1SHOT.push_back(processSHOT(clusters_pcl_1[i]));
+		numberDescriptors1.push_back(des1Second->size());
+
+		//Centroid computation
+		std::vector<float> centroid;
+		centroid.push_back(0);
+		centroid.push_back(0);
+		centroid.push_back(0);
+		for (int l = 0; l < clusters_pcl_1.at(i)->size(); ++l) {
+			pcl::PointXYZRGB punto = clusters_pcl_1.at(i)->at(l);
+			centroid[0] += punto.x;
+			centroid[1] += punto.y;
+			centroid[2] += punto.z;
+		}
+		centroid[0] = centroid[0] / clusters_pcl_1.at(i)->size();
+		centroid[1] = centroid[1] / clusters_pcl_1.at(i)->size();
+		centroid[2] = centroid[2] / clusters_pcl_1.at(i)->size();
+		centroidsPCL1.push_back(centroid);
+		myfile << "\tCoordinates of centroid: [" << centroid[0] << ","
+				<< centroid[1] << "," << centroid[2] << "]\n";
+		maxCor2 = 0;
+		matches.push_back(-1);
+		//for (int j = 0; j < clusters_pcl_2.size(); ++j) {
+		//if (distanceCentroids(centroid, centroidsPCL2[j]) < 0.05) {
+		//Get 3 closests centroids
+		std::set<int> indices;
+		std::vector<int> closest;
+		int closest1 = closestCentroid(centroid, centroidsPCL2, indices);
+		indices.insert(closest1);
+		closest.push_back(closest1);
+		int closest2 = closestCentroid(centroid, centroidsPCL2, indices);
+		indices.insert(closest2);
+		closest.push_back(closest2);
+		int closest3 = closestCentroid(centroid, centroidsPCL2, indices);
+		closest.push_back(closest3);
+
+		for (int j = 0; j < 3; ++j) {
+			int closeCentroid = closest[j];
+			if (closeCentroid != -1) {
+				des2Second = descriptors2[closeCentroid];
+				if (!des2Second->empty() and !des1Second->empty()
+						and des2Second->points.size() > 3
+						and des1Second->points.size() > 3) {
+					double coef = (descriptors2[closeCentroid]->points.size()
+							/ des1Second->points.size());
+					if (coef > 0.5 && coef < 2) {
+						std::cout << "Des pcl 1: " << des1Second->points.size()
+								<< std::endl;
+						std::cout << "Des pcl 2: " << des2Second->points.size()
+								<< std::endl;
+						correspondences = matchRIFTFeaturesKnn(des1Second,
+								des2Second);
+						/*correspondences2 = matchSHOT(descriptors1SHOT[i],
+						 descriptors2SHOT[j]);*/
+
+						if (des1Second->points.size()
+								> des2Second->points.size()) {
+							std::cout
+									<< "Percentage of RIFT correspondences of clusters "
+									<< i << " and " << closeCentroid << " is: "
+									<< correspondences.size()
+											/ des1Second->points.size() * 100
+									<< std::endl;
+							//If at least half of the descriptors match, we assume its a correspondence
+							if (correspondences.size()
+									/ des1Second->points.size() > 0.5
+									and correspondences.size() > maxCor2) {
+								maxCor2 = correspondences.size();
+								clusMax = closeCentroid;
+								matches[i] = clusMax;
+								std::cout << "Match accepted" << std::endl;
+							}
+						} else {
+							std::cout
+									<< "Percentage of RIFT correspondences of clusters "
+									<< i << " and " << closeCentroid << " is: "
+									<< correspondences.size()
+											/ des2Second->points.size() * 100
+									<< std::endl;
+							//If at least half of the descriptors match, we assume its a correspondence
+							if (correspondences.size()
+									/ des2Second->points.size() > 0.5
+									and correspondences.size() > maxCor2
+									/*and correspondences2.size()
+									 / descriptors2SHOT[j]->size()
+									 > 0.5*/) {
+								maxCor2 = correspondences.size();
+								clusMax = closeCentroid;
+								matches[i] = clusMax;
+								//std::cout << "Match accepted" << std::endl;
 							}
 						}
 					}
-				} else
-					std::cout << "No closer centroid found" << std::endl;
-				//}
-				/*} else
-				 std::cout << "VHF Not similar for " << i << " and " << j
-				 << std::endl;*/
-			}
-		}
-
-		myfile << "\n------------------------------------\n";
-		myfile << "Information of matches of clusters of PCL 1 and PCL 2:\n";
-		myfile << "------------------------------------\n";
-
-		int pcl1 = 0;
-		int pcl2 = 0;
-		for (int i = 0; i < matches.size(); ++i) {
-			//For each match
-			if (matches[i] != -1) {
-				//Similarity of segments
-				int simil1 = 0;
-				int simil2 = 0;
-				myfile << "\tMatched cluster " << i << " of PCL 1 with cluster "
-						<< matches[i] << " of PCL 2:\n";
-				if (seeClusters) {
-					//Show both segments
-					pcl::visualization::CloudViewer viewer2("Cluster viewer");
-					viewer2.showCloud(clusters_pcl_1[i]);
-					while (!viewer2.wasStopped()) {
-					}
-					pcl::visualization::CloudViewer viewer3("Cluster viewer");
-					viewer3.showCloud(clusters_pcl_2[matches[i]]);
-					while (!viewer3.wasStopped()) {
-					}
 				}
-				//Number of points comparison
-				if (clusters_pcl_1.at(i)->points.size()
-						> clusters_pcl_2.at(matches[i])->points.size()) {
-					++simil1;
-					myfile << "\t\tSegment of PCL 1 has more points: "
-							<< clusters_pcl_1.at(i)->points.size() << " over: "
-							<< clusters_pcl_2.at(matches[i])->points.size()
-							<< "\n";
-				} else if (clusters_pcl_1.at(i)->points.size()
-						< clusters_pcl_2.at(matches[i])->points.size()) {
-					++simil2;
-					myfile << "\t\tSegment of PCL 2 has more points: "
-							<< clusters_pcl_2.at(matches[i])->points.size()
-							<< " over: " << clusters_pcl_1.at(i)->points.size()
-							<< "\n";
-				} else {
-					myfile
-							<< "\t\tBoth segments have the same number of points: "
-							<< clusters_pcl_1.at(i)->points.size() << "\n";
-				}
-
-				//Number of descriptors comparison
-				if (numberDescriptors1[i] > descriptors2[matches[i]]->size()) {
-					++simil1;
-					myfile << "\t\tSegment of PCL 1 has more descriptors: "
-							<< numberDescriptors1[i] << " over: "
-							<< descriptors2[matches[i]]->size() << "\n";
-				} else if (numberDescriptors1[i]
-						< descriptors2[matches[i]]->size()) {
-					++simil2;
-					myfile << "\t\tSegment of PCL 2 has more descriptors: "
-							<< descriptors2[matches[i]]->size() << " over: "
-							<< numberDescriptors1[i] << "\n";
-				} else
-					myfile
-							<< "\t\tBoth segments have the same number of descriptors: "
-							<< numberDescriptors1[i] << "\n";
-
-				//TODO descriptors repeated??
-				//int repetidos1 = numSameDescriptors(descriptors1RIFT[i]);
-				//int repetidos2 = numSameDescriptors(descriptors2[i]);
-
-				//TODO Surface analysis: variance
-				//double var1 = computeVariance(clusters_pcl_1[i]);
-				//double var2 = computeVariance(clusters_pcl_2[matches[i]]);
-
-				//Color based segmentation of both match to find which has more elements with different colors.
-				std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> colors_segments_pcl1 =
-						color_growing_segmentation(clusters_pcl_1[i]);
-				std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> colors_segments_pcl2 =
-						color_growing_segmentation(clusters_pcl_2[matches[i]]);
-				if (colors_segments_pcl1.size() > colors_segments_pcl2.size()) {
-					myfile
-							<< "\t\tSegment of PCL 1 has more elements based on color differences: "
-							<< colors_segments_pcl1.size() << " over "
-							<< colors_segments_pcl2.size() << "\n";
-					/*std::cout
-					 << "Segment of PCL 1 has more elements based on color differences: "
-					 << colors_segments_pcl1.size() << " over "
-					 << colors_segments_pcl2.size() << std::endl;*/
-					++simil1;
-				} else if (colors_segments_pcl1.size()
-						< colors_segments_pcl2.size()) {
-					myfile
-							<< "\t\tSegment of PCL 2 has more elements based on color differences: "
-							<< colors_segments_pcl1.size() << " over "
-							<< colors_segments_pcl2.size() << "\n";
-					/*std::cout
-					 << "Segment of PCL 2 has more elements based on color differences: "
-					 << colors_segments_pcl1.size() << " over "
-					 << colors_segments_pcl2.size() << std::endl;*/
-					++simil2;
-				} else {
-					myfile
-							<< "\t\tSegment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: "
-							<< colors_segments_pcl1.size() << "\n";
-					/*std::cout
-					 << "Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: "
-					 << colors_segments_pcl1.size() << std::endl;*/
-				}
-
-				//Information of general pcl for each segment
-				if (simil1 > simil2)
-					++pcl1;
-				else if (simil1 < simil2)
-					++pcl2;
-			} else {
-				std::cout << "No match" << std::endl;
-				myfile << "\t\tCluster " << i
-						<< " of PCL 1 has no match in PCL 2\n";
-			}
-			myfile
-					<< "      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	\n";
+			} else
+				std::cout << "No closer centroid found" << std::endl;
 		}
-		//Information of general pcl
-		//Number of segments
-		if (clusters_pcl_1.size() > clusters_pcl_2.size())
-			++pcl1;
-		else if (clusters_pcl_2.size() > clusters_pcl_1.size())
-			++pcl2;
-
-		std::cout << std::endl;
-		std::cout << std::endl;
-
-		if (noise) {
-			//Noise measurement: percentage of points removed (noisy points) with respect to original pcl
-			//Noise pcl 1
-			pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
-			sor.setInputCloud(point_cloud1_ptr);
-			sor.setMeanK(50);
-			sor.setStddevMulThresh(1.0);
-			sor.filter(*point_cloud1_nonoise_ptr);
-			/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;
-			 outrem.setInputCloud(point_cloud1_ptr);
-			 outrem.setRadiusSearch(0.8);
-			 outrem.setMinNeighborsInRadius(2);
-			 outrem.filter(*point_cloud1_nonoise_ptr);*/
-			double noise1 = (point_cloud1_ptr->size()
-					- point_cloud1_nonoise_ptr->size())
-					/ point_cloud1_ptr->size();
-			//Noise pcl 2
-			pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor2;
-			sor2.setInputCloud(point_cloud2_ptr);
-			sor2.setMeanK(50);
-			sor2.setStddevMulThresh(1.0);
-			sor2.filter(*point_cloud2_nonoise_ptr);
-			/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem2;
-			 outrem.setInputCloud(point_cloud2_ptr);
-			 outrem.setRadiusSearch(0.8);
-			 outrem.setMinNeighborsInRadius(2);
-			 outrem.filter(*point_cloud2_nonoise_ptr);*/
-			double noise2 = (point_cloud2_ptr->size()
-					- point_cloud2_nonoise_ptr->size())
-					/ point_cloud2_ptr->size();
-			myfile
-					<< "----------------------------------------\n Noise analysis: \n";
-			if (noise1 > noise2) {
-				std::cout << "PCL1 has more noisy points: (%) " << noise1 * 100
-						<< " over: (%) " << noise2 * 100 << std::endl;
-				myfile << "\tPCL1 has more noisy points: (%) " << noise1 * 100
-						<< " over: (%) " << noise2 * 100 << "\n";
-				++pcl2;
-			} else if (noise1 < noise2) {
-				std::cout << "PCL2 has more noisy points: (%) " << noise2 * 100
-						<< " over: (%) " << noise1 * 100 << std::endl;
-				myfile << "\tPCL2 has more noisy points: (%) " << noise2 * 100
-						<< " over: (%) " << noise1 * 100 << "\n";
-				++pcl1;
-			} else {
-				std::cout
-						<< "Both pcl have the same percentage of noisy points: "
-						<< noise1 * 100 << std::endl;
-				myfile << "Both pcl have the same percentage of noisy points: "
-						<< noise1 * 100 << "\n";
-			}
-		}
-
-		std::cout << "----------------------------" << std::endl;
-		std::cout << "score pcl1: " << pcl1 << std::endl;
-		std::cout << "score pcl2: " << pcl2 << std::endl;
-		myfile << "\n----------------------------" << "\n\n";
-		myfile << "Total score pcl1: " << pcl1 << "\n";
-		myfile << "Total score pcl2: " << pcl2 << "\n";
-		myfile.close();
-
-		if (pcl1 > pcl2)
-			return 1;
-		else if (pcl1 < pcl2)
-			return 2;
-		else
-			return 0;
-	} else {
-		myfile << "----------------------------" << "\n\n";
-		myfile
-				<< "ICP could not match the point clouds. They are probably too dissimilar.\n Brief comparison:\n";
-		if (point_cloud1_ptr->size() > point_cloud2_ptr->size()) {
-			std::cout << "PCL1 has more points: " << point_cloud1_ptr->size()
-					<< " over: " << point_cloud2_ptr->size() << std::endl;
-			myfile << "PCL1 has more points: " << point_cloud1_ptr->size()
-					<< " over: " << point_cloud2_ptr->size() << "\n";
-		} else if (point_cloud2_ptr->size() > point_cloud1_ptr->size()) {
-			std::cout << "PCL2 has more points: " << point_cloud2_ptr->size()
-					<< " over: " << point_cloud1_ptr->size() << std::endl;
-			myfile << "PCL2 has more points: " << point_cloud2_ptr->size()
-					<< " over: " << point_cloud1_ptr->size() << "\n";
-		} else {
-			std::cout << "Both PCL have the same number of points" << std::endl;
-			myfile << "Both PCL have the same number of points" << "\n";
-		}
-		myfile.close();
-		return -1;
 	}
+
+	myfile << "\n------------------------------------\n";
+	myfile << "Information of matches of clusters of PCL 1 and PCL 2:\n";
+	myfile << "------------------------------------\n";
+
+	int pcl1 = 0;
+	int pcl2 = 0;
+	int numMatches = 0;
+	for (int i = 0; i < matches.size(); ++i) {
+		//For each match
+		if (matches[i] != -1) {
+			++numMatches;
+			//Similarity of segments
+			int simil1 = 0;
+			int simil2 = 0;
+			myfile << "\tMatched cluster " << i << " of PCL 1 with cluster "
+					<< matches[i] << " of PCL 2:\n";
+			if (seeClusters) {
+				//Show both segments
+				pcl::visualization::CloudViewer viewer2("Cluster viewer");
+				viewer2.showCloud(clusters_pcl_1.at(i));
+				while (!viewer2.wasStopped()) {
+				}
+				pcl::visualization::CloudViewer viewer3("Cluster viewer");
+				viewer3.showCloud(clusters_pcl_2[matches[i]]);
+				while (!viewer3.wasStopped()) {
+				}
+			}
+			//Number of points comparison
+			if (clusters_pcl_1.at(i)->points.size()
+					> clusters_pcl_2.at(matches[i])->points.size()) {
+				++simil1;
+				myfile << "\t\tSegment of PCL 1 has more points: "
+						<< clusters_pcl_1.at(i)->points.size() << " over: "
+						<< clusters_pcl_2.at(matches[i])->points.size() << "\n";
+			} else if (clusters_pcl_1.at(i)->points.size()
+					< clusters_pcl_2.at(matches[i])->points.size()) {
+				++simil2;
+				myfile << "\t\tSegment of PCL 2 has more points: "
+						<< clusters_pcl_2.at(matches[i])->points.size()
+						<< " over: " << clusters_pcl_1.at(i)->points.size()
+						<< "\n";
+			} else {
+				myfile << "\t\tBoth segments have the same number of points: "
+						<< clusters_pcl_1.at(i)->points.size() << "\n";
+			}
+
+			//Number of descriptors comparison
+			if (numberDescriptors1[i] > descriptors2[matches[i]]->size()) {
+				++simil1;
+				myfile << "\t\tSegment of PCL 1 has more descriptors: "
+						<< numberDescriptors1[i] << " over: "
+						<< descriptors2[matches[i]]->size() << "\n";
+			} else if (numberDescriptors1[i]
+					< descriptors2[matches[i]]->size()) {
+				++simil2;
+				myfile << "\t\tSegment of PCL 2 has more descriptors: "
+						<< descriptors2[matches[i]]->size() << " over: "
+						<< numberDescriptors1[i] << "\n";
+			} else
+				myfile
+						<< "\t\tBoth segments have the same number of descriptors: "
+						<< numberDescriptors1[i] << "\n";
+
+			//TODO descriptors repeated??
+			//int repetidos1 = numSameDescriptors(descriptors1RIFT[i]);
+			//int repetidos2 = numSameDescriptors(descriptors2[i]);
+
+			//TODO Surface analysis: variance
+			//double var1 = computeVariance(clusters_pcl_1[i]);
+			//double var2 = computeVariance(clusters_pcl_2[matches[i]]);
+
+			//Color based segmentation of both match to find which has more elements with different colors.
+			std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> colors_segments_pcl1 =
+					color_growing_segmentation(clusters_pcl_1[i]);
+			std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> colors_segments_pcl2 =
+					color_growing_segmentation(clusters_pcl_2[matches[i]]);
+			if (colors_segments_pcl1.size() > colors_segments_pcl2.size()) {
+				myfile
+						<< "\t\tSegment of PCL 1 has more elements based on color differences: "
+						<< colors_segments_pcl1.size() << " over "
+						<< colors_segments_pcl2.size() << "\n";
+				/*std::cout
+				 << "Segment of PCL 1 has more elements based on color differences: "
+				 << colors_segments_pcl1.size() << " over "
+				 << colors_segments_pcl2.size() << std::endl;*/
+				++simil1;
+			} else if (colors_segments_pcl1.size()
+					< colors_segments_pcl2.size()) {
+				myfile
+						<< "\t\tSegment of PCL 2 has more elements based on color differences: "
+						<< colors_segments_pcl1.size() << " over "
+						<< colors_segments_pcl2.size() << "\n";
+				/*std::cout
+				 << "Segment of PCL 2 has more elements based on color differences: "
+				 << colors_segments_pcl1.size() << " over "
+				 << colors_segments_pcl2.size() << std::endl;*/
+				++simil2;
+			} else {
+				myfile
+						<< "\t\tSegment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: "
+						<< colors_segments_pcl1.size() << "\n";
+				/*std::cout
+				 << "Segment of PCL 1 and segment of PCL 2 have the same number of elements based on color differences: "
+				 << colors_segments_pcl1.size() << std::endl;*/
+			}
+
+			//Information of general pcl for each segment
+			if (simil1 > simil2)
+				++pcl1;
+			else if (simil1 < simil2)
+				++pcl2;
+		} else {
+			std::cout << "No match" << std::endl;
+			myfile << "\t\tCluster " << i
+					<< " of PCL 1 has no match in PCL 2\n";
+		}
+		myfile
+				<< "      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	\n";
+	}
+	//Information of general pcl
+	//Number of segments
+	if (clusters_pcl_1.size() > clusters_pcl_2.size())
+		++pcl1;
+	else if (clusters_pcl_2.size() > clusters_pcl_1.size())
+		++pcl2;
+
+	std::cout << std::endl;
+	myfile << "Total number of matches found: " << numMatches << "\n\n";
+
+	if (noise) {
+		//Noise measurement: percentage of points removed (noisy points) with respect to original pcl
+		//Noise pcl 1
+		pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
+		sor.setInputCloud(point_cloud1_ptr);
+		sor.setMeanK(50);
+		sor.setStddevMulThresh(1.5);
+		sor.filter(*point_cloud1_nonoise_ptr);
+		/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;
+		 outrem.setInputCloud(point_cloud1_ptr);
+		 outrem.setRadiusSearch(0.8);
+		 outrem.setMinNeighborsInRadius(2);
+		 outrem.filter(*point_cloud1_nonoise_ptr);*/
+		double noise1 = (point_cloud1_ptr->size()
+				- point_cloud1_nonoise_ptr->size()) / point_cloud1_ptr->size();
+		//Noise pcl 2
+		pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor2;
+		sor2.setInputCloud(point_cloud2_ptr);
+		sor2.setMeanK(50);
+		sor2.setStddevMulThresh(1.5);
+		sor2.filter(*point_cloud2_nonoise_ptr);
+		/*pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem2;
+		 outrem.setInputCloud(point_cloud2_ptr);
+		 outrem.setRadiusSearch(0.8);
+		 outrem.setMinNeighborsInRadius(2);
+		 outrem.filter(*point_cloud2_nonoise_ptr);*/
+		double noise2 = (point_cloud2_ptr->size()
+				- point_cloud2_nonoise_ptr->size()) / point_cloud2_ptr->size();
+		myfile
+				<< "----------------------------------------\n Noise analysis: \n";
+		if (noise1 > noise2) {
+			std::cout << "PCL1 has more noisy points: (%) " << noise1 * 100
+					<< " over: (%) " << noise2 * 100 << std::endl;
+			myfile << "\tPCL1 has more noisy points: (%) " << noise1 * 100
+					<< " over: (%) " << noise2 * 100 << "\n";
+			++pcl2;
+		} else if (noise1 < noise2) {
+			std::cout << "PCL2 has more noisy points: (%) " << noise2 * 100
+					<< " over: (%) " << noise1 * 100 << std::endl;
+			myfile << "\tPCL2 has more noisy points: (%) " << noise2 * 100
+					<< " over: (%) " << noise1 * 100 << "\n";
+			++pcl1;
+		} else {
+			std::cout << "Both pcl have the same percentage of noisy points: "
+					<< noise1 * 100 << std::endl;
+			myfile << "Both pcl have the same percentage of noisy points: "
+					<< noise1 * 100 << "\n";
+		}
+	}
+	std::cout << std::endl;
+	std::cout << "----------------------------" << std::endl;
+	std::cout << "score pcl1: " << pcl1 << std::endl;
+	std::cout << "score pcl2: " << pcl2 << std::endl;
+	myfile << "\n----------------------------" << "\n\n";
+	myfile << "Total score pcl1: " << pcl1 << "\n";
+	myfile << "Total score pcl2: " << pcl2 << "\n";
+	myfile.close();
+
+	if (pcl1 > pcl2)
+		return 1;
+	else if (pcl1 < pcl2)
+		return 2;
+	else
+		return 0;
+
 }
 
 // --------------
@@ -1576,14 +1566,34 @@ int main(int argc, char** argv) {
 		printUsage();
 		return 1;
 	}
-	if (pcl::console::find_argument(argc, argv, "-n") >= 0) {
+	if (pcl::console::find_argument(argc, argv, "-v") >= 0) {
 		seeClusters = true;
 		std::cout << "Visualization of clusters is on." << std::endl;
-	}
-	if (pcl::console::find_argument(argc, argv, "-v") >= 0) {
+	} else
+		std::cout << "Visualization of clusters is off." << std::endl;
+
+	if (pcl::console::find_argument(argc, argv, "-n") >= 0) {
 		noise = true;
 		std::cout << "Noise analysis is on." << std::endl;
-	}
+	} else
+		std::cout << "Noise analysis is off." << std::endl;
+
+	if (pcl::console::find_argument(argc, argv, "-i") >= 0) {
+		icp = true;
+		std::cout << "ICP matching pre-comparison is on." << std::endl;
+	} else
+		std::cout << "ICP matching pre-comparison is off." << std::endl;
+
+	if (pcl::console::find_argument(argc, argv, "-e") >= 0) {
+		euclidean = true;
+		std::cout
+				<< "Euclidean cluster segmentation was selected as main segmentation algorithm."
+				<< std::endl;
+	} else
+		std::cout
+				<< "Region growing segmentation was selected (default) as main segmentation algorithm."
+				<< std::endl;
+
 	std::cout << "------------------------------------" << std::endl;
 	std::vector<int> pcl_filename_indices =
 			pcl::console::parse_file_extension_argument(argc, argv, "ply");
@@ -1606,7 +1616,7 @@ int main(int argc, char** argv) {
 		 spatial_change_detection(argv[pcl_filename_indices[0]],
 		 argv[pcl_filename_indices[1]]);*/
 	} else if (similarity == 0)
-		cout << "The point clouds have the same information" << std::endl;
+		cout << "Both point clouds have the same information" << std::endl;
 
 	std::cout << "--------------------------------\n" << std::endl;
 

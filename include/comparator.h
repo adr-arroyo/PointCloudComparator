@@ -1,7 +1,6 @@
 /*
  * comparator.hpp
  *
- *  Created on: 24 jun. 2017
  *      Author: Adrian Arroyo - adr.arroyo.perez@gmail.com
 
  */

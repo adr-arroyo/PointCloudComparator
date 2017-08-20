@@ -62,22 +62,15 @@ int planar_segmentation(std::string filename) {
 }
 
 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentation(
-		std::string filename) {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(
-			new pcl::PointCloud<pcl::PointXYZRGB>);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_f(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>& point_cloud = *point_cloud_ptr;
-	if (pcl::io::loadPLYFile(filename, point_cloud) == -1) {
-		std::cerr << "Was not able to open file \"" << filename << "\".\n";
-	}
-
 	// Create the filtering object: downsample the dataset using a leaf size of 1cm
 	pcl::VoxelGrid<pcl::PointXYZRGB> vg;
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	vg.setInputCloud(point_cloud_ptr);
-	vg.setLeafSize(0.025f, 0.025f, 0.025f);
+	vg.setLeafSize(0.02f, 0.02f, 0.02f);
 	vg.filter(*cloud_filtered);
 	std::cout << "PointCloud after filtering has: "
 			<< cloud_filtered->points.size() << " data points." << std::endl;
@@ -88,7 +81,6 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentati
 	pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_plane(
 			new pcl::PointCloud<pcl::PointXYZRGB>());
-	pcl::PLYWriter writer;
 	seg.setOptimizeCoefficients(true);
 	seg.setModelType(pcl::SACMODEL_PLANE);
 	seg.setMethodType(pcl::SAC_RANSAC);
@@ -146,17 +138,17 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentati
 				new pcl::PointCloud<pcl::PointXYZRGB>);
 		for (std::vector<int>::const_iterator pit = it->indices.begin();
 				pit != it->indices.end(); ++pit)
-			cloud_cluster->points.push_back(point_cloud_ptr->points[*pit]);
+			cloud_cluster->points.push_back(cloud_filtered->points[*pit]);
 		cloud_cluster->width = cloud_cluster->points.size();
 		cloud_cluster->height = 1;
 		cloud_cluster->is_dense = true;
 
 		std::cout << "PointCloud representing the Cluster: "
 				<< cloud_cluster->points.size() << " data points." << std::endl;
-		pcl::visualization::CloudViewer viewer("Cloud cluster - q to quit");
+		/*pcl::visualization::CloudViewer viewer("Cloud cluster - q to quit");
 		viewer.showCloud(cloud_cluster);
 		while (!viewer.wasStopped()) {
-		}
+		}*/
 		std::vector<int> indices2;
 		pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
 		clusters_pcl.push_back(cloud_cluster);
@@ -232,7 +224,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(
 			new pcl::PointCloud<pcl::PointXYZRGB>);
 	vg.setInputCloud(point_cloud_ptr);
-	vg.setLeafSize(0.025f, 0.025f, 0.025f);
+	vg.setLeafSize(0.02f, 0.02f, 0.02f);
 	vg.filter(*cloud_filtered);
 	std::cout << "PointCloud after filtering has: "
 			<< cloud_filtered->points.size() << " data points." << std::endl;
@@ -270,9 +262,9 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 	reg.setSearchMethod(tree);
 	reg.setNumberOfNeighbours(100);
 	reg.setInputCloud(cloud_filtered);
-	//reg.setIndices (indices);
+	//reg.setIndices(indices);
 	reg.setInputNormals(normals);
-	reg.setSmoothnessThreshold(5.0 / 180.0 * M_PI);
+	reg.setSmoothnessThreshold(3.0 / 180.0 * M_PI);
 	reg.setCurvatureThreshold(1);
 
 	std::vector<pcl::PointIndices> clusters;
@@ -308,40 +300,40 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 	}
 
 	//Store clusters into new pcls and all the clusters in an array of pcls
-	/*std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl;
-	 for (int i = 0; i < clusters.size(); ++i) {
-	 pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(
-	 new pcl::PointCloud<pcl::PointXYZRGB>);
-	 cloud_cluster->width = clusters[i].indices.size();
-	 cloud_cluster->height = 1;
-	 cloud_cluster->is_dense = true;
-	 for (int j = 0; j < clusters[i].indices.size(); ++j) {
-	 //Take the corresponding point of the filtered cloud from the indices for the new pcl
-	 cloud_cluster->push_back(
-	 point_cloud_ptr->at(clusters[i].indices[j]));
-	 }
-	 indices2.clear();
-	 //pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
-	 clusters_pcl.push_back(cloud_cluster);
-	 }*/
-	pcl::ExtractIndices<pcl::PointXYZRGB> extract;
-	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> output_clouds; //vector of point clouds that will hold the cluster clouds
-
+	std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> clusters_pcl;
 	for (int i = 0; i < clusters.size(); ++i) {
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_temp(
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(
 				new pcl::PointCloud<pcl::PointXYZRGB>);
-
-		//extract the cloud from the cluster indices
-		extract.setInputCloud(point_cloud_ptr);
-		pcl::PointIndices cluster = clusters[i];
-		boost::shared_ptr<pcl::PointIndices> indices = boost::make_shared<
-				pcl::PointIndices>(cluster);
-		extract.setIndices(indices);
-		extract.setNegative(false);
-		extract.filter(*cloud_temp);
-
-		output_clouds.push_back(cloud_temp);
+		cloud_cluster->width = clusters[i].indices.size();
+		cloud_cluster->height = 1;
+		cloud_cluster->is_dense = true;
+		for (int j = 0; j < clusters[i].indices.size(); ++j) {
+			//Take the corresponding point of the filtered cloud from the indices for the new pcl
+			cloud_cluster->push_back(
+					cloud_filtered->at(clusters[i].indices[j]));
+		}
+		indices2.clear();
+		//pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
+		clusters_pcl.push_back(cloud_cluster);
 	}
+	/*pcl::ExtractIndices<pcl::PointXYZRGB> extract;
+	 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> output_clouds; //vector of point clouds that will hold the cluster clouds
+
+	 for (int i = 0; i < clusters.size(); ++i) {
+	 pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_temp(
+	 new pcl::PointCloud<pcl::PointXYZRGB>);
+
+	 //extract the cloud from the cluster indices
+	 extract.setInputCloud(point_cloud_ptr);
+	 pcl::PointIndices cluster = clusters[i];
+	 boost::shared_ptr<pcl::PointIndices> indices = boost::make_shared<
+	 pcl::PointIndices>(cluster);
+	 extract.setIndices(indices);
+	 extract.setNegative(false);
+	 extract.filter(*cloud_temp);
+
+	 output_clouds.push_back(cloud_temp);
+	 }*/
 
 	/*for (int i = 0; i < clusters_pcl.size(); ++i) {
 	 pcl::visualization::CloudViewer viewer("Cluster viewer");
@@ -350,7 +342,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 	 }
 	 }*/
 
-	return output_clouds;
+	return clusters_pcl;
 }
 
 int ground_segmentation(std::string filename) {
