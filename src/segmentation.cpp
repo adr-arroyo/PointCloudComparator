@@ -316,24 +316,6 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> region_growing_segmentation(
 		//pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
 		clusters_pcl.push_back(cloud_cluster);
 	}
-	/*pcl::ExtractIndices<pcl::PointXYZRGB> extract;
-	 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> output_clouds; //vector of point clouds that will hold the cluster clouds
-
-	 for (int i = 0; i < clusters.size(); ++i) {
-	 pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_temp(
-	 new pcl::PointCloud<pcl::PointXYZRGB>);
-
-	 //extract the cloud from the cluster indices
-	 extract.setInputCloud(point_cloud_ptr);
-	 pcl::PointIndices cluster = clusters[i];
-	 boost::shared_ptr<pcl::PointIndices> indices = boost::make_shared<
-	 pcl::PointIndices>(cluster);
-	 extract.setIndices(indices);
-	 extract.setNegative(false);
-	 extract.filter(*cloud_temp);
-
-	 output_clouds.push_back(cloud_temp);
-	 }*/
 
 	/*for (int i = 0; i < clusters_pcl.size(); ++i) {
 	 pcl::visualization::CloudViewer viewer("Cluster viewer");
