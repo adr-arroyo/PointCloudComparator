@@ -1584,8 +1584,22 @@ double computeSimilarity(char** argv, std::vector<int> pcl_filename_indices) {
 	myfile << "color elements score pcl2: " << pcl2Color << "\n";
 
 	myfile << "\n----------------------------" << "\n\n";
-	double ratio = ((pcl1Points / pcl2Points) + (pcl1Des / pcl2Des)
-			+ (pcl1Color / pcl2Color)) / 3;
+	double rPoints;
+	if (pcl2Points != 0)
+		rPoints = (pcl1Points / pcl2Points);
+	else
+		rPoints = 0;
+	double rDes;
+	if (pcl2Des != 0)
+		rDes = (pcl1Des / pcl2Des);
+	else
+		rDes = 0;
+	double rColor;
+	if (pcl2Color != 0)
+		rColor = (pcl1Color / pcl2Color);
+	else
+		rColor = 0;
+	double ratio = (rPoints + rDes + rColor) / 3;
 	myfile << "Ratio of similarity over the " << numMatches << " matches: "
 			<< ratio << "\n";
 	double globalRatio = ratio * (numMatches / clusters_pcl_2.size());
