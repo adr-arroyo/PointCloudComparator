@@ -146,9 +146,9 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> euclidean_cluster_segmentati
 		std::cout << "PointCloud representing the Cluster: "
 				<< cloud_cluster->points.size() << " data points." << std::endl;
 		/*pcl::visualization::CloudViewer viewer("Cloud cluster - q to quit");
-		viewer.showCloud(cloud_cluster);
-		while (!viewer.wasStopped()) {
-		}*/
+		 viewer.showCloud(cloud_cluster);
+		 while (!viewer.wasStopped()) {
+		 }*/
 		std::vector<int> indices2;
 		pcl::removeNaNFromPointCloud(*cloud_cluster, *cloud_cluster, indices2);
 		clusters_pcl.push_back(cloud_cluster);
@@ -178,7 +178,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(
 
 		pcl::RegionGrowingRGB<pcl::PointXYZRGB> reg;
 		reg.setInputCloud(point_cloud_ptr);
-		reg.setIndices(indices);
+		//reg.setIndices(indices);
 		reg.setSearchMethod(tree);
 		/*Defaults:*/
 		reg.setDistanceThreshold(10);
@@ -190,12 +190,12 @@ std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> color_growing_segmentation(
 		reg.extract(clusters);
 
 		/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_cloud =
-		 reg.getColoredCloud();
-		 pcl::visualization::CloudViewer viewer("Cluster viewer");
-		 viewer.showCloud(colored_cloud);
-		 while (!viewer.wasStopped()) {
-		 boost::this_thread::sleep(boost::posix_time::microseconds(100));
-		 }*/
+				reg.getColoredCloud();
+		pcl::visualization::CloudViewer viewer("Cluster viewer");
+		viewer.showCloud(colored_cloud);
+		while (!viewer.wasStopped()) {
+			boost::this_thread::sleep(boost::posix_time::microseconds(100));
+		}*/
 
 		for (int i = 0; i < clusters.size(); ++i) {
 			pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(
