@@ -3,13 +3,13 @@
 ### Author 
 * [Adrián Arroyo Pérez](https://www.linkedin.com/in/adrian-arroyo-p%C3%A9rez-85217967/)
 
-### Supervisors
-* [Marc Morenza](https://www.upf.edu/es/web/etic/entry/-/-/97756/409/marc-morenza)
-* [Victor Casamayor](https://www.upf.edu/es/web/etic/entry/-/-/116031/409/victor-casamayor)
+### UPF Supervisors
+* Marc Morenza
+* Victor Casamayor
 
 ## General information
 
-**This programm was developed for the master thesis "Robot 3D mapping: Tunning and Assessment" of UPF's master in Intelligent Interactive Systems**
+**This project was developed as part of the master thesis "Robot 3D mapping: Tunning and Assessment" of UPF's master in Intelligent Interactive Systems in 2017.** 
 
 This package uses: 
 ![PCL library](https://lh5.googleusercontent.com/SeboSH_4TVMvYHOFCWgA-Sjb7PtA-1GoIn4yqicbeDSfR_rGKdTEwGXN7XhBr2EEBJPaTc5DW_Ma7LFbbsBwDO8TqhM2X95hU9Kd6rv7FA-ZkcnUjWQ)
