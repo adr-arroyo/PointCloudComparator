@@ -4,29 +4,33 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/adrian/PointCloudComparator/src/comparator.cpp" "/home/adrian/PointCloudComparator/build/CMakeFiles/comparator.dir/src/comparator.cpp.o"
+  "/mnt/d/WSL_Workspace/proyectos/3dmapping/PointCloudComparator/src/comparator.cpp" "/mnt/d/WSL_Workspace/proyectos/3dmapping/PointCloudComparator/build/CMakeFiles/comparator.dir/src/comparator.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_CXX
+  "DISABLE_LIBUSB_1_0"
   "DISABLE_PCAP"
   "DISABLE_PNG"
-  "EIGEN_USE_NEW_STDVECTOR"
-  "EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET"
+  "vtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL2)"
+  "vtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL2)"
   )
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/usr/include/vtk-5.8"
-  "/usr/include/pcl-1.7"
-  "/usr/include/eigen3"
   "../include"
+  "/usr/include/vtk-7.1"
+  "/usr/include/freetype2"
+  "/usr/include/pcl-1.10"
+  "/usr/include/eigen3"
+  "/usr/include/ni"
+  "/usr/include/openni2"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/adrian/PointCloudComparator/build/CMakeFiles/mylib.dir/DependInfo.cmake"
+  "/mnt/d/WSL_Workspace/proyectos/3dmapping/PointCloudComparator/build/CMakeFiles/mylib.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

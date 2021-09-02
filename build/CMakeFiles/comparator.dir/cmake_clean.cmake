@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/comparator.dir/src/comparator.cpp.o"
-  "comparator.pdb"
   "comparator"
+  "comparator.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

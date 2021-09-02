@@ -1,5 +1,5 @@
-/home/adrian/PointCloudComparator/build/CMakeFiles/rebuild_cache.dir
-/home/adrian/PointCloudComparator/build/CMakeFiles/edit_cache.dir
-/home/adrian/PointCloudComparator/build/CMakeFiles/comparator.dir
-/home/adrian/PointCloudComparator/build/CMakeFiles/segmentator.dir
-/home/adrian/PointCloudComparator/build/CMakeFiles/mylib.dir
+/mnt/d/WSL_Workspace/proyectos/3dmapping/PointCloudComparator/build/CMakeFiles/edit_cache.dir
+/mnt/d/WSL_Workspace/proyectos/3dmapping/PointCloudComparator/build/CMakeFiles/comparator.dir
+/mnt/d/WSL_Workspace/proyectos/3dmapping/PointCloudComparator/build/CMakeFiles/segmentator.dir
+/mnt/d/WSL_Workspace/proyectos/3dmapping/PointCloudComparator/build/CMakeFiles/rebuild_cache.dir
+/mnt/d/WSL_Workspace/proyectos/3dmapping/PointCloudComparator/build/CMakeFiles/mylib.dir

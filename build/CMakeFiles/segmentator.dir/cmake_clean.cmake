@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/segmentator.dir/src/segmentation.cpp.o"
-  "segmentator.pdb"
   "segmentator"
+  "segmentator.pdb"
 )
 
 # Per-language clean rules from dependency scanning.
