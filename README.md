@@ -11,6 +11,8 @@
 
 **This project was developed as part of the master thesis "Robot 3D mapping: Tunning and Assessment" of UPF's master in Intelligent Interactive Systems in 2017.** 
 
+**THE REPOSITORY IS NO LONGER MAINTAINED, BE AWARE OF THIS IF YOU TRY TO USE IT**
+
 This package uses: 
 ![PCL library](https://lh5.googleusercontent.com/SeboSH_4TVMvYHOFCWgA-Sjb7PtA-1GoIn4yqicbeDSfR_rGKdTEwGXN7XhBr2EEBJPaTc5DW_Ma7LFbbsBwDO8TqhM2X95hU9Kd6rv7FA-ZkcnUjWQ)
 
